@@ -1,0 +1,167 @@
+{
+  "directorys": [
+    {
+      "directorys": [],
+      "name": "bin",
+      "files": [
+        {
+          "name": "m2.conf"
+        },
+        {
+          "name": "mvn"
+        },
+        {
+          "name": "mvn.bat"
+        },
+        {
+          "name": "mvnDebug"
+        },
+        {
+          "name": "mvnDebug.bat"
+        },
+        {
+          "name": "mvnyjp"
+        }
+      ]
+    },
+    {
+      "directorys": [],
+      "name": "boot",
+      "files": [
+        {
+          "name": "plexus-classworlds-2.4.jar"
+        }
+      ]
+    },
+    {
+      "directorys": [],
+      "name": "conf",
+      "files": [
+        {
+          "name": "settings-1.xml"
+        },
+        {
+          "name": "settings.xml"
+        },
+        {
+          "name": "settings_bak.xml"
+        }
+      ]
+    },
+    {
+      "directorys": [
+        {
+          "directorys": [],
+          "name": "ext",
+          "files": [
+            {
+              "name": "README.txt"
+            }
+          ]
+        }
+      ],
+      "name": "lib",
+      "files": [
+        {
+          "name": "aether-api-1.13.1.jar"
+        },
+        {
+          "name": "aether-connector-wagon-1.13.1.jar"
+        },
+        {
+          "name": "aether-impl-1.13.1.jar"
+        },
+        {
+          "name": "aether-spi-1.13.1.jar"
+        },
+        {
+          "name": "aether-util-1.13.1.jar"
+        },
+        {
+          "name": "commons-cli-1.2.jar"
+        },
+        {
+          "name": "maven-aether-provider-3.0.4.jar"
+        },
+        {
+          "name": "maven-artifact-3.0.4.jar"
+        },
+        {
+          "name": "maven-compat-3.0.4.jar"
+        },
+        {
+          "name": "maven-core-3.0.4.jar"
+        },
+        {
+          "name": "maven-embedder-3.0.4.jar"
+        },
+        {
+          "name": "maven-model-3.0.4.jar"
+        },
+        {
+          "name": "maven-model-builder-3.0.4.jar"
+        },
+        {
+          "name": "maven-plugin-api-3.0.4.jar"
+        },
+        {
+          "name": "maven-repository-metadata-3.0.4.jar"
+        },
+        {
+          "name": "maven-settings-3.0.4.jar"
+        },
+        {
+          "name": "maven-settings-builder-3.0.4.jar"
+        },
+        {
+          "name": "plexus-cipher-1.7.jar"
+        },
+        {
+          "name": "plexus-component-annotations-1.5.5.jar"
+        },
+        {
+          "name": "plexus-interpolation-1.14.jar"
+        },
+        {
+          "name": "plexus-sec-dispatcher-1.3.jar"
+        },
+        {
+          "name": "plexus-utils-2.0.6.jar"
+        },
+        {
+          "name": "sisu-guava-0.9.9.jar"
+        },
+        {
+          "name": "sisu-guice-3.1.0-no_aop.jar"
+        },
+        {
+          "name": "sisu-inject-bean-2.3.0.jar"
+        },
+        {
+          "name": "sisu-inject-plexus-2.3.0.jar"
+        },
+        {
+          "name": "wagon-file-2.2.jar"
+        },
+        {
+          "name": "wagon-http-2.2-shaded.jar"
+        },
+        {
+          "name": "wagon-provider-api-2.2.jar"
+        }
+      ]
+    }
+  ],
+  "name": "apache-maven-3.0.4",
+  "files": [
+    {
+      "name": "LICENSE.txt"
+    },
+    {
+      "name": "NOTICE.txt"
+    },
+    {
+      "name": "README.txt"
+    }
+  ]
+}
