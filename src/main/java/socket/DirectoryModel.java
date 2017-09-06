@@ -32,4 +32,13 @@ public class DirectoryModel {
     public void setFiles(List<FileModel> files) {
         this.files = files;
     }
+
+    @Override
+    public String toString() {
+        return "DirectoryModel{" +
+                "files=" + files +
+                ", directorys=" + directorys +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

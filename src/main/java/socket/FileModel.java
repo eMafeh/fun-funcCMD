@@ -19,4 +19,12 @@ public class FileModel {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return "FileModel{" +
+                "name='" + name + '\'' +
+                ", length=" + length +
+                '}';
+    }
 }

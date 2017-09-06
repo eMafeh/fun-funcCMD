@@ -1,5 +1,7 @@
 package socket;
 
+import com.alibaba.fastjson.JSON;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,6 +12,17 @@ import java.util.Scanner;
 
 public class SocketFile {
     private static final Scanner SC = new Scanner(System.in);
+
+    private static final int PORT = 4044;
+
+    private static final ServerSocket serverSocket = ThreadLocal.withInitial(() -> {
+        try {
+            return new ServerSocket(PORT);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }).get();
 
     public static void main(String[] args) throws IOException {
 //        while (true) {
@@ -22,25 +35,37 @@ public class SocketFile {
 //            System.out.println("输入路径");
 //            getAllFileList(SC.nextLine().replaceAll("\\\\", "\\\\\\\\")).forEach(System.out::println);
 //        }
-        getFileInt();
+//        getFileInt();
+//        DirectoryModel fileModel = getFileModel("D:\\IDES\\apache-maven-3.0.4");
+//        buildDirectoryFile(fileModel, "D:\\");
+//        System.out.println(new File("G:/c.txt").createNewFile());
+        System.out.println(JSON.toJSON(IOSocketFileSend.getFileModel("D:\\a.txt")));
     }
 
-    public static void getFileInt() throws IOException {
-        String path = "D:\\b.zip";
-        ServerSocket serverSocket = new ServerSocket(4044);
+
+    //接受文件流,成功返回true，失败返回false
+    public static boolean getFileInt(NewFile newFile, boolean append) throws IOException {
+        File path = newFile.file;
+        long fulength = newFile.length;
+        long nowlength = append ? path.length() : 0;
+        if (append && fulength <= nowlength) return true;
         Socket socket = serverSocket.accept();
-        byte[] b = new byte[1 << 20];
-        try (InputStream inputStream = socket.getInputStream(); FileOutputStream fileOutputStream = new FileOutputStream(path, true)) {
+        try (FileOutputStream fileOutputStream = new FileOutputStream(path, append); InputStream inputStream = socket.getInputStream()) {
+            byte[] b = new byte[1 << 16];
             int read;
-            while ((read = inputStream.read(b)) > -1) {
-//                System.out.println(new String(b, 0, read, "GBK"));
+            while (nowlength < fulength) {
+                read = inputStream.read(b);
                 fileOutputStream.write(b, 0, read);
+                nowlength += read;
             }
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
+    //返回文件集合
     public static List<File> getAllFileList(String path) {
         File file = new File(path);
         List<File> list = new ArrayList<>();
@@ -48,6 +73,7 @@ public class SocketFile {
         return list;
     }
 
+    //根据文件目录，返回文件集合
     private static void getAllFileList(File file, List<File> list) {
         list.add(file);
         File[] files;
@@ -55,73 +81,59 @@ public class SocketFile {
             Arrays.stream(files).forEach(a -> getAllFileList(a, list));
     }
 
-    public static DirectoryModel getFile(String path) {
-        File file = new File(path);
-        DirectoryModel directoryModel = new DirectoryModel();
-        //文件，操作然后返回
-        if (!file.isDirectory()) {
-            directoryModel.name = file.getParent();
-            directoryModel.files.add(new FileModel(file));
-            return directoryModel;
-        }
-        buildDirectoryModel(directoryModel, file);
-        return directoryModel;
-    }
+    //根据路径，返回该路径下的文件目录模型
 
-    private static void buildDirectoryModel(DirectoryModel directoryModel, File file) {
-        //目录，操作准备递归
-        directoryModel.name = file.getName();
-        File[] files = file.listFiles();
-        if (files != null)
-            Arrays.stream(files).forEach(a -> {
-                if (a.isDirectory()) {
-                    DirectoryModel directory = new DirectoryModel();
-                    directoryModel.directorys.add(directory);
-                    buildDirectoryModel(directory, a);
-                } else {
-                    directoryModel.files.add(new FileModel(a));
-                }
-            });
-    }
 
     public static void messageOrder(String message) {
 
     }
 
-    public static List<NewFile> buildDirectoryFile(DirectoryModel directoryModel, File file) {
-        directoryModel.name = file.getPath() + "\\" + directoryModel.name;
-        List<NewFile> list = new ArrayList<>();
-        buildDirectoryModel(directoryModel, list);
-        return list;
+    //---------------------------TODO-------------------- 接收方操作
+    //根据目录对象和目标路径生成空文件目录，返回空文件的File和实际文件的总长度记录的list
+    public static FileList buildDirectoryFile(DirectoryModel directoryModel, File file) {
+        return buildDirectoryFile(directoryModel, file.getPath());
     }
 
-    public static List<NewFile> buildDirectoryFile(DirectoryModel directoryModel, String path) {
+    //根据目录对象和目标路径生成空文件目录，返回空文件的File和实际文件的总长度记录的list
+    public static FileList buildDirectoryFile(DirectoryModel directoryModel, String path) {
+        FileList filelist = new FileList();
         directoryModel.name = path + "\\" + directoryModel.name;
-        List<NewFile> list = new ArrayList<>();
-        buildDirectoryModel(directoryModel, list);
-        return list;
+        buildDirectoryModel(directoryModel, filelist.files);
+        return filelist;
     }
 
+    //根据目录对象递归生成空文件目录，把空文件的File和实际文件的总长度记录在list中
     private static void buildDirectoryModel(DirectoryModel directoryModel, List<NewFile> lists) {
         String name = directoryModel.name;
+        //参数有效性判断
+        if (name == null || name.length() == 0)
+            throw new NullPointerException();
+        new File(name).mkdir();//文件夹生成
+
+        //文件生成记录
         directoryModel.files.forEach(a -> {
             NewFile newFile = new NewFile();
             File file = new File(name + "\\" + a.name);
             try {
-                if(!file.createNewFile()&&file.length()>=a.length)
-                    return;
+                file.createNewFile();//无所谓文件是否是新建的，后续还有操作
             } catch (IOException e) {
+                //这个异常在请求文件无法生成的时候发生，添加这个文件也没有意义了
+                e.printStackTrace();
                 return;
             }
 
+            //文件队列追加结果
             newFile.file = file;
             newFile.length = a.length;
             lists.add(newFile);
         });
 
-        directoryModel.directorys.forEach(a->{
-            a.name=name+"\\";
-        });
+        //递归文件夹
+        if (directoryModel.directorys != null)
+            directoryModel.directorys.forEach(a -> {
+                a.name = name + "\\" + a.name;
+                buildDirectoryModel(a, lists);
+            });
     }
 
 }
