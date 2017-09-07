@@ -50,6 +50,7 @@ public class SocketFile {
     }
 
     //返回文件集合
+    @Deprecated
     public static List<File> getAllFileList(String path) {
         File file = new File(path);
         List<File> list = new ArrayList<>();
@@ -58,19 +59,12 @@ public class SocketFile {
     }
 
     //根据文件目录，返回文件集合
+    @Deprecated
     private static void getAllFileList(File file, List<File> list) {
         list.add(file);
         File[] files;
         if (file.isDirectory() && (files = file.listFiles()) != null)
             Arrays.stream(files).forEach(a -> getAllFileList(a, list));
     }
-
-    //根据路径，返回该路径下的文件目录模型
-
-
-    public static void messageOrder(String message) {
-
-    }
-
 
 }

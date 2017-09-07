@@ -23,17 +23,12 @@ public class IOSocketFileSend {
      * @return
      */
     public static IODirectoryModelPackage getFileModel(File file) {
-        String path = file.getPath();
         DirectoryModel directoryModel = new DirectoryModel();
         if (!file.isDirectory())
             directoryModel.getFiles().add(new FileModel(file));
         else
             buildDirectoryModel(directoryModel, file);
         return buildIOPackage(directoryModel, file);
-    }
-
-    public static IODirectoryModelPackage getFileModel(String path) {
-        return getFileModel(new File(path));
     }
 
     //包装成网络格式返回

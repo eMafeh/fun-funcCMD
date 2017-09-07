@@ -11,8 +11,12 @@ import java.io.IOException;
 import java.util.List;
 
 public class IOSocketFileReceive {
-
-
+    /**
+     * 追加远程文件的位置信息
+     * @param ioDirectoryModelPackage
+     * @param file
+     * @return
+     */
     public static FileList buildIODirectory(IODirectoryModelPackage ioDirectoryModelPackage, File file) {
         FileList fileList = buildDirectoryFile(ioDirectoryModelPackage.getDirectoryModel(), file);
         fileList.setSourceIp(ioDirectoryModelPackage.getIp());
@@ -27,16 +31,11 @@ public class IOSocketFileReceive {
      * 目标路径是文件夹，则在该文件夹下生成空文件，记录所有尝试生成的文件
      * 返回的list中包含这些文件，包含远程文件的长度信息
      */
-    public static FileList buildDirectoryFile(DirectoryModel directoryModel, File file) {
+    private static FileList buildDirectoryFile(DirectoryModel directoryModel, File file) {
         if (file.isFile()) throw new IllegalArgumentException(file.getPath() + "路径是一个文件");
         FileList filelist = new FileList();
         buildDirectoryModel(file.getPath(), directoryModel, filelist.getFiles());
         return filelist;
-    }
-
-    //根据目录对象和目标路径生成空文件目录，返回空文件的File和实际文件的总长度记录的list
-    public static FileList buildDirectoryFile(DirectoryModel directoryModel, String path) {
-        return buildDirectoryFile(directoryModel, new File(path));
     }
 
     //根据目录对象递归生成空文件目录，把空文件的File和实际文件的总长度、文件的相对路径记录在list中
@@ -69,6 +68,5 @@ public class IOSocketFileReceive {
                 buildDirectoryModel(path, a, lists);
             });
     }
-//    private static boolean fileInIt(NewFile newFile,){}
 
 }

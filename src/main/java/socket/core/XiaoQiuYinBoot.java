@@ -20,9 +20,24 @@ public class XiaoQiuYinBoot {
         int inport = sc.nextInt();
         System.out.println("请确认对方端口");
         int farport = sc.nextInt();
+
+
         final Flag flag = new Flag();
         flag.flag = true;
-        Thread thread = new Thread(() -> {
+        Thread sendThread = getSendThread(flag, farport, inport);
+        sendThread.start();
+
+        ServerSocketMessageQueue server = ServerSocketMessageQueue.getServer(inport);
+        TimeWaitTank.tank(() -> {
+            String s = server.nextMessage();
+            if (s != null) System.out.println(XqytpMessage.readObject(s));
+        }, flag, 100);
+
+        server.shutdown("退出成功，欢迎下次使用");
+    }
+
+    static Thread getSendThread(Flag flag, int farport, int inport) {
+        return new Thread(() -> {
             ServerSocketMessageSend sender = ServerSocketMessageSend.getSender(host, farport);
             while (flag.flag) {
                 String s = sc.nextLine();
@@ -35,14 +50,5 @@ public class XiaoQiuYinBoot {
             }
             sender.shutDown();
         });
-        thread.start();
-
-        ServerSocketMessageQueue server = ServerSocketMessageQueue.getServer(inport);
-        TimeWaitTank.tank(() -> {
-            String s = server.nextMessage();
-            if (s != null) System.out.println(XqytpMessage.readObject(s));
-        }, flag, 100);
-        server.shutdown("退出成功，欢迎下次使用");
     }
-
 }
