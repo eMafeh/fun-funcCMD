@@ -29,7 +29,7 @@ public class IOSocketFileSend {
             directoryModel.getFiles().add(new FileModel(file));
         else
             buildDirectoryModel(directoryModel, file);
-        return buildIOPackage(directoryModel, PathBuilder.getFromPath(file));
+        return buildIOPackage(directoryModel, file);
     }
 
     public static IODirectoryModelPackage getFileModel(String path) {
@@ -37,11 +37,11 @@ public class IOSocketFileSend {
     }
 
     //包装成网络格式返回
-    private static IODirectoryModelPackage buildIOPackage(DirectoryModel directoryModel, String path) {
+    private static IODirectoryModelPackage buildIOPackage(DirectoryModel directoryModel, File file) {
         IODirectoryModelPackage ioDirectoryModelPackage = new IODirectoryModelPackage();
         ioDirectoryModelPackage.setDirectoryModel(directoryModel);
         ioDirectoryModelPackage.setGetport(IOPortConfig.GETPORT.getPort());
-        ioDirectoryModelPackage.setPath(path);
+        ioDirectoryModelPackage.setPath(PathBuilder.getFromPath(file));
         return ioDirectoryModelPackage;
     }
 

@@ -1,5 +1,6 @@
 package socket;
 
+import socket.messagebuild.PathBuilder;
 import socket.model.DirectoryModel;
 import socket.model.NewFile;
 
@@ -10,16 +11,16 @@ import java.util.List;
 public class IOSocketFileReceive {
     //根据目录对象和目标路径生成空文件目录，返回空文件的File和实际文件的总长度记录的list
     public static FileList buildDirectoryFile(DirectoryModel directoryModel, File file) {
-        return buildDirectoryFile(directoryModel, file.getPath());
+        String path = file.getPath();
+        FileList filelist = new FileList();
+        directoryModel.setName(PathBuilder.addFileName(path ,directoryModel.getName()));
+        buildDirectoryModel(directoryModel, filelist.getFiles());
+        return filelist;
     }
 
     //根据目录对象和目标路径生成空文件目录，返回空文件的File和实际文件的总长度记录的list
     public static FileList buildDirectoryFile(DirectoryModel directoryModel, String path) {
-        FileList filelist = new FileList();
-//        path=path.endsWith()
-        directoryModel.setName(path + "\\" + directoryModel.getName());
-        buildDirectoryModel(directoryModel, filelist.files);
-        return filelist;
+        return buildDirectoryFile(directoryModel,new File(path));
     }
 
     //根据目录对象递归生成空文件目录，把空文件的File和实际文件的总长度记录在list中

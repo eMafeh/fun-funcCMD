@@ -12,4 +12,8 @@ public class PathBuilder {
             }
         return "";
     }
+
+    public static String addFileName(String path,String name){
+        return null;
+    }
 }
