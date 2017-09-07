@@ -1,15 +1,26 @@
-package socket;
+package socket.model;
 
 import java.io.File;
 
 public class FileModel {
-    String name;
-    long length;
+    private String name;
+    private long length;
 
     public FileModel(File file) {
         if (file == null) throw new NullPointerException();
         name = file.getName();
         length = file.length();
+    }
+
+    public FileModel() {
+    }
+
+    public long getLength() {
+        return length;
+    }
+
+    public void setLength(long length) {
+        this.length = length;
     }
 
     public String getName() {

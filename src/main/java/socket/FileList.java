@@ -1,5 +1,7 @@
 package socket;
 
+import socket.model.NewFile;
+
 import java.util.ArrayList;
 import java.util.List;
 

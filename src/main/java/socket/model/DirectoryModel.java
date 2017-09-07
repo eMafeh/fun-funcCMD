@@ -1,13 +1,12 @@
-package socket;
+package socket.model;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DirectoryModel {
-    List<FileModel> files = new ArrayList<>();
-    List<DirectoryModel> directorys = new ArrayList<>();
-    String name;
+    private List<FileModel> files = new ArrayList<>();
+    private List<DirectoryModel> directorys = new ArrayList<>();
+    private String name;
 
     public List<FileModel> getFiles() {
         return files;
