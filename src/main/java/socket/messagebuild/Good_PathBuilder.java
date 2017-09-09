@@ -16,7 +16,7 @@ public class Good_PathBuilder {
     public static String addFileName(String path, String name) {//文件夹名字为null的时候，注意判断，文件路径为null的时候，抛异常
         if (name == null) throw new NullPointerException();
         if (path == null) path = "";
-        char c = path.charAt(path.length());
+        char c = path.charAt(path.length()-1);
         if (c == '\\' || c == '/') return path + name;
         return path + "/" + name;
     }

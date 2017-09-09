@@ -16,12 +16,9 @@ public class IODirectoryModelPackage {
 
     @Override
     public String toString() {
-        return "IODirectoryModelPackage{" +
-                "ip='" + ip + '\'' +
-                ", directoryModel=" + directoryModel +
-                ", path='" + path + '\'' +
-                ", getport=" + getport +
-                '}';
+        return "ip='" + ip + '\'' +
+                        ", getport=" + getport +
+                        ", path='" + path + '\'';
     }
 
     public DirectoryModel getDirectoryModel() {

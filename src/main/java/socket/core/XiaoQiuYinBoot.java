@@ -1,54 +1,76 @@
 package socket.core;
 
+import socket.FileInListener;
+import socket.IOSocketFileSend;
 import socket.model.Good_LocalIP;
+import util.LoopThread;
 
-import java.util.Date;
-import java.util.Scanner;
+import java.io.File;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by snb on 2017/9/6  11:18
  */
 public class XiaoQiuYinBoot {
-    static Scanner sc = new Scanner(System.in);
-    static String host = "10.39.14.191";
+    private static final List<XiaoQiuYinBoot> XQYBOOTS = new Vector<>();
+    private final Flag flag = new Flag();
+    private String host;
+    private int farport;
+    private int inport;
+    private File directory;
+    private ServerSocketInMessageQueue server;
+    private Runnable runnable = () -> {
+        String s = server.nextMessage();
+        if (s != null) userMessage(s);
+    };
 
-    public static void main(String[] args) {
+    private XiaoQiuYinBoot(String host, int farport, int inport, File directory) {
+        this.directory = directory;
+        this.farport = farport;
+        this.host = host;
+        this.inport = inport;
 
-        System.out.println("欢迎使用小蚯蚓聊天工具");
-
-        System.out.println("请确认接收端口");
-        int inport = sc.nextInt();
-        System.out.println("请确认对方端口");
-        int farport = sc.nextInt();
-
-
-        final Flag flag = new Flag();
+        ClientSocketMessageSend.start();
         flag.flag = true;
-        Thread sendThread = getSendThread(flag, farport, inport);
-        sendThread.start();
+        server = ServerSocketInMessageQueue.getServer(inport);
+        XQYBOOTS.add(this);
 
-        ServerSocketMessageQueue server = ServerSocketMessageQueue.getServer(inport);
-        TimeWaitTank.tank(() -> {
-            String s = server.nextMessage();
-            if (s != null) System.out.println(XqytpMessage.readObject(s));
-        }, flag, 100);
+    }
 
+    public static XiaoQiuYinBoot getInstance(String host, int farport, int inport, File directory) {
+        XiaoQiuYinBoot boot = new XiaoQiuYinBoot(host, farport, inport, directory);
+        LoopThread.getLoopThread(1).addLoopTankByTenofOneSecond(boot.runnable, 1, -1);
+        return boot;
+    }
+
+    public void shutdown() {
+        LoopThread.getLoopThread().removeLoopTank(runnable);
+        flag.flag = false;
         server.shutdown("退出成功，欢迎下次使用");
+        XQYBOOTS.remove(this);
     }
 
-    static Thread getSendThread(Flag flag, int farport, int inport) {
-        return new Thread(() -> {
-            ServerSocketMessageSend sender = ServerSocketMessageSend.getSender(host, farport);
-            while (flag.flag) {
-                String s = sc.nextLine();
-                if (!s.isEmpty())
-                    sender.addMessage(XqytpMessage.jsonMessage(s, Good_LocalIP.getIP(), inport));
-                if (s.equals("over")) {
-                    flag.flag = false;
-                    break;
-                }
-            }
-            sender.shutDown();
+    public synchronized static void exit() {
+        XQYBOOTS.forEach(a -> {
+            LoopThread.getLoopThread().removeLoopTank(a.runnable);
+            a.flag.flag = false;
+            a.server.shutdown("退出成功，欢迎下次使用");
         });
+        XQYBOOTS.clear();
+        ClientSocketMessageSend.shutDown();
     }
+
+    public void sendMessage(String message) {
+        String xqymessage = XqytpMessage.jsonMessage(message, Good_LocalIP.getIP(), inport, IOSocketFileSend.getFileModel(new File(message)));
+        ClientSocketMessageSend.addMessage(xqymessage, host, farport);
+    }
+
+    private void userMessage(String message) {
+        XqytpMessage xqytpMessage = XqytpMessage.readObject(message);
+        FileInListener.listenForFile(xqytpMessage.filePackage, directory);
+        System.out.println(xqytpMessage);
+    }
+
+
 }

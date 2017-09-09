@@ -33,6 +33,7 @@ public class IOSocketFileReceive {
      */
     private static FileList buildDirectoryFile(DirectoryModel directoryModel, File file) {
         if (file.isFile()) throw new IllegalArgumentException(file.getPath() + "路径是一个文件");
+        if(!file.exists())file.mkdirs();
         FileList filelist = new FileList();
         buildDirectoryModel(file.getPath(), directoryModel, filelist.getFiles());
         return filelist;

@@ -1,15 +1,9 @@
 package test;
 
-import socket.core.ServerSocketMessageQueue;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Socket;
-
 public class Test {
     public static void main(String[] args) {
 //        System.out.println(1);
-//        ServerSocketMessageQueue.start();
+//        ServerSocketInMessageQueue.start();
 //        try {
 //            Thread.sleep(1000);
 //        } catch (InterruptedException e) {
@@ -20,7 +14,7 @@ public class Test {
 //        }
 //        final Flag flag= new Flag();
 //        new Thread(() -> {
-//            while (flag.flag) System.out.println(ServerSocketMessageQueue.nextMessage());
+//            while (flag.flag) System.out.println(ServerSocketInMessageQueue.nextMessage());
 //        }).start();
 //        for (int i = 0; i < 100; i++)
 //            try {
@@ -34,7 +28,7 @@ public class Test {
 //                e.printStackTrace();
 //            }
 //        System.out.println(3);
-//        ServerSocketMessageQueue.shutdown();
+//        ServerSocketInMessageQueue.shutdown();
 //        flag.flag=false;
     }
 

@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-public class ServerSocketMessageQueue {
-    private static Map<Integer, ServerSocketMessageQueue> SERVERS = new HashMap<>();
+public class ServerSocketInMessageQueue {
+    private static Map<Integer, ServerSocketInMessageQueue> SERVERS = new HashMap<>();
     private int port;
     private Thread thread;
     private ServerSocket serverSocket;
@@ -24,9 +24,9 @@ public class ServerSocketMessageQueue {
     private byte[] b = new byte[1 << 16];
 
 
-    public static ServerSocketMessageQueue getServer(int port) {
+    public static ServerSocketInMessageQueue getServer(int port) {
         if (port < 100 || port > 1 << 16) throw new IllegalArgumentException(port + "");
-        ServerSocketMessageQueue server = SERVERS.computeIfAbsent(port, a -> new ServerSocketMessageQueue(a));
+        ServerSocketInMessageQueue server = SERVERS.computeIfAbsent(port, a -> new ServerSocketInMessageQueue(a));
         synchronized (server) {
             if (!server.flag)
                 server.start();
@@ -34,7 +34,7 @@ public class ServerSocketMessageQueue {
         }
     }
 
-    private ServerSocketMessageQueue(int port) {
+    private ServerSocketInMessageQueue(int port) {
         this.port = port;
         start();
     }

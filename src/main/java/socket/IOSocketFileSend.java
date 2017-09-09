@@ -23,6 +23,7 @@ public class IOSocketFileSend {
      * @return
      */
     public static IODirectoryModelPackage getFileModel(File file) {
+        if (!file.exists()) return null;
         DirectoryModel directoryModel = new DirectoryModel();
         if (!file.isDirectory())
             directoryModel.getFiles().add(new FileModel(file));
