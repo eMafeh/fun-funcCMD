@@ -10,6 +10,7 @@ import java.util.concurrent.*;
 public class LoopThread {
     private boolean flag;
     private Future<String> future;
+    private long BEGIN;
     private int outtimes;
     private int times;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -21,7 +22,7 @@ public class LoopThread {
             return "LoopTank正常结束了";
         }
     };
-    private long BEGIN;
+
     private static final LoopThread LOOP_THREAD = new LoopThread();
 
     private LoopThread() {
@@ -44,14 +45,20 @@ public class LoopThread {
     }
 
     private void onehour() {
-        LoopTanker.LoopTankStream(LoopTanker.hourtank);
-        long end = System.currentTimeMillis() + 3600000;
-        while (end > System.currentTimeMillis() && flag)
-            TenofOneSecond();
+        try {
+            LoopTanker.LoopTankStream(LoopTanker.hourtank);
+            long end = System.currentTimeMillis() + 3600000;
+            while (end > System.currentTimeMillis() && flag)
+                TenofOneSecond();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void TenofOneSecond() {
         try {
+            LoopTanker.removeOrder();
+            LoopTanker.addOrder();
             LoopTanker.LoopTankStream(LoopTanker.secondtank);
             executorService.awaitTermination(100, TimeUnit.MILLISECONDS);
             if (size() != 0) {
@@ -63,21 +70,27 @@ public class LoopThread {
                 flag = false;
                 executorService.shutdown();
             }
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static class LoopTanker implements Runnable {
+
+    private static class LoopTanker {
         private Long begin;
         private Long end;
         private int step;
         private Long last;
         private Runnable runnable;
+        private TankKey tankKey = new TankKey();
         private static final Set<LoopTanker> secondtank = new HashSet<>();
         private static final Set<LoopTanker> hourtank = new HashSet<>();
 
-        public LoopTanker(Long end, int step, Runnable runnable) {
+        private static final Set<LoopTanker> addsecondtank = new HashSet<>();
+        private static final Set<LoopTanker> addhourtank = new HashSet<>();
+        private static final Set<LoopTanker> removeOrdertank = new HashSet<>();
+
+        private LoopTanker(Long end, int step, Runnable runnable) {
             last = begin = System.currentTimeMillis();
             this.end = end;
             this.step = step;
@@ -86,73 +99,86 @@ public class LoopThread {
 
         private static void LoopTankStream(Set<LoopTanker> set) {
             long now = System.currentTimeMillis();
-            Set<LoopTanker> s = new HashSet<>();
-            set.stream().filter(a -> (a.end > 0 && a.end < now)).forEach(a -> s.add(a));
-            set.removeAll(s);
+            Set<LoopTanker> removetank = new HashSet<>();
+            set.stream().filter(a -> (a.end > 0 && a.end < now)).forEach(a -> removetank.add(a));
+            set.removeAll(removetank);
+
             set.stream().filter(a -> ((a.last + a.step) <= now)).forEach(a -> {
-                a.run();
+                a.runnable.run();
                 a.last = now;
             });
+
         }
 
-        private static LoopTanker getLoopTanker(Runnable runnable) {
-            long now = System.currentTimeMillis();
-            LoopTanker lt = cleanAndGet(now, runnable, hourtank);
-            LoopTanker lt2 = cleanAndGet(now, runnable, secondtank);
-            return lt == null ? lt2 : lt;
-        }
-
-        private static LoopTanker cleanAndGet(long now, Runnable runnable, Set<LoopTanker> set) {
-            for (LoopTanker loopTanker : set) {
-                if (loopTanker.end > 0 && loopTanker.end < now) {
-                    set.remove(loopTanker);
-                    continue;
-                }
-                if (loopTanker.runnable == runnable)
-                    return loopTanker;
+        private static void removeOrder() {
+            if (removeOrdertank.size() != 0) {
+                secondtank.removeAll(removeOrdertank);
+                hourtank.removeAll(removeOrdertank);
+                removeOrdertank.clear();
             }
-            return null;
         }
 
-        @Override
-        public void run() {
-            runnable.run();
+        private static void addOrder() {
+            if (addhourtank.size() != 0) {
+                hourtank.addAll(addhourtank);
+                addhourtank.clear();
+            }
+            if (addsecondtank.size() != 0) {
+                secondtank.addAll(addsecondtank);
+                addsecondtank.clear();
+            }
+        }
+
+        private static LoopTanker getLoopTanker(TankKey tankKey) {
+            LoopTanker lt = getTanker(tankKey, hourtank);
+            if (lt != null) return lt;
+            return getTanker(tankKey, secondtank);
+        }
+
+        private static LoopTanker getTanker(TankKey tankKey, Set<LoopTanker> set) {
+            for (LoopTanker loopTanker : set)
+                if (loopTanker.tankKey == tankKey)
+                    return loopTanker;
+            return null;
         }
     }
 
-    public synchronized boolean removeLoopTank(Runnable runnable) {
+    public synchronized boolean removeLoopTank(TankKey tankKey) {
         for (LoopTanker loopTanker : LoopTanker.hourtank) {
-            if (loopTanker.runnable == runnable)
-                return LoopTanker.hourtank.remove(loopTanker);
+            if (loopTanker.tankKey == tankKey) {
+                LoopTanker.removeOrdertank.add(loopTanker);
+                return true;
+            }
         }
         for (LoopTanker loopTanker : LoopTanker.secondtank) {
-            if (loopTanker.runnable == runnable)
-                return LoopTanker.secondtank.remove(loopTanker);
+            if (loopTanker.tankKey == tankKey) {
+                LoopTanker.removeOrdertank.add(loopTanker);
+                return true;
+            }
         }
         return false;
     }
 
-    public boolean addLoopTankByTenofOneSecond(Runnable runnable, int TenofOneSecond, long end) {
-        return addLoopTank(runnable, TenofOneSecond, end, 100, LoopTanker.secondtank);
+    public TankKey addLoopTankByTenofOneSecond(Runnable runnable, int TenofOneSecond, long end) {
+        return addLoopTank(runnable, 100 * TenofOneSecond, end, LoopTanker.addsecondtank);
     }
 
-    public boolean addLoopTankBySec(Runnable runnable, int second, long end) {
-        return addLoopTank(runnable, second, end, 1000, LoopTanker.secondtank);
+    public TankKey addLoopTankBySec(Runnable runnable, int second, long end) {
+        return addLoopTank(runnable, 1000 * second, end, LoopTanker.addsecondtank);
     }
 
-    public boolean addLoopTankByHour(Runnable runnable, int hour, long end) {
-        return addLoopTank(runnable, hour, end, 3600000, LoopTanker.hourtank);
+    public TankKey addLoopTankByHour(Runnable runnable, int hour, long end) {
+        return addLoopTank(runnable, 3600000 * hour, end, LoopTanker.addhourtank);
     }
 
-    private synchronized boolean addLoopTank(Runnable runnable, int hour, long end, int d, Set<LoopTanker> set) {
-        if (hour <= 0)
-            return false;
+    private synchronized TankKey addLoopTank(Runnable runnable, int loop, long end, Set<LoopTanker> set) {
+        if (loop <= 0)
+            return null;
         if (end > 0 && end < System.currentTimeMillis())
-            return false;
-        if (LoopTanker.getLoopTanker(runnable) != null)
-            return false;
-        LoopTanker l = new LoopTanker(end, hour * d, runnable);
-        return set.add(l);
+            return null;
+        LoopTanker l = new LoopTanker(end, loop, runnable);
+        set.add(l);
+        return l.tankKey;
     }
 
     public String shutdown() {
@@ -161,9 +187,7 @@ public class LoopThread {
         executorService.shutdown();
         try {
             return future.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;
@@ -173,11 +197,13 @@ public class LoopThread {
         return System.currentTimeMillis() - BEGIN;
     }
 
-    public long runTime(Runnable runnable) {
-        LoopTanker loopTanker = LoopTanker.getLoopTanker(runnable);
+    public long runTime(TankKey tankKey) {
+        if (tankKey == null) return -1;
+        LoopTanker loopTanker = LoopTanker.getLoopTanker(tankKey);
         if (loopTanker == null) return -1;
         return System.currentTimeMillis() - loopTanker.begin;
     }
+
 
     public synchronized void clear() {
         LoopTanker.secondtank.clear();

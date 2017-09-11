@@ -1,7 +1,10 @@
 package test;
 
+import java.io.File;
+
 public class Test {
     public static void main(String[] args) {
+        System.out.println(new File("D:\\").getPath());
 //        System.out.println(1);
 //        ServerSocketInMessageQueue.start();
 //        try {

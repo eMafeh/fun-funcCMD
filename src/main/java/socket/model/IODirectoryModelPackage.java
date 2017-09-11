@@ -8,6 +8,46 @@ public class IODirectoryModelPackage {
     private int getport;
     private String path;
     private DirectoryModel directoryModel;
+    private int fileSize;
+    private int directorySize;
+    private long length;
+
+    public IODirectoryModelPackage( int getport, String path, DirectoryModel directoryModel, int fileSize, int directorySize, long length) {
+        this.getport = getport;
+        this.path = path;
+        this.directoryModel = directoryModel;
+        this.fileSize = fileSize;
+        this.directorySize = directorySize;
+        this.length = length;
+    }
+
+    public IODirectoryModelPackage() {
+
+    }
+
+    public long getLength() {
+        return length;
+    }
+
+    public void setLength(long length) {
+        this.length = length;
+    }
+
+    public int getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(int fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public int getDirectorySize() {
+        return directorySize;
+    }
+
+    public void setDirectorySize(int directorySize) {
+        this.directorySize = directorySize;
+    }
 
     public String getIp() {
         return ip;
@@ -16,9 +56,14 @@ public class IODirectoryModelPackage {
 
     @Override
     public String toString() {
-        return "ip='" + ip + '\'' +
-                        ", getport=" + getport +
-                        ", path='" + path + '\'';
+        return "IODirectoryModelPackage{" +
+                "ip='" + ip + '\'' +
+                ", getport=" + getport +
+                ", path='" + path + '\'' +
+                ", fileSize=" + fileSize +
+                ", directorySize=" + directorySize +
+                ", length=" + length +
+                '}';
     }
 
     public DirectoryModel getDirectoryModel() {

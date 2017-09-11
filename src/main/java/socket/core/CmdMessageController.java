@@ -32,7 +32,11 @@ public class CmdMessageController {
                 instance.shutdown();
                 break;
             }
-            if (s.startsWith("xqy ")) instance.sendMessage(s.substring(4));
+            try {
+                if (s.startsWith("xqy ")) instance.sendMessage(s.substring(4));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         XiaoQiuYinBoot.exit();
     }

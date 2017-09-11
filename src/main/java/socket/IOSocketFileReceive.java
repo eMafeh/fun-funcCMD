@@ -17,12 +17,11 @@ public class IOSocketFileReceive {
      * @param file
      * @return
      */
-    public static FileList buildIODirectory(IODirectoryModelPackage ioDirectoryModelPackage, File file) {
-        FileList fileList = buildDirectoryFile(ioDirectoryModelPackage.getDirectoryModel(), file);
-        fileList.setSourceIp(ioDirectoryModelPackage.getIp());
-        fileList.setSourcePath(ioDirectoryModelPackage.getPath());
-        fileList.setGetport(ioDirectoryModelPackage.getGetport());
-        return fileList;
+    public static void buildIODirectory(FileList filelist ,IODirectoryModelPackage ioDirectoryModelPackage, File file) {
+        buildDirectoryFile(filelist,ioDirectoryModelPackage.getDirectoryModel(), file);
+        filelist.setSourceIp(ioDirectoryModelPackage.getIp());
+        filelist.setSourcePath(ioDirectoryModelPackage.getPath());
+        filelist.setGetport(ioDirectoryModelPackage.getGetport());
     }
 
     /**
@@ -31,12 +30,10 @@ public class IOSocketFileReceive {
      * 目标路径是文件夹，则在该文件夹下生成空文件，记录所有尝试生成的文件
      * 返回的list中包含这些文件，包含远程文件的长度信息
      */
-    private static FileList buildDirectoryFile(DirectoryModel directoryModel, File file) {
+    private static void buildDirectoryFile(FileList filelist ,DirectoryModel directoryModel, File file) {
         if (file.isFile()) throw new IllegalArgumentException(file.getPath() + "路径是一个文件");
         if(!file.exists())file.mkdirs();
-        FileList filelist = new FileList();
         buildDirectoryModel(file.getPath(), directoryModel, filelist.getFiles());
-        return filelist;
     }
 
     //根据目录对象递归生成空文件目录，把空文件的File和实际文件的总长度、文件的相对路径记录在list中
@@ -56,12 +53,11 @@ public class IOSocketFileReceive {
                 return;
             }
             //文件队列追加结果
-            newFile.setRemoteName(directoryName);
+            newFile.setRemoteName(Good_PathBuilder.addFileName(directoryName, a.getName()));
             newFile.setFile(file);
             newFile.setLength(a.getLength());
             lists.add(newFile);
         });
-
         //递归文件夹
         if (directoryModel.getDirectorys() != null)
             directoryModel.getDirectorys().forEach(a -> {

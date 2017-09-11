@@ -4,6 +4,7 @@ import socket.FileInListener;
 import socket.IOSocketFileSend;
 import socket.model.Good_LocalIP;
 import util.LoopThread;
+import util.TankKey;
 
 import java.io.File;
 import java.util.List;
@@ -24,6 +25,7 @@ public class XiaoQiuYinBoot {
         String s = server.nextMessage();
         if (s != null) userMessage(s);
     };
+    private TankKey tankKey;
 
     private XiaoQiuYinBoot(String host, int farport, int inport, File directory) {
         this.directory = directory;
@@ -40,12 +42,12 @@ public class XiaoQiuYinBoot {
 
     public static XiaoQiuYinBoot getInstance(String host, int farport, int inport, File directory) {
         XiaoQiuYinBoot boot = new XiaoQiuYinBoot(host, farport, inport, directory);
-        LoopThread.getLoopThread(1).addLoopTankByTenofOneSecond(boot.runnable, 1, -1);
+        boot.tankKey = LoopThread.getLoopThread(1).addLoopTankByTenofOneSecond(boot.runnable, 1, -1);
         return boot;
     }
 
     public void shutdown() {
-        LoopThread.getLoopThread().removeLoopTank(runnable);
+        LoopThread.getLoopThread().removeLoopTank(tankKey);
         flag.flag = false;
         server.shutdown("退出成功，欢迎下次使用");
         XQYBOOTS.remove(this);
@@ -53,7 +55,7 @@ public class XiaoQiuYinBoot {
 
     public synchronized static void exit() {
         XQYBOOTS.forEach(a -> {
-            LoopThread.getLoopThread().removeLoopTank(a.runnable);
+            LoopThread.getLoopThread().removeLoopTank(a.tankKey);
             a.flag.flag = false;
             a.server.shutdown("退出成功，欢迎下次使用");
         });
