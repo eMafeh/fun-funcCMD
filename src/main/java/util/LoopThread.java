@@ -144,6 +144,7 @@ public class LoopThread {
     }
 
     public synchronized boolean removeLoopTank(TankKey tankKey) {
+        if (tankKey == null) return false;
         for (LoopTanker loopTanker : LoopTanker.hourtank) {
             if (loopTanker.tankKey == tankKey) {
                 LoopTanker.removeOrdertank.add(loopTanker);
@@ -172,6 +173,7 @@ public class LoopThread {
     }
 
     private synchronized TankKey addLoopTank(Runnable runnable, int loop, long end, Set<LoopTanker> set) {
+        if(runnable==null)return null;
         if (loop <= 0)
             return null;
         if (end > 0 && end < System.currentTimeMillis())

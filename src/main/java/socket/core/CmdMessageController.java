@@ -1,7 +1,5 @@
 package socket.core;
 
-import socket.model.UnUsePort;
-
 import java.io.File;
 import java.util.Scanner;
 
@@ -12,7 +10,7 @@ import static socket.model.UnUsePort.*;
  */
 public class CmdMessageController {
 
-    private static volatile boolean silent = true;
+    private static volatile boolean noSilent = true;
     private static final Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -50,8 +48,10 @@ public class CmdMessageController {
     }
 
     public static <E> void cmdprintln(E e) {
-        if (silent)
+        if (noSilent)
             System.out.println(e);
     }
-
+    public static boolean isNoSilent() {
+        return noSilent;
+    }
 }
