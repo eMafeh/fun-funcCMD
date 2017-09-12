@@ -4,7 +4,6 @@ import socket.FileInListener;
 import socket.IOSocketFileSend;
 import socket.model.Good_LocalIP;
 import util.LoopThread;
-import util.TankKey;
 
 import java.io.File;
 import java.util.List;
@@ -25,7 +24,7 @@ public class XiaoQiuYinBoot {
         String s = server.nextMessage();
         if (s != null) userMessage(s);
     };
-    private TankKey tankKey;
+    private LoopThread.TankKey tankKey;
 
     private XiaoQiuYinBoot(String host, int farport, int inport, File directory) {
         this.directory = directory;
@@ -71,7 +70,7 @@ public class XiaoQiuYinBoot {
     private void userMessage(String message) {
         XqytpMessage xqytpMessage = XqytpMessage.readObject(message);
         FileInListener.listenForFile(xqytpMessage.filePackage, directory);
-        System.out.println(xqytpMessage);
+        CmdMessageController.cmdprintln(xqytpMessage);
     }
 
 

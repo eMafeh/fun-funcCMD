@@ -215,4 +215,6 @@ public class LoopThread {
     public int size() {
         return LoopTanker.hourtank.size() + LoopTanker.secondtank.size();
     }
+    public static class TankKey {
+    }
 }

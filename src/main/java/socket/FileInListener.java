@@ -6,12 +6,10 @@ import socket.model.FileList;
 import socket.model.IODirectoryModelPackage;
 import socket.model.NewFile;
 import util.LoopThread;
-import util.TankKey;
 
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -31,15 +29,16 @@ public class FileInListener {
         List<NewFile> files = fileList.getFiles();
         double fileSize = filePackage.getFileSize();
 
-        TankKey tankKey = showFileNow(files, fileSize);
+        LoopThread.TankKey tankKey = showFileNow(files, fileSize);
 
         Executors.newSingleThreadExecutor().submit(() -> {
             IOSocketFileReceive.buildIODirectory(fileList, filePackage, directory);
+            CmdMessageController.cmdprintln("文件生成完毕");
             LoopThread.getLoopThread().removeLoopTank(tankKey);
         });
     }
 
-    private static TankKey showFileNow(List<NewFile> files, double fileSize) {
+    private static LoopThread.TankKey showFileNow(List<NewFile> files, double fileSize) {
         CountNumValue<Double> c = new CountNumValue<>(0D);
         return CmdMessageController.isNoSilent() ? LoopThread.getLoopThread().addLoopTankByTenofOneSecond(() -> {
             if ((double) files.size() * 100 / fileSize > c.i + 1) {

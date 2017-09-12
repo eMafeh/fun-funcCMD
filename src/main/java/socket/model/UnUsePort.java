@@ -17,11 +17,6 @@ import static java.lang.Integer.*;
 public class UnUsePort {
     private static final Runtime runtime = Runtime.getRuntime();
 
-    public static void main(String[] args) throws IOException {
-        System.out.println(getPort());
-        System.out.println(unUsePort(4000));
-    }
-
     public static Set<Integer> getPort() {
         Set<Integer> ports = new HashSet<>();
         getPort(a -> {

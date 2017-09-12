@@ -55,7 +55,7 @@ public class ClientSocketMessageSend {
         if (!flag.flag) return;
         flag.flag = false;
         thread = null;
-        SendMessages.MESSAGES.forEach(System.out::println);
+        SendMessages.MESSAGES.forEach(CmdMessageController::cmdprintln);
         SendMessages.MESSAGES.clear();
     }
 

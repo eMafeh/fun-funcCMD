@@ -88,7 +88,8 @@ public class ServerSocketInMessageQueue {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        messageQueue.forEach(System.out::println);
+        if (CmdMessageController.isNoSilent())
+            messageQueue.forEach(CmdMessageController::cmdprintln);
         messageQueue.clear();
         serverSocket = null;
     }
