@@ -1,4 +1,4 @@
-package socket.model;
+package util;
 
 
 import java.io.BufferedReader;

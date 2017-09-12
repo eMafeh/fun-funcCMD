@@ -8,5 +8,9 @@ import java.util.function.Function;
  */
 public interface CmdControOrder {
 
+    String getOrderKey();
+
+    String getDescribe();
+
     Function<String, String> getFunction();
 }

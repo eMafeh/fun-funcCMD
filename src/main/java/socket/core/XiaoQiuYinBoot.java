@@ -2,7 +2,7 @@ package socket.core;
 
 import socket.FileInListener;
 import socket.IOSocketFileSend;
-import socket.model.Good_LocalIP;
+import util.Good_LocalIP;
 import util.LoopThread;
 
 import java.io.File;

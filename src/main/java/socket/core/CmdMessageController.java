@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import static socket.model.UnUsePort.*;
+import static util.UnUsePort.*;
 
 /**
  * Created by snb on 2017/9/8  9:50

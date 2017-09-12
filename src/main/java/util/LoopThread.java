@@ -45,14 +45,10 @@ public class LoopThread {
     }
 
     private void onehour() {
-        try {
-            LoopTanker.LoopTankStream(LoopTanker.hourtank);
-            long end = System.currentTimeMillis() + 3600000;
-            while (end > System.currentTimeMillis() && flag)
-                TenofOneSecond();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        LoopTanker.LoopTankStream(LoopTanker.hourtank);
+        long end = System.currentTimeMillis() + 3600000;
+        while (end > System.currentTimeMillis() && flag)
+            TenofOneSecond();
     }
 
     private void TenofOneSecond() {
@@ -100,11 +96,16 @@ public class LoopThread {
         private static void LoopTankStream(Set<LoopTanker> set) {
             long now = System.currentTimeMillis();
             Set<LoopTanker> removetank = new HashSet<>();
-            set.stream().filter(a -> (a.end > 0 && a.end < now)).forEach(a -> removetank.add(a));
+            set.stream().filter(a -> (a.end > 0 && a.end < now)).forEach(removetank::add);
             set.removeAll(removetank);
 
             set.stream().filter(a -> ((a.last + a.step) <= now)).forEach(a -> {
-                a.runnable.run();
+                try {
+                    a.runnable.run();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    removeOrdertank.add(a);
+                }
                 a.last = now;
             });
 
@@ -173,14 +174,14 @@ public class LoopThread {
     }
 
     private synchronized TankKey addLoopTank(Runnable runnable, int loop, long end, Set<LoopTanker> set) {
-        if(runnable==null)return null;
+        if (runnable == null) return null;
         if (loop <= 0)
             return null;
         if (end > 0 && end < System.currentTimeMillis())
             return null;
-        LoopTanker l = new LoopTanker(end, loop, runnable);
-        set.add(l);
-        return l.tankKey;
+        LoopTanker tanker = new LoopTanker(end, loop, runnable);
+        set.add(tanker);
+        return tanker.tankKey;
     }
 
     public String shutdown() {
@@ -215,6 +216,7 @@ public class LoopThread {
     public int size() {
         return LoopTanker.hourtank.size() + LoopTanker.secondtank.size();
     }
+
     public static class TankKey {
     }
 }

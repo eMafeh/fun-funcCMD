@@ -22,6 +22,16 @@ public enum XiaoQiuYinOrder implements CmdControOrder {
     public static Map<String, XiaoQiuYinOrder> orderTank = new HashMap<>();
 
     @Override
+    public String getOrderKey() {
+        return null;
+    }
+
+    @Override
+    public String getDescribe() {
+        return null;
+    }
+
+    @Override
     public Function<String,String> getFunction() {
         return null;
     }

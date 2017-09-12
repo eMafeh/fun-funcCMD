@@ -40,11 +40,11 @@ public class FileInListener {
 
     private static LoopThread.TankKey showFileNow(List<NewFile> files, double fileSize) {
         CountNumValue<Double> c = new CountNumValue<>(0D);
-        return CmdMessageController.isNoSilent() ? LoopThread.getLoopThread().addLoopTankByTenofOneSecond(() -> {
+        return LoopThread.getLoopThread().addLoopTankByTenofOneSecond(() -> {
             if ((double) files.size() * 100 / fileSize > c.i + 1) {
                 c.i = (double) files.size() * 100 / fileSize;
                 CmdMessageController.cmdprintln(files.size() + " 个空文件（" + numberFormat.format(c.i) + "%）已经生成");
             }
-        }, 3, 0) : null;
+        }, 3, 0);
     }
 }

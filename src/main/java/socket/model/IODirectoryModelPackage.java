@@ -1,5 +1,7 @@
 package socket.model;
 
+import util.Good_LocalIP;
+
 /**
  * 用于描述一个主动网络传输的文件夹
  */

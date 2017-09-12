@@ -1,7 +1,7 @@
 package socket.core;
 
 import socket.ServerSocketFactory;
-import socket.model.Good_LocalIP;
+import util.Good_LocalIP;
 
 import java.io.IOException;
 import java.io.InputStream;
