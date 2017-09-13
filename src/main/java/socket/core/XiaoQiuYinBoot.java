@@ -41,7 +41,7 @@ public class XiaoQiuYinBoot {
 
     public static XiaoQiuYinBoot getInstance(String host, int farport, int inport, File directory) {
         XiaoQiuYinBoot boot = new XiaoQiuYinBoot(host, farport, inport, directory);
-        boot.tankKey = LoopThread.getLoopThread(1).addLoopTankByTenofOneSecond(boot.runnable, 1, -1);
+        boot.tankKey = LoopThread.getLoopThread(1).addLoopTankByTenofOneSecond(boot.runnable, 10, -1);
         return boot;
     }
 

@@ -3,14 +3,21 @@ package socket.model;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
- 用于记录本地需要接受的新文件
+ * 用于记录本地需要接受的新文件
  */
 public class FileList {
     private List<NewFile> files = new ArrayList<>();
     private String sourcePath;
     private String sourceIp;
     private int getport;
+
+    public void setMessageByIo(IODirectoryModelPackage filePackage) {
+        getport = filePackage.getGetport();
+        sourcePath = filePackage.getPath();
+        sourceIp = filePackage.getIp();
+    }
 
     public int getGetport() {
         return getport;

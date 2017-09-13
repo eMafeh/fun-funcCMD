@@ -10,6 +10,7 @@ import util.LoopThread;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -26,16 +27,21 @@ public class FileInListener {
         if (filePackage == null) return;
 
         FileList fileList = new FileList();
+        //方法结束后会包含所有的文件信息和远程地址信息，需要后续的线程自动处理
+        fileList.setMessageByIo(filePackage);
+
         List<NewFile> files = fileList.getFiles();
         double fileSize = filePackage.getFileSize();
 
         LoopThread.TankKey tankKey = showFileNow(files, fileSize);
 
-        Executors.newSingleThreadExecutor().submit(() -> {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(() -> {
             IOSocketFileReceive.buildIODirectory(fileList, filePackage, directory);
             CmdMessageController.cmdprintln("文件生成完毕");
             LoopThread.getLoopThread().removeLoopTank(tankKey);
         });
+        executorService.shutdown();
     }
 
     private static LoopThread.TankKey showFileNow(List<NewFile> files, double fileSize) {
