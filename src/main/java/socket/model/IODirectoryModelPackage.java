@@ -1,45 +1,18 @@
 package socket.model;
 
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
-
+/**
+ * 用于描述一个主动网络传输的文件夹
+ */
 public class IODirectoryModelPackage {
-    private static String IP;
-    private String ip = IP;
-    private DirectoryModel directoryModel;
-    private String path;
-
+    private String ip = Good_LocalIP.getIP();
     private int getport;
+    private String path;
+    private DirectoryModel directoryModel;
 
     public String getIp() {
         return ip;
     }
 
-    static {
-        Enumeration<NetworkInterface> networkInterfaces = null;
-        try {
-            networkInterfaces = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException e) {
-        }
-        InetAddress ipadd = null;
-        m:
-        while (networkInterfaces.hasMoreElements()) {
-            NetworkInterface networkInterface = networkInterfaces.nextElement();
-            Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
-            while (inetAddresses.hasMoreElements()) {
-                ipadd = inetAddresses.nextElement();
-                if (ipadd != null && ipadd instanceof Inet4Address) {
-                    IP = ipadd.getHostAddress();
-                    if (IP != null && !IP.equals("127.0.0.1"))
-                        break m;
-                }
-            }
-        }
-
-    }
 
     @Override
     public String toString() {
@@ -75,7 +48,4 @@ public class IODirectoryModelPackage {
         this.getport = getport;
     }
 
-    public static String getIP() {
-        return IP;
-    }
 }

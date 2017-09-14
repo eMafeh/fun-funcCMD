@@ -11,7 +11,7 @@ public class SocketFileClient {
 
     public static void main(String[] args) throws IOException {
         System.out.println("请输入文件路径");
-        String path = sc.nextLine().replaceAll("\\\\","\\\\\\\\");
+        String path = sc.nextLine().replaceAll("\\\\", "\\\\\\\\");
         Socket socket = new Socket("10.39.14.192", 4044);
         byte[] b = new byte[1 << 20];
         try (OutputStream outputStream = socket.getOutputStream();
@@ -23,4 +23,5 @@ public class SocketFileClient {
             e.printStackTrace();
         }
     }
+
 }

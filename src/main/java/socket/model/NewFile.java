@@ -2,16 +2,37 @@ package socket.model;
 
 import java.io.File;
 
+/**
+ * 新文件模型
+ */
 public class NewFile {
     private File file;
     private long length;
+    private String remoteName;
+
+    public NewFile() {
+    }
+
+    public NewFile(File file) {
+
+        this.file = file;
+    }
 
     @Override
     public String toString() {
         return "NewFile{" +
                 "file=" + file +
                 ", length=" + length +
+                ", remoteName='" + remoteName + '\'' +
                 '}';
+    }
+
+    public String getRemoteName() {
+        return remoteName;
+    }
+
+    public void setRemoteName(String remoteName) {
+        this.remoteName = remoteName;
     }
 
     public File getFile() {

@@ -1,8 +1,7 @@
 package socket.config;
 
 public enum  IOPortConfig {
-    GETPORT(4044);
-
+    GETPORT(4044),MESSAGE_PORT(4043);
 
 
     int port;

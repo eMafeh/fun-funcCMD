@@ -1,7 +1,7 @@
 package socket;
 
 import socket.config.IOPortConfig;
-import socket.messagebuild.PathBuilder;
+import socket.messagebuild.Good_PathBuilder;
 import socket.model.DirectoryModel;
 import socket.model.FileModel;
 import socket.model.IODirectoryModelPackage;
@@ -41,7 +41,7 @@ public class IOSocketFileSend {
         IODirectoryModelPackage ioDirectoryModelPackage = new IODirectoryModelPackage();
         ioDirectoryModelPackage.setDirectoryModel(directoryModel);
         ioDirectoryModelPackage.setGetport(IOPortConfig.GETPORT.getPort());
-        ioDirectoryModelPackage.setPath(PathBuilder.getFromPath(file));
+        ioDirectoryModelPackage.setPath(Good_PathBuilder.getFromPath(file));
         return ioDirectoryModelPackage;
     }
 

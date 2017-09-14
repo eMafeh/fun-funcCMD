@@ -1,24 +1,23 @@
-package socket;
+package socket.model;
 
-import socket.model.NewFile;
 
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ 用于记录本地需要接受的新文件
+ */
 public class FileList {
     private List<NewFile> files = new ArrayList<>();
     private String sourcePath;
-    private String nowPath;
     private String sourceIp;
+    private int getport;
 
-    @Override
-    public String toString() {
-        return "FileList{" +
-                "files=" + files +
-                ", sourcePath='" + sourcePath + '\'' +
-                ", nowPath='" + nowPath + '\'' +
-                ", sourceIp='" + sourceIp + '\'' +
-                '}';
+    public int getGetport() {
+        return getport;
+    }
+
+    public void setGetport(int getport) {
+        this.getport = getport;
     }
 
     public List<NewFile> getFiles() {
@@ -37,12 +36,14 @@ public class FileList {
         this.sourcePath = sourcePath;
     }
 
-    public String getNowPath() {
-        return nowPath;
-    }
-
-    public void setNowPath(String nowPath) {
-        this.nowPath = nowPath;
+    @Override
+    public String toString() {
+        return "FileList{" +
+                "files=" + files +
+                ", sourcePath='" + sourcePath + '\'' +
+                ", sourceIp='" + sourceIp + '\'' +
+                ", getport=" + getport +
+                '}';
     }
 
     public String getSourceIp() {

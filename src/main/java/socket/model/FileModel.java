@@ -2,6 +2,9 @@ package socket.model;
 
 import java.io.File;
 
+/**
+ * 文件模型，包含文件名，文件长度
+ */
 public class FileModel {
     private String name;
     private long length;

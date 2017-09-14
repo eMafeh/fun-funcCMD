@@ -1,8 +1,6 @@
 package socket;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import socket.model.IODirectoryModelPackage;
+import socket.config.IOPortConfig;
 import socket.model.NewFile;
 
 import java.io.*;
@@ -15,41 +13,14 @@ import java.util.Scanner;
 
 public class SocketFile {
     private static final Scanner SC = new Scanner(System.in);
+    private static final ServerSocket serverSocket = ServerSocketFactory.getServerSocket(IOPortConfig.GETPORT);
 
-    private static final int PORT = 4044;
-
-    private static final ServerSocket serverSocket = ThreadLocal.withInitial(() -> {
-        try {
-            return new ServerSocket(PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }).get();
 
     public static void main(String[] args) throws IOException {
         System.out.println("请输入路径");
         String path = SC.nextLine();
-//        while (true) {
-//            System.out.println("输入路径");
-//            DirectoryModel file = getFileModel(SC.nextLine().replaceAll("\\\\", "\\\\\\\\"));
-//            Object o = JSON.toJSON(file);
-//            System.out.println(o);
-//        }
-//        while (true) {
-//            System.out.println("输入路径");
-//            getAllFileList().forEach(System.out::println);
-//        }
-//        getFileInt();
-//        DirectoryModel fileModel = getFileModel("D:\\IDES\\apache-maven-3.0.4");
-//        buildDirectoryFile(fileModel, "D:\\");
-//        System.out.println(new File("G:/c.txt").createNewFile());
-        System.out.println(path);
-        File file = new File(path);
-        System.out.println(file.getPath());
-        Object o = JSON.toJSON(IOSocketFileSend.getFileModel(path));
-        IODirectoryModelPackage ioDirectoryModelPackage = JSONObject.parseObject(o.toString(), IODirectoryModelPackage.class);
-        System.out.println(ioDirectoryModelPackage);
+        getFileInt(new NewFile(new File(path)),false);
+
     }
 
 
@@ -63,11 +34,14 @@ public class SocketFile {
         try (FileOutputStream fileOutputStream = new FileOutputStream(path, append); InputStream inputStream = socket.getInputStream()) {
             byte[] b = new byte[1 << 16];
             int read;
-            while (nowlength < fulength) {
-                read = inputStream.read(b);
+            if (fulength > 0)
+                while (nowlength < fulength) {
+                    read = inputStream.read(b);
+                    fileOutputStream.write(b, 0, read);
+                    nowlength += read;
+                }
+            else while ((read = inputStream.read(b)) > -1)
                 fileOutputStream.write(b, 0, read);
-                nowlength += read;
-            }
             return true;
         } catch (IOException e) {
             e.printStackTrace();
