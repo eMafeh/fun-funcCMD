@@ -1,6 +1,6 @@
 package socket;
 
-import socket.messagebuild.Good_PathBuilder;
+import util.Good_PathBuilder;
 import socket.model.DirectoryModel;
 import socket.model.FileList;
 import socket.model.IODirectoryModelPackage;
@@ -13,15 +13,12 @@ import java.util.List;
 public class IOSocketFileReceive {
     /**
      * 追加远程文件的位置信息
-     * @param ioDirectoryModelPackage
-     * @param file
-     * @return
      */
     public static void buildIODirectory(FileList filelist ,IODirectoryModelPackage ioDirectoryModelPackage, File file) {
         buildDirectoryFile(filelist,ioDirectoryModelPackage.getDirectoryModel(), file);
         filelist.setSourceIp(ioDirectoryModelPackage.getIp());
         filelist.setSourcePath(ioDirectoryModelPackage.getPath());
-        filelist.setGetport(ioDirectoryModelPackage.getGetport());
+        filelist.setNoticePort(ioDirectoryModelPackage.getNoticePort());
     }
 
     /**
@@ -31,16 +28,23 @@ public class IOSocketFileReceive {
      * 返回的list中包含这些文件，包含远程文件的长度信息
      */
     private static void buildDirectoryFile(FileList filelist ,DirectoryModel directoryModel, File file) {
-        if (file.isFile()) throw new IllegalArgumentException(file.getPath() + "路径是一个文件");
-        if(!file.exists())file.mkdirs();
+        if (file.isFile()) {
+            throw new IllegalArgumentException(file.getPath() + "路径是一个文件");
+        }
+        if(!file.exists()) {
+            file.mkdirs();
+        }
         buildDirectoryModel(file.getPath(), directoryModel, filelist.getFiles());
     }
 
-    //根据目录对象递归生成空文件目录，把空文件的File和实际文件的总长度、文件的相对路径记录在list中
+    /**
+     * 根据目录对象递归生成空文件目录，把空文件的File和实际文件的总长度、文件的相对路径记录在list中
+     */
     private static void buildDirectoryModel(String path, DirectoryModel directoryModel, List<NewFile> lists) {
         String directoryName = directoryModel.getName();
         String localDirectory = Good_PathBuilder.addFileName(path, directoryName);
-        new File(localDirectory).mkdirs();//文件夹生成
+        //文件夹生成
+        new File(localDirectory).mkdirs();
         //文件生成记录
         directoryModel.getFiles().forEach(a -> {
             NewFile newFile = new NewFile();

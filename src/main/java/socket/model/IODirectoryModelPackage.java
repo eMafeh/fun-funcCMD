@@ -7,15 +7,15 @@ import util.Good_LocalIP;
  */
 public class IODirectoryModelPackage {
     private String ip = Good_LocalIP.getIP();
-    private int getport;
+    private int noticePort;
     private String path;
     private DirectoryModel directoryModel;
     private int fileSize;
     private int directorySize;
     private long length;
 
-    public IODirectoryModelPackage( int getport, String path, DirectoryModel directoryModel, int fileSize, int directorySize, long length) {
-        this.getport = getport;
+    public IODirectoryModelPackage(int noticePort, String path, DirectoryModel directoryModel, int fileSize, int directorySize, long length) {
+        this.noticePort = noticePort;
         this.path = path;
         this.directoryModel = directoryModel;
         this.fileSize = fileSize;
@@ -60,7 +60,7 @@ public class IODirectoryModelPackage {
     public String toString() {
         return "IODirectoryModelPackage{" +
                 "ip='" + ip + '\'' +
-                ", getport=" + getport +
+                ", noticePort=" + noticePort +
                 ", path='" + path + '\'' +
                 ", fileSize=" + fileSize +
                 ", directorySize=" + directorySize +
@@ -84,12 +84,12 @@ public class IODirectoryModelPackage {
         this.path = path;
     }
 
-    public int getGetport() {
-        return getport;
+    public int getNoticePort() {
+        return noticePort;
     }
 
-    public void setGetport(int getport) {
-        this.getport = getport;
+    public void setNoticePort(int noticePort) {
+        this.noticePort = noticePort;
     }
 
 }

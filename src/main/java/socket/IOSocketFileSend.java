@@ -1,8 +1,7 @@
 package socket;
 
 import socket.config.IOPortConfig;
-import socket.messagebuild.Good_PathBuilder;
-import socket.model.CountNumValue;
+import util.Good_PathBuilder;
 import socket.model.DirectoryModel;
 import socket.model.FileModel;
 import socket.model.IODirectoryModelPackage;
@@ -21,33 +20,31 @@ public class IOSocketFileSend {
      * 如果不是文件，递归这个路径，返回的目录模型里，全部都是名称，最高级的目录是当前路径的名字
      * 将这个文件夹模型包装为网络包，返回的网络包中表明网络上找到这些文件需要的全部信息
      *
-     * @param file
-     * @return
      */
     public static IODirectoryModelPackage getFileModel(File file) {
-        CountNumValue<Integer> fileSize = new CountNumValue<>(0);
-        CountNumValue<Integer> directorySize = new CountNumValue<>(0);
-        CountNumValue<Long> allLength = new CountNumValue<>(0L);
+        Integer[] fileSize = {0};
+        Integer[] directorySize = {0};
+        Long[] allLength = {0L};
 
         if (!file.exists()) return null;
         DirectoryModel directoryModel = new DirectoryModel();
         if (!file.isDirectory()) {
             directoryModel.getFiles().add(new FileModel(file));
-            allLength.i += file.length();
-            fileSize.i++;
+            allLength[0] += file.length();
+            fileSize[0]++;
         } else
             buildDirectoryModel(directoryModel, file, fileSize, directorySize, allLength);
         return buildIOPackage(directoryModel, file, fileSize, directorySize, allLength);
     }
 
     //包装成网络格式返回
-    private static IODirectoryModelPackage buildIOPackage(DirectoryModel directoryModel, File file, CountNumValue<Integer> fileSize, CountNumValue<Integer> directorySize, CountNumValue<Long> allLength) {
-        return new IODirectoryModelPackage(IOPortConfig.GETPORT.getPort(), Good_PathBuilder.getFromPath(file), directoryModel, fileSize.i, directorySize.i, allLength.i);
+    private static IODirectoryModelPackage buildIOPackage(DirectoryModel directoryModel, File file, Integer[] fileSize, Integer[] directorySize, Long[] allLength) {
+        return new IODirectoryModelPackage(IOPortConfig.MESSAGE_PORT.getPort(), Good_PathBuilder.getFromPath(file), directoryModel, fileSize[0], directorySize[0], allLength[0]);
     }
 
     //对一个设定的目录模型，根据路径递归填充文件信息
-    private static void buildDirectoryModel(DirectoryModel directoryModel, File file, CountNumValue<Integer> fileSize, CountNumValue<Integer> directorySize, CountNumValue<Long> allLength) {
-        directorySize.i++;
+    private static void buildDirectoryModel(DirectoryModel directoryModel, File file, Integer[] fileSize, Integer[] directorySize, Long[] allLength) {
+        directorySize[0]++;
         //目录，操作准备递归
         directoryModel.setName(file.getName().equals("") ? file.getPath().substring(0, 1) : file.getName());
         File[] files = file.listFiles();
@@ -59,8 +56,8 @@ public class IOSocketFileSend {
                     buildDirectoryModel(directory, a, fileSize, directorySize, allLength);
                 } else {
                     directoryModel.getFiles().add(new FileModel(a));
-                    allLength.i += a.length();
-                    fileSize.i++;
+                    allLength[0] += a.length();
+                    fileSize[0]++;
                 }
             });
     }

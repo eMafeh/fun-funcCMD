@@ -1,17 +1,48 @@
 package test;
 
-import socket.IOSocketFileReceive;
-import socket.core.CmdMessageController;
-import util.LoopThread;
-
-import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class Test {
+    private static ThreadLocal<SimpleDateFormat> local = ThreadLocal.withInitial(() -> new SimpleDateFormat("dd-MMM-yyyy", Locale.US));
+
+
+    static SimpleDateFormat yyyyMMddHHmmss = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
+    static String[] date = {"01-Jan-1999", "01-Jan-2000", "01-Jan-2001"};
+
     public static void main(String[] args) throws ExecutionException, InterruptedException {
+        for (int i = 0; i < date.length; i++) {
+            int temp = i;
+            new Thread(() -> {
+                try {
+                    while (true) {
+                        String str1 = date[temp];
+                        String str2 = local.get().format(local.get().parse(str1));
+                        System.out.println(Thread.currentThread().getName() + "," + str1 + "," + str2);
+                        if (!str1.equals(str2)){
+                            System.out.println(Thread.currentThread().getName() + "expected" + str1 + " : " + str2);
+                            throw new RuntimeException(Thread.currentThread().getName() + "expected" + str1 + " : " + str2);}
+                        Thread.sleep(0);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("shibaile");
+                }
+
+            }).start();
+        }
+
+
+
+
+//        long l = System.currentTimeMillis();
+//        for (int i = 0; i < 10000000; i++) {
+//
+//            System.out.println(yyyyMMddHHmmss.format(new Date()));
+//        }
+//        System.out.println(System.currentTimeMillis() - l);
 //        ExecutorService executorService = Executors.newSingleThreadExecutor();
 //        Future<?> submit = executorService.submit(() -> {
 //            Thread.sleep(1000);
@@ -51,6 +82,27 @@ public class Test {
 //        System.out.println(3);
 //        ServerSocketInMessageQueue.shutdown();
 //        flag.flag=false;
+    }
+    public static void TEST_SimpleDateFormat(){
+        for (int i = 0; i < date.length; i++) {
+            int temp = i;
+            new Thread(() -> {
+                try {
+                    while (true) {
+                        String str1 = date[temp];
+                        String str2 = yyyyMMddHHmmss.format(yyyyMMddHHmmss.parse(str1));
+//                        System.out.println(Thread.currentThread().getName() + "," + str1 + "," + str2);
+                        if (!str1.equals(str2)){
+                            System.out.println(Thread.currentThread().getName() + "expected" + str1 + " : " + str2);
+                            throw new RuntimeException(Thread.currentThread().getName() + "expected" + str1 + " : " + str2);}
+                        Thread.sleep(0);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("shibaile");
+                }
+
+            }).start();
+        }
     }
 
 }

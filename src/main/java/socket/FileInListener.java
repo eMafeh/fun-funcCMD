@@ -1,10 +1,10 @@
 package socket;
 
 import socket.core.CmdMessageController;
-import socket.model.CountNumValue;
 import socket.model.FileList;
 import socket.model.IODirectoryModelPackage;
 import socket.model.NewFile;
+import test.SocketFile;
 import util.LoopThread;
 
 import java.io.File;
@@ -38,19 +38,26 @@ public class FileInListener {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
             IOSocketFileReceive.buildIODirectory(fileList, filePackage, directory);
-            CmdMessageController.cmdprintln("文件生成完毕");
-            LoopThread.getLoopThread().removeLoopTank(tankKey);
+            CmdMessageController.cmdPrintln("文件生成完毕");
+            SocketFile.wantFileList(fileList);
+//            LoopThread.getLoopThread().removeLoopTank(tankKey);
         });
         executorService.shutdown();
+
     }
 
     private static LoopThread.TankKey showFileNow(List<NewFile> files, double fileSize) {
-        CountNumValue<Double> c = new CountNumValue<>(0D);
-        return LoopThread.getLoopThread().addLoopTankByTenofOneSecond(() -> {
-            if ((double) files.size() * 100 / fileSize > c.i + 1) {
-                c.i = (double) files.size() * 100 / fileSize;
-                CmdMessageController.cmdprintln(files.size() + " 个空文件（" + numberFormat.format(c.i) + "%）已经生成");
+        Double[] d = {0D};
+        LoopThread.TankKey[] key = new LoopThread.TankKey[1];
+        key[0] = LoopThread.getLoopThread().addLoopTankByTenofOneSecond(() -> {
+            if ((double) files.size() * 100 / fileSize > d[0] + 1) {
+                d[0] = (double) files.size() * 100 / fileSize;
+                CmdMessageController.cmdPrintln(files.size() + " 个文件（" + numberFormat.format(d[0]) + "%）已经生成");
+            }
+            if (files.size() == fileSize) {
+                LoopThread.getLoopThread().removeLoopTank(key[0]);
             }
         }, 3, 0);
+        return key[0];
     }
 }

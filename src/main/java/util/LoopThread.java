@@ -14,13 +14,10 @@ public class LoopThread {
     private int outtimes;
     private int times;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private final Callable<String> callable = new Callable<String>() {
-        @Override
-        public String call() throws Exception {
-            while (flag)
-                onehour();
-            return "LoopTank正常结束了";
-        }
+    private final Callable<String> callable = () -> {
+        while (flag)
+            onehour();
+        return "LoopTank正常结束了";
     };
 
     private static final LoopThread LOOP_THREAD = new LoopThread();

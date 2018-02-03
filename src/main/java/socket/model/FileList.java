@@ -11,20 +11,20 @@ public class FileList {
     private List<NewFile> files = new ArrayList<>();
     private String sourcePath;
     private String sourceIp;
-    private int getport;
+    private int noticePort;
 
     public void setMessageByIo(IODirectoryModelPackage filePackage) {
-        getport = filePackage.getGetport();
+        noticePort = filePackage.getNoticePort();
         sourcePath = filePackage.getPath();
         sourceIp = filePackage.getIp();
     }
 
-    public int getGetport() {
-        return getport;
+    public int getNoticePort() {
+        return noticePort;
     }
 
-    public void setGetport(int getport) {
-        this.getport = getport;
+    public void setNoticePort(int noticePort) {
+        this.noticePort = noticePort;
     }
 
     public List<NewFile> getFiles() {
@@ -49,7 +49,7 @@ public class FileList {
                 "files=" + files +
                 ", sourcePath='" + sourcePath + '\'' +
                 ", sourceIp='" + sourceIp + '\'' +
-                ", getport=" + getport +
+                ", noticePort=" + noticePort +
                 '}';
     }
 

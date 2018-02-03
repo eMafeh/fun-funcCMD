@@ -1,6 +1,5 @@
 package socket.core;
 
-import socket.ServerSocketFactory;
 import util.Good_LocalIP;
 
 import java.io.IOException;
@@ -16,7 +15,6 @@ import java.util.Vector;
 public class ServerSocketInMessageQueue {
     private static Map<Integer, ServerSocketInMessageQueue> SERVERS = new HashMap<>();
     private int port;
-    private Thread thread;
     private ServerSocket serverSocket;
 
     private final List<String> messageQueue = new Vector<>();
@@ -24,10 +22,11 @@ public class ServerSocketInMessageQueue {
     private byte[] b = new byte[1 << 16];
 
 
-    public static ServerSocketInMessageQueue getServer(int port) {
+    public static ServerSocketInMessageQueue getServer(int port,String showDesc) {
         if (port < 100 || port > 1 << 16) throw new IllegalArgumentException(port + "");
-        ServerSocketInMessageQueue server = SERVERS.computeIfAbsent(port, a -> new ServerSocketInMessageQueue(a));
-        synchronized (server) {
+        ServerSocketInMessageQueue server;
+        System.out.println(showDesc);
+        synchronized (server = SERVERS.computeIfAbsent(port, ServerSocketInMessageQueue::new)) {
             if (!server.flag)
                 server.start();
             return server;
@@ -41,20 +40,23 @@ public class ServerSocketInMessageQueue {
 
     private synchronized void start() {
         if (serverSocket != null) return;
-        serverSocket = ServerSocketFactory.getServerSocket(port);
+        try {
+            serverSocket = new ServerSocket(port);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         flag = true;
-        thread = new Thread(() -> {
+        new Thread(() -> {
             while (flag) {
                 try {
                     String message = getMessage();
-                    if (message != null && message != "")
+                    if (!"".equals(message))
                         messageQueue.add(message);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        });
-        thread.start();
+        }).start();
         System.out.println("接收端已打开");
     }
 
@@ -62,8 +64,9 @@ public class ServerSocketInMessageQueue {
         StringBuilder result = new StringBuilder();
         try (Socket socket = serverSocket.accept(); InputStream inputStream = socket.getInputStream()) {
             int read;
-            while ((read = inputStream.read(b)) > -1)
+            while ((read = inputStream.read(b)) > -1) {
                 result.append(new String(b, 0, read));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -76,7 +79,9 @@ public class ServerSocketInMessageQueue {
     }
 
     public synchronized void shutdown(String over) {
-        if (!flag) return;
+        if (!flag) {
+            return;
+        }
         flag = false;
         try (Socket socket = new Socket(Good_LocalIP.getIP(), port); OutputStream outputStream = socket.getOutputStream()) {
             outputStream.write((over == null ? "" : over).getBytes());
@@ -85,11 +90,13 @@ public class ServerSocketInMessageQueue {
         }
         try {
             Thread.sleep(100);
-        } catch (InterruptedException e) {
+            serverSocket.close();
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
-        if (CmdMessageController.isNoSilent())
-            messageQueue.forEach(CmdMessageController::cmdprintln);
+        if (CmdMessageController.isNoSilent()) {
+            messageQueue.forEach(CmdMessageController::cmdPrintln);
+        }
         messageQueue.clear();
         serverSocket = null;
     }
