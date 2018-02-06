@@ -31,7 +31,7 @@ public class XqytpMessage implements Serializable {
     }
 
     public static String jsonMessage(String message, String backhost, int backport, IODirectoryModelPackage filePackage) {
-        return JSON.toJSON(new XqytpMessage(message, backhost, backport, filePackage)).toString();
+        return JSON.toJSONString(new XqytpMessage(message, backhost, backport, filePackage));
     }
 
     public static XqytpMessage readObject(String json) {

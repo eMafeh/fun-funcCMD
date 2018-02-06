@@ -1,6 +1,7 @@
 package socket.core;
 
-import util.Good_LocalIP;
+import socket.config.CharsetConfig;
+import util.LocalIp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,46 +13,66 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import static util.UnUsePort.unUsePort;
+
+/**
+ * @author qianrui
+ */
 public class ServerSocketInMessageQueue {
-    private static Map<Integer, ServerSocketInMessageQueue> SERVERS = new HashMap<>();
+    private static final Map<Integer, ServerSocketInMessageQueue> SERVERS = new HashMap<>();
+
     private int port;
     private ServerSocket serverSocket;
-
+    private volatile boolean flag = false;
     private final List<String> messageQueue = new Vector<>();
-    private volatile boolean flag;
     private byte[] b = new byte[1 << 16];
 
+    public synchronized static ServerSocketInMessageQueue getServer(int inPort) throws IllegalArgumentException {
+        ServerSocketInMessageQueue messageQueue = SERVERS.get(inPort);
+        if (messageQueue != null && messageQueue.flag) {
+            throw new IllegalArgumentException(inPort + "该信息队列已经被使用");
+        }
+        checkPort(inPort);
+        if (messageQueue == null) {
+            messageQueue = new ServerSocketInMessageQueue();
+        }
 
-    public static ServerSocketInMessageQueue getServer(int port,String showDesc) {
-        if (port < 100 || port > 1 << 16) throw new IllegalArgumentException(port + "");
-        ServerSocketInMessageQueue server;
-        System.out.println(showDesc);
-        synchronized (server = SERVERS.computeIfAbsent(port, ServerSocketInMessageQueue::new)) {
-            if (!server.flag)
-                server.start();
-            return server;
+        try {
+            messageQueue.serverSocket = new ServerSocket(inPort);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(inPort + "端口被占用", e);
+        }
+        messageQueue.port = inPort;
+        messageQueue.start();
+        SERVERS.put(inPort, messageQueue);
+        return messageQueue;
+    }
+
+    private static void checkPort(int inPort) throws IllegalArgumentException {
+        if (inPort < 100 || inPort > 1 << 16) {
+            throw new IllegalArgumentException(inPort + "端口不合适");
+        }
+        if (!unUsePort(inPort)) {
+            throw new IllegalArgumentException(inPort + "端口被占用");
         }
     }
 
-    private ServerSocketInMessageQueue(int port) {
-        this.port = port;
-        start();
+    private ServerSocketInMessageQueue() {
     }
 
     private synchronized void start() {
-        if (serverSocket != null) return;
-        try {
-            serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (flag) {
+            return;
         }
         flag = true;
         new Thread(() -> {
+            String message;
             while (flag) {
                 try {
-                    String message = getMessage();
-                    if (!"".equals(message))
+                    message = getMessage();
+                    if (!"".equals(message)) {
                         messageQueue.add(message);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -60,12 +81,13 @@ public class ServerSocketInMessageQueue {
         System.out.println("接收端已打开");
     }
 
+
     private String getMessage() throws IOException {
         StringBuilder result = new StringBuilder();
         try (Socket socket = serverSocket.accept(); InputStream inputStream = socket.getInputStream()) {
             int read;
             while ((read = inputStream.read(b)) > -1) {
-                result.append(new String(b, 0, read));
+                result.append(new String(b, 0, read, CharsetConfig.UTF8));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -83,8 +105,8 @@ public class ServerSocketInMessageQueue {
             return;
         }
         flag = false;
-        try (Socket socket = new Socket(Good_LocalIP.getIP(), port); OutputStream outputStream = socket.getOutputStream()) {
-            outputStream.write((over == null ? "" : over).getBytes());
+        try (Socket socket = new Socket(LocalIp.getIP(), port); OutputStream outputStream = socket.getOutputStream()) {
+            outputStream.write((over == null ? "" : over).getBytes(CharsetConfig.UTF8));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -103,5 +125,9 @@ public class ServerSocketInMessageQueue {
 
     public synchronized boolean isalive() {
         return flag;
+    }
+
+    public int getPort() {
+        return port;
     }
 }

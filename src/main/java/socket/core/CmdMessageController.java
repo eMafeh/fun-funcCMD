@@ -1,13 +1,13 @@
 package socket.core;
 
 import socket.FileOutListener;
-import socket.config.IOPortConfig;
-import util.Good_LocalIP;
+import util.AllThreadUtil;
+import util.LocalIp;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
-
-import static util.UnUsePort.unUsePort;
 
 /**
  * 2017/9/8  9:50
@@ -17,19 +17,16 @@ import static util.UnUsePort.unUsePort;
 public class CmdMessageController {
     private static final Scanner SC = new Scanner(System.in);
 
-
+    private static final List<String> nameSpace = new ArrayList<>();
     private static volatile boolean noSilent = true;
 
     public static void main(String[] args) {
-        boolean[] flag = new boolean[1];
-        flag[0] = true;
-        //先完成文件监听
-        new Thread(() -> FileOutListener.init(IOPortConfig.MESSAGE_PORT.getPort(), flag)).start();
+        FileOutListener.init();
 
 
         XiaoQiuYinBoot instance = null;
         while (true) {
-            String s = SC.nextLine();
+            String s = SC.nextLine().trim();
             if ("exit".equals(s)) {
                 break;
             }
@@ -44,7 +41,11 @@ public class CmdMessageController {
             }
 
             if ("xqy run".equals(s) && instance == null) {
-                instance = xqy();
+                try {
+                    instance = xqy();
+                } catch (Throwable throwable) {
+                    System.out.println(throwable.getMessage());
+                }
                 continue;
             }
             if (instance == null) {
@@ -65,15 +66,16 @@ public class CmdMessageController {
                 e.printStackTrace();
             }
         }
-        flag[0] = false;
+        FileOutListener.shutDown();
         XiaoQiuYinBoot.exit();
+        AllThreadUtil.exit();
     }
 
     /**
      * TODO cmd core operate>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
      */
-    static XiaoQiuYinBoot xqy() {
-        int inPort;
+
+    static XiaoQiuYinBoot xqy() throws Throwable {
         int farPort;
         String farHost;
 
@@ -81,21 +83,23 @@ public class CmdMessageController {
 
         System.out.println("欢迎使用小蚯蚓聊天工具");
 
+        ServerSocketInMessageQueue xqyServer;
         while (true) {
-            inPort = getInt("请确认接收端口");
-            if (unUsePort(inPort)) {
+            try {
+                xqyServer = ServerSocketInMessageQueue.getServer(getInt("请确认小蚯蚓信息接收端口"));
                 break;
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
             }
-            System.out.println(inPort + "该端口被占用，请选择其他端口");
         }
+        System.out.println("小蚯蚓信息接收端口成功打开" + xqyServer.getPort());
+
         farPort = getInt("请确认对方端口");
 
-
-//        System.out.println("请确认对方ip");
-//        farHost = SC.nextLine().trim();
-        farHost = Good_LocalIP.getIP();
+        System.out.println("请确认对方ip");
+        farHost = SC.nextLine().trim();
         System.out.println("使用愉快，输入 xqy over 退出，输入help查看完整指令");
-        return XiaoQiuYinBoot.getInstance(farHost, farPort, inPort, new File(downLoadPath));
+        return XiaoQiuYinBoot.getInstance(farHost.endsWith("") ? LocalIp.getIP() : farHost, farPort, xqyServer, new File(downLoadPath));
     }
 
 //    private static final Map<String, CmdControOrder> ORDERTANK = new HashMap<>();
@@ -120,11 +124,15 @@ public class CmdMessageController {
     /**
      * TODO basic cmd input or output operate>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
      */
-    public static int getInt(String title) {
+    public static int getInt(String title) throws Throwable {
         while (true) {
             try {
                 System.out.println(title);
-                return Integer.parseInt(SC.nextLine());
+                String line = SC.nextLine();
+                if ("exit".equals(line.trim())) {
+                    throw new Throwable("终止操作");
+                }
+                return Integer.parseInt(line);
             } catch (Exception e) {
                 //
             }

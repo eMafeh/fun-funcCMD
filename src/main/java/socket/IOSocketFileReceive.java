@@ -1,6 +1,6 @@
 package socket;
 
-import util.Good_PathBuilder;
+import util.PathBuilder;
 import socket.model.DirectoryModel;
 import socket.model.FileList;
 import socket.model.IODirectoryModelPackage;
@@ -42,13 +42,13 @@ public class IOSocketFileReceive {
      */
     private static void buildDirectoryModel(String path, DirectoryModel directoryModel, List<NewFile> lists) {
         String directoryName = directoryModel.getName();
-        String localDirectory = Good_PathBuilder.addFileName(path, directoryName);
+        String localDirectory = PathBuilder.addFileName(path, directoryName);
         //文件夹生成
         new File(localDirectory).mkdirs();
         //文件生成记录
         directoryModel.getFiles().forEach(a -> {
             NewFile newFile = new NewFile();
-            File file = new File(Good_PathBuilder.addFileName(localDirectory, a.getName()));
+            File file = new File(PathBuilder.addFileName(localDirectory, a.getName()));
             try {
                 file.createNewFile();//无所谓文件是否是新建的，后续还有操作
             } catch (IOException e) {
@@ -57,17 +57,18 @@ public class IOSocketFileReceive {
                 return;
             }
             //文件队列追加结果
-            newFile.setRemoteName(Good_PathBuilder.addFileName(directoryName, a.getName()));
+            newFile.setRemoteName(PathBuilder.addFileName(directoryName, a.getName()));
             newFile.setFile(file);
             newFile.setLength(a.getLength());
             lists.add(newFile);
         });
         //递归文件夹
-        if (directoryModel.getDirectorys() != null)
+        if (directoryModel.getDirectorys() != null) {
             directoryModel.getDirectorys().forEach(a -> {
-                a.setName(Good_PathBuilder.addFileName(directoryName, a.getName()));
+                a.setName(PathBuilder.addFileName(directoryName, a.getName()));
                 buildDirectoryModel(path, a, lists);
             });
+        }
     }
 
 }

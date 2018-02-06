@@ -8,8 +8,9 @@ import java.util.Enumeration;
 
 /**
  * 动态获取本机的inet4ip地址
+ * @author qianrui
  */
-public class Good_LocalIP {
+public class LocalIp {
     private static String IP;
 
     static {
@@ -17,8 +18,10 @@ public class Good_LocalIP {
         try {
             networkInterfaces = NetworkInterface.getNetworkInterfaces();
         } catch (SocketException e) {
+            //
         }
-        InetAddress ipadd = null;
+        InetAddress ipadd;
+        assert networkInterfaces != null;
         m:
         while (networkInterfaces.hasMoreElements()) {
             NetworkInterface networkInterface = networkInterfaces.nextElement();
@@ -27,8 +30,9 @@ public class Good_LocalIP {
                 ipadd = inetAddresses.nextElement();
                 if (ipadd != null && ipadd instanceof Inet4Address) {
                     IP = ipadd.getHostAddress();
-                    if (IP != null && !IP.equals("127.0.0.1"))
+                    if (IP != null && !"127.0.0.1".equals(IP)) {
                         break m;
+                    }
                 }
             }
         }

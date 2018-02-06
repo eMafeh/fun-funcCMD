@@ -1,5 +1,8 @@
 package socket.core;
 
+/**
+ * @author kelaite
+ */
 class Flag {
-    volatile boolean flag;
+    public volatile boolean isRun;
 }

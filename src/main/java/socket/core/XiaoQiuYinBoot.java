@@ -2,7 +2,7 @@ package socket.core;
 
 import socket.FileInListener;
 import socket.IOSocketFileSend;
-import util.Good_LocalIP;
+import util.LocalIp;
 import util.LoopThread;
 
 import java.io.File;
@@ -17,7 +17,6 @@ public class XiaoQiuYinBoot {
     private final Flag flag = new Flag();
     private String host;
     private int farPort;
-    private int inPort;
     private File directory;
     private ServerSocketInMessageQueue server;
     private Runnable runnable = () -> {
@@ -28,28 +27,27 @@ public class XiaoQiuYinBoot {
     };
     private LoopThread.TankKey tankKey;
 
-    private XiaoQiuYinBoot(String host, int farPort, int inPort, File directory) {
+    private XiaoQiuYinBoot(String host, int farPort, ServerSocketInMessageQueue server, File directory) {
         this.directory = directory;
         this.farPort = farPort;
         this.host = host;
-        this.inPort = inPort;
 
         ClientSocketMessageSend.start();
-        flag.flag = true;
-        server = ServerSocketInMessageQueue.getServer(inPort,"小蚯蚓客户端");
+        flag.isRun = true;
+        this.server = server;
         XQY_BOOTS.add(this);
 
     }
 
-    public static XiaoQiuYinBoot getInstance(String host, int farPort, int inPort, File directory) {
-        XiaoQiuYinBoot boot = new XiaoQiuYinBoot(host, farPort, inPort, directory);
+    public static XiaoQiuYinBoot getInstance(String host, int farPort, ServerSocketInMessageQueue server, File directory) {
+        XiaoQiuYinBoot boot = new XiaoQiuYinBoot(host, farPort, server, directory);
         boot.tankKey = LoopThread.getLoopThread(1).addLoopTankByTenofOneSecond(boot.runnable, 1, -1);
         return boot;
     }
 
     public void shutdown() {
         LoopThread.getLoopThread().removeLoopTank(tankKey);
-        flag.flag = false;
+        flag.isRun = false;
         server.shutdown("退出成功，欢迎下次使用");
         XQY_BOOTS.remove(this);
     }
@@ -57,7 +55,7 @@ public class XiaoQiuYinBoot {
     public synchronized static void exit() {
         XQY_BOOTS.forEach(a -> {
             LoopThread.getLoopThread().removeLoopTank(a.tankKey);
-            a.flag.flag = false;
+            a.flag.isRun = false;
             a.server.shutdown("退出成功，欢迎下次使用");
         });
         XQY_BOOTS.clear();
@@ -65,7 +63,7 @@ public class XiaoQiuYinBoot {
     }
 
     public void sendMessage(String message) {
-        String xqyMessage = XqytpMessage.jsonMessage(message, Good_LocalIP.getIP(), inPort, IOSocketFileSend.getFileModel(new File(message)));
+        String xqyMessage = XqytpMessage.jsonMessage(message, LocalIp.getIP(), server.getPort(), IOSocketFileSend.getFileModel(message));
         ClientSocketMessageSend.addMessage(xqyMessage, host, farPort);
     }
 

@@ -14,7 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by QianRui on 2017/9/14  10:55
+ * 2017/9/14  10:55
+ *
+ * @author QianRui
  */
 public class BeanToMap {
 
@@ -31,7 +33,7 @@ public class BeanToMap {
 
     public static <E> Map<String, Object> getMap(E e) {
         if (e == null) {
-            return new HashMap<>();
+            return new HashMap<>(5);
         }
         try {
             if (e instanceof String) {
@@ -39,7 +41,7 @@ public class BeanToMap {
             }
             return JSONObject.parseObject(JSONObject.toJSONString(e));
         } catch (Exception e1) {
-            return new HashMap<>();
+            return new HashMap<>(5);
         }
     }
 
@@ -47,10 +49,9 @@ public class BeanToMap {
         return getMapList(list);
     }
 
-    //BeanUtils.populate 不自动创建对象递归，
-    // BeanMap.create 也不支持  ，
-    // 暂时通过fastjson中转,有次级map则自动创建对象 TODO
-    //fastJson的key名称固定首字母小写，传入得对象如果对大小写有需求，请添加jsonfield注解到getset方法上 TODO
+    /**
+     * fastJson的key名称固定首字母小写，传入得对象如果对大小写有需求，请添加jsonfield注解到getset方法上
+     */
     public static <E> E getBean(Object obj, Class<E> e) {
         try {
             if (obj instanceof String) {
@@ -78,18 +79,21 @@ public class BeanToMap {
         return beanSerializer;
     }
 
-    //比正常get方法的速度慢，一亿次需要1400毫秒，正常一亿次为3-4毫秒(其中两毫秒是循环时间。。)
+    /**
+     * 比正常get方法的速度慢，一亿次需要1400毫秒，正常一亿次为3-4毫秒(其中两毫秒是循环时间。。)
+     */
     public static <T> T getFieldValue(Object object, String field) throws Exception {
         if (object == null || field == null || field.length() == 0) {
             return null;
         }
         JavaBeanSerializer serializer = getJavaBeanSerializer(object.getClass());
-        @SuppressWarnings({"unchecked"})
-        T value = (T) serializer.getFieldValue(object, field);
+        @SuppressWarnings({"unchecked"}) T value = (T) serializer.getFieldValue(object, field);
         return value;
     }
 
-    //比正常set方法的速度慢，一亿次需要1800毫秒
+    /**
+     * 比正常set方法的速度慢，一亿次需要1800毫秒
+     */
     public static void setValue(Object bean, String field, Object value) throws Exception {
         if (bean == null || field == null || field.length() == 0) {
             return;

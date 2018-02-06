@@ -1,12 +1,13 @@
 package socket.model;
 
-import util.Good_LocalIP;
+import util.LocalIp;
 
 /**
  * 用于描述一个主动网络传输的文件夹
  */
 public class IODirectoryModelPackage {
-    private String ip = Good_LocalIP.getIP();
+    private String ip = LocalIp.getIP();
+
     private int noticePort;
     private String path;
     private DirectoryModel directoryModel;
@@ -55,17 +56,13 @@ public class IODirectoryModelPackage {
         return ip;
     }
 
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
     @Override
     public String toString() {
-        return "IODirectoryModelPackage{" +
-                "ip='" + ip + '\'' +
-                ", noticePort=" + noticePort +
-                ", path='" + path + '\'' +
-                ", fileSize=" + fileSize +
-                ", directorySize=" + directorySize +
-                ", length=" + length +
-                '}';
+        return "IODirectoryModelPackage{" + "ip='" + ip + '\'' + ", noticePort=" + noticePort + ", path='" + path + '\'' + ", fileSize=" + fileSize + ", directorySize=" + directorySize + ", length=" + length + '}';
     }
 
     public DirectoryModel getDirectoryModel() {

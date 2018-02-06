@@ -4,7 +4,6 @@ import socket.core.CmdMessageController;
 import socket.model.FileList;
 import socket.model.IODirectoryModelPackage;
 import socket.model.NewFile;
-import test.SocketFile;
 import util.LoopThread;
 
 import java.io.File;
@@ -24,8 +23,10 @@ public class FileInListener {
     }
 
     public static void listenForFile(IODirectoryModelPackage filePackage, File directory) {
-        if (filePackage == null) return;
-
+        if (filePackage == null) {
+            return;
+        }
+        System.out.println(filePackage);
         FileList fileList = new FileList();
         //方法结束后会包含所有的文件信息和远程地址信息，需要后续的线程自动处理
         fileList.setMessageByIo(filePackage);
@@ -39,7 +40,7 @@ public class FileInListener {
         executorService.submit(() -> {
             IOSocketFileReceive.buildIODirectory(fileList, filePackage, directory);
             CmdMessageController.cmdPrintln("文件生成完毕");
-            SocketFile.wantFileList(fileList);
+            FileGetter.wantFileList(fileList, 5767);
 //            LoopThread.getLoopThread().removeLoopTank(tankKey);
         });
         executorService.shutdown();

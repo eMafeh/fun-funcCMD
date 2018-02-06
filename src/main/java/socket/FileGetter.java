@@ -1,12 +1,12 @@
-package test;
+package socket;
 
 import com.alibaba.fastjson.JSON;
-import socket.config.IOPortConfig;
+import socket.config.CharsetConfig;
 import socket.model.FileList;
 import socket.model.NewFile;
 import socket.model.WantFile;
-import util.Good_LocalIP;
-import util.Good_PathBuilder;
+import util.LocalIp;
+import util.PathBuilder;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -16,21 +16,9 @@ import java.util.List;
 /**
  * @author qianrui
  */
-public class SocketFile {
-//
-//    public static void main(String[] args) throws IOException {
-//        int getPort = 4544;
-//        String sourceIp = Good_LocalIP.getIP();
-//        String sourcePath = "C:\\Users\\kelaite\\Desktop\\temp";
-//        NewFile file = new NewFile();
-//        file.setFile(new File("E:\\XqlDownload\\temp\\baowen.txt"));
-//        file.setLength(10L);
-//        file.setRemoteName("baowen.txt");
-//        wantFile(file, Good_LocalIP.getIP(), getPort, sourceIp, sourcePath, 4344);
-//        getFileInt(file, getPort);
-//    }
+public class FileGetter {
 
-    public static void wantFileList(FileList fileList) {
+    public static void wantFileList(FileList fileList, int getPort) {
         System.out.println("开始下载文件");
         List<NewFile> files = fileList.getFiles();
         String sourceIp = fileList.getSourceIp();
@@ -41,11 +29,10 @@ public class SocketFile {
             final String name = localFile.getName();
             if (localFile.length() < file.getLength()) {
                 System.out.println((localFile.length() == 0 ? "需要下载文件>>>" : "需要断点续传文件>>") + name);
-                int getPort = IOPortConfig.GETPORT.getPort();
                 try {
-                    wantFile(file, Good_LocalIP.getIP(), getPort, sourceIp, sourcePath, noticePort);
+                    wantFile(file, LocalIp.getIP(), getPort, sourceIp, sourcePath, noticePort);
                     boolean success = getFileInt(file, getPort);
-                    System.out.println((success?"文件下载成功<<":"文件下载失败><")+ name);
+                    System.out.println((success ? "文件下载成功<<" : "文件下载失败><") + name);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -57,7 +44,7 @@ public class SocketFile {
     }
 
     private static void wantFile(NewFile newFile, String localIp, int getPort, String sourceIp, String sourcePath, int noticePort) throws IOException {
-        String realPath = Good_PathBuilder.addFileName(sourcePath, newFile.getRemoteName());
+        String realPath = PathBuilder.addFileName(sourcePath, newFile.getRemoteName());
         Socket socket = new Socket(sourceIp, noticePort);
         try (OutputStream outputStream = socket.getOutputStream()) {
             outputStream.write(wantFile(newFile, localIp, getPort, realPath));
@@ -65,13 +52,13 @@ public class SocketFile {
         System.out.println("请求文件资源 : " + sourceIp + "://" + realPath);
     }
 
-    private static byte[] wantFile(NewFile newFile, String localIp, int getPort, String realPath) {
+    private static byte[] wantFile(NewFile newFile, String localIp, int getPort, String realPath) throws UnsupportedEncodingException {
         WantFile wantFile = new WantFile();
         wantFile.setPath(realPath);
         wantFile.setWantIp(localIp);
         wantFile.setPort(getPort);
         wantFile.setBeginLength(newFile.getFile().length());
-        return JSON.toJSONString(wantFile).getBytes();
+        return JSON.toJSONString(wantFile).getBytes(CharsetConfig.UTF8);
     }
 
     /**

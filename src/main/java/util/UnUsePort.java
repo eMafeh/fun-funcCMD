@@ -4,18 +4,19 @@ package util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-import static java.lang.Integer.*;
+import static java.lang.Integer.parseInt;
 
 /**
- * Created by snb on 2017/9/7  19:33
+ * 2017/9/7  19:33
+ * @author qianrui
  */
 public class UnUsePort {
-    private static final Runtime runtime = Runtime.getRuntime();
+    private static final Runtime RUNTIME = Runtime.getRuntime();
+    private static  final String COMMAND = "netstat -ano";
 
     public static Set<Integer> getPort() {
         Set<Integer> ports = new HashSet<>();
@@ -35,23 +36,30 @@ public class UnUsePort {
     private static boolean getPort(Function<String, Boolean> function) {
         Process windows = null;
         try {
-            windows = runtime.exec("netstat -ano");
+
+            windows = RUNTIME.exec(COMMAND);
         } catch (IOException e) {
-            e.printStackTrace();
+            // never happen
         }
+        assert windows != null;
         String line;
         String[] split;
         int i = 0;
+
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(windows.getInputStream(), "GBK"))) {
             while ((line = bufferedReader.readLine()) != null) {
-                if (i++ < 3) continue;
-                if ((split = line.split("\\s+")).length < 3) continue;
+                if (i++ < 3) {
+                    continue;
+                }
+                if ((split = line.split("\\s+")).length < 3) {
+                    continue;
+                }
                 if ((split = split[2].split(":")).length > 1) {
-                    if (!function.apply(split[split.length - 1])) return false;
+                    if (!function.apply(split[split.length - 1])) {
+                        return false;
+                    }
                 }
             }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
