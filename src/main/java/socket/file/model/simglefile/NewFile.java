@@ -1,9 +1,10 @@
-package socket.model;
+package socket.file.model.simglefile;
 
 import java.io.File;
 
 /**
  * 新文件模型
+ * @author qianrui
  */
 public class NewFile {
     private File file;

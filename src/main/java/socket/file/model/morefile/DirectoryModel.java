@@ -1,10 +1,11 @@
-package socket.model;
+package socket.file.model.morefile;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 目录模型，包含目录名，子目录，子文件夹
+ * @author qianrui
  */
 public class DirectoryModel {
     private List<FileModel> files = new ArrayList<>();

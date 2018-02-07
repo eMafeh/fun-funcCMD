@@ -1,20 +1,24 @@
-package socket;
+package socket.file.messagebuild;
 
+import socket.file.model.morefile.DirectoryModel;
+import socket.file.model.simglefile.FileList;
+import socket.file.model.morefile.IoDirectoryModelPackage;
+import socket.file.model.simglefile.NewFile;
 import util.PathBuilder;
-import socket.model.DirectoryModel;
-import socket.model.FileList;
-import socket.model.IODirectoryModelPackage;
-import socket.model.NewFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class IOSocketFileReceive {
+/**
+ * 根据远程指示和本地下载位置，创建文件夹,将所有的文件放入FileList对象
+ * @author qianrui
+ */
+public class IoFilePackageReceiveToLocal {
     /**
      * 追加远程文件的位置信息
      */
-    public static void buildIODirectory(FileList filelist ,IODirectoryModelPackage ioDirectoryModelPackage, File file) {
+    public static void buildIODirectory(FileList filelist , IoDirectoryModelPackage ioDirectoryModelPackage, File file) {
         buildDirectoryFile(filelist,ioDirectoryModelPackage.getDirectoryModel(), file);
         filelist.setSourceIp(ioDirectoryModelPackage.getIp());
         filelist.setSourcePath(ioDirectoryModelPackage.getPath());
@@ -27,7 +31,7 @@ public class IOSocketFileReceive {
      * 目标路径是文件夹，则在该文件夹下生成空文件，记录所有尝试生成的文件
      * 返回的list中包含这些文件，包含远程文件的长度信息
      */
-    private static void buildDirectoryFile(FileList filelist ,DirectoryModel directoryModel, File file) {
+    private static void buildDirectoryFile(FileList filelist , DirectoryModel directoryModel, File file) {
         if (file.isFile()) {
             throw new IllegalArgumentException(file.getPath() + "路径是一个文件");
         }

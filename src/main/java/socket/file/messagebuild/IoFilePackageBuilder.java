@@ -1,8 +1,10 @@
-package socket;
+package socket.file.messagebuild;
 
-import socket.model.DirectoryModel;
-import socket.model.FileModel;
-import socket.model.IODirectoryModelPackage;
+import socket.file.FileOutListener;
+import socket.file.model.morefile.DirectoryModel;
+import socket.file.model.morefile.FileModel;
+import socket.file.model.morefile.IoDirectoryModelPackage;
+import util.LocalIp;
 import util.PathBuilder;
 
 import java.io.File;
@@ -10,8 +12,10 @@ import java.util.Arrays;
 
 /**
  * 这个类基本不用改了
+ *
+ * @author qianrui
  */
-public class IOSocketFileSend {
+public class IoFilePackageBuilder {
 
     /**
      * 传入了一个文件（文件夹）的路径
@@ -19,7 +23,11 @@ public class IOSocketFileSend {
      * 如果不是文件，递归这个路径，返回的目录模型里，全部都是名称，最高级的目录是当前路径的名字
      * 将这个文件夹模型包装为网络包，返回的网络包中表明网络上找到这些文件需要的全部信息
      */
-    public static IODirectoryModelPackage getFileModel(String msg) {
+    public static IoDirectoryModelPackage getFileModel(String msg) {
+        int listenPort = FileOutListener.getListenPort();
+        if (listenPort <= 0) {
+            return null;
+        }
         File file = new File(msg);
         if (!file.exists()) {
             return null;
@@ -37,19 +45,31 @@ public class IOSocketFileSend {
         } else {
             buildDirectoryModel(directoryModel, file, fileSize, directorySize, allLength);
         }
-        return buildIOPackage(directoryModel, file, fileSize, directorySize, allLength);
+        return buildIOPackage(LocalIp.getIP(), listenPort, directoryModel, file, fileSize, directorySize, allLength);
     }
 
-    //包装成网络格式返回
-    private static IODirectoryModelPackage buildIOPackage(DirectoryModel directoryModel, File file, Integer[] fileSize, Integer[] directorySize, Long[] allLength) {
-        return new IODirectoryModelPackage(FileOutListener.getListenPort(), PathBuilder.getFromPath(file), directoryModel, fileSize[0], directorySize[0], allLength[0]);
+    /**
+     * 包装成网络格式返回
+     */
+    private static IoDirectoryModelPackage buildIOPackage(String localIp, int noticePort, DirectoryModel directoryModel, File file, Integer[] fileSize, Integer[] directorySize, Long[] allLength) {
+        IoDirectoryModelPackage modelPackage = new IoDirectoryModelPackage();
+        modelPackage.setIp(localIp);
+        modelPackage.setNoticePort(noticePort);
+        modelPackage.setPath(PathBuilder.getFromPath(file));
+        modelPackage.setDirectoryModel(directoryModel);
+        modelPackage.setFileSize(fileSize[0]);
+        modelPackage.setDirectorySize(directorySize[0]);
+        modelPackage.setLength(allLength[0]);
+        return modelPackage;
     }
 
-    //对一个设定的目录模型，根据路径递归填充文件信息
+    /**
+     * 对一个设定的目录模型，根据路径递归填充文件信息
+     */
     private static void buildDirectoryModel(DirectoryModel directoryModel, File file, Integer[] fileSize, Integer[] directorySize, Long[] allLength) {
         directorySize[0]++;
         //目录，操作准备递归
-        directoryModel.setName(file.getName().equals("") ? file.getPath().substring(0, 1) : file.getName());
+        directoryModel.setName("".equals(file.getName()) ? file.getPath().substring(0, 1) : file.getName());
         File[] files = file.listFiles();
         if (files != null) {
             Arrays.stream(files).forEach(a -> {

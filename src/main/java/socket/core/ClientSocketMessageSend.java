@@ -1,5 +1,6 @@
 package socket.core;
 
+import com.qr.core.CmdBoot;
 import socket.config.CharsetConfig;
 import util.AllThreadUtil;
 
@@ -15,16 +16,16 @@ import java.util.Vector;
  * @author qianrui
  */
 public class ClientSocketMessageSend {
-    private static AllThreadUtil.Key key;
+    private AllThreadUtil.Key key;
 
-    public static synchronized void start() {
+    public synchronized void start() {
         if (key != null) {
             return;
         }
-        key = AllThreadUtil.whileTrueThread(ClientSocketMessageSend::sendMessage, 100);
+        key = AllThreadUtil.whileTrueThread(this::sendMessage, 100);
     }
 
-    private static boolean sendMessage() throws InterruptedException {
+    private boolean sendMessage() throws InterruptedException {
         if (!SendMessage.MESSAGES.isEmpty()) {
             SendMessage send = SendMessage.MESSAGES.get(0);
             while (key.isRun()) {
@@ -41,19 +42,19 @@ public class ClientSocketMessageSend {
         return true;
     }
 
-    public static void addMessage(String message, String host, int port) {
+    public void addMessage(String message, String host, int port) {
         SendMessage.addMessage(message, host, port);
     }
 
-    public static synchronized void shutDown() {
+    public synchronized void shutDown() {
         AllThreadUtil.stop(key);
         key = null;
-        SendMessage.MESSAGES.forEach(CmdMessageController::cmdPrintln);
+        SendMessage.MESSAGES.forEach(CmdBoot::cmdPrintln);
         SendMessage.MESSAGES.clear();
     }
 
-    public static boolean isalive() {
-        return key.isRun();
+    public boolean isalive() {
+        return key != null && key.isRun();
     }
 
     private static class SendMessage {

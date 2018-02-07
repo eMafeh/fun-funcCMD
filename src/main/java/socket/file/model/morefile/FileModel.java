@@ -1,16 +1,19 @@
-package socket.model;
+package socket.file.model.morefile;
 
 import java.io.File;
 
 /**
  * 文件模型，包含文件名，文件长度
+ * @author qianrui
  */
 public class FileModel {
     private String name;
     private long length;
 
     public FileModel(File file) {
-        if (file == null) throw new NullPointerException();
+        if (file == null) {
+            throw new NullPointerException();
+        }
         name = file.getName();
         length = file.length();
     }
@@ -36,9 +39,6 @@ public class FileModel {
 
     @Override
     public String toString() {
-        return "FileModel{" +
-                "name='" + name + '\'' +
-                ", length=" + length +
-                '}';
+        return "FileModel{" + "name='" + name + '\'' + ", length=" + length + '}';
     }
 }

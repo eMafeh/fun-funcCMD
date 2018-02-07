@@ -1,9 +1,10 @@
-package socket;
+package socket.file;
 
-import socket.core.CmdMessageController;
-import socket.model.FileList;
-import socket.model.IODirectoryModelPackage;
-import socket.model.NewFile;
+import com.qr.core.CmdBoot;
+import socket.file.messagebuild.IoFilePackageReceiveToLocal;
+import socket.file.model.simglefile.FileList;
+import socket.file.model.morefile.IoDirectoryModelPackage;
+import socket.file.model.simglefile.NewFile;
 import util.LoopThread;
 
 import java.io.File;
@@ -13,7 +14,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by snb on 2017/9/8  9:08
+ * 2017/9/8  9:08
+ *
+ * @author qianrui
  */
 public class FileInListener {
     private static NumberFormat numberFormat = NumberFormat.getNumberInstance();
@@ -22,9 +25,9 @@ public class FileInListener {
         numberFormat.setMaximumFractionDigits(2);
     }
 
-    public static void listenForFile(IODirectoryModelPackage filePackage, File directory) {
+    public static void listenForFile(IoDirectoryModelPackage filePackage, File directory) {
         if (filePackage == null) {
-            return;
+            throw new NullPointerException();
         }
         System.out.println(filePackage);
         FileList fileList = new FileList();
@@ -38,9 +41,9 @@ public class FileInListener {
 
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(() -> {
-            IOSocketFileReceive.buildIODirectory(fileList, filePackage, directory);
-            CmdMessageController.cmdPrintln("文件生成完毕");
-            FileGetter.wantFileList(fileList, 5767);
+            IoFilePackageReceiveToLocal.buildIODirectory(fileList, filePackage, directory);
+            CmdBoot.cmdPrintln("文件生成完毕");
+            FileGetter.wantFileList(fileList);
 //            LoopThread.getLoopThread().removeLoopTank(tankKey);
         });
         executorService.shutdown();
@@ -53,7 +56,7 @@ public class FileInListener {
         key[0] = LoopThread.getLoopThread().addLoopTankByTenofOneSecond(() -> {
             if ((double) files.size() * 100 / fileSize > d[0] + 1) {
                 d[0] = (double) files.size() * 100 / fileSize;
-                CmdMessageController.cmdPrintln(files.size() + " 个文件（" + numberFormat.format(d[0]) + "%）已经生成");
+                CmdBoot.cmdPrintln(files.size() + " 个文件（" + numberFormat.format(d[0]) + "%）已经生成");
             }
             if (files.size() == fileSize) {
                 LoopThread.getLoopThread().removeLoopTank(key[0]);

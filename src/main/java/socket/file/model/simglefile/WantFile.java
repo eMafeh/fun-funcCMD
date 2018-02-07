@@ -1,7 +1,7 @@
-package socket.model;
+package socket.file.model.simglefile;
 
 /**
- * @author kelaite
+ * @author qianrui
  * 2018/2/3
  */
 public class WantFile {

@@ -1,12 +1,13 @@
-package socket.model;
+package socket.file.model.morefile;
 
-import util.LocalIp;
 
 /**
  * 用于描述一个主动网络传输的文件夹
+ *
+ * @author qianrui
  */
-public class IODirectoryModelPackage {
-    private String ip = LocalIp.getIP();
+public class IoDirectoryModelPackage {
+    private String ip;
 
     private int noticePort;
     private String path;
@@ -14,19 +15,6 @@ public class IODirectoryModelPackage {
     private int fileSize;
     private int directorySize;
     private long length;
-
-    public IODirectoryModelPackage(int noticePort, String path, DirectoryModel directoryModel, int fileSize, int directorySize, long length) {
-        this.noticePort = noticePort;
-        this.path = path;
-        this.directoryModel = directoryModel;
-        this.fileSize = fileSize;
-        this.directorySize = directorySize;
-        this.length = length;
-    }
-
-    public IODirectoryModelPackage() {
-
-    }
 
     public long getLength() {
         return length;
@@ -60,11 +48,6 @@ public class IODirectoryModelPackage {
         this.ip = ip;
     }
 
-    @Override
-    public String toString() {
-        return "IODirectoryModelPackage{" + "ip='" + ip + '\'' + ", noticePort=" + noticePort + ", path='" + path + '\'' + ", fileSize=" + fileSize + ", directorySize=" + directorySize + ", length=" + length + '}';
-    }
-
     public DirectoryModel getDirectoryModel() {
         return directoryModel;
     }
@@ -89,4 +72,8 @@ public class IODirectoryModelPackage {
         this.noticePort = noticePort;
     }
 
+    @Override
+    public String toString() {
+        return "IoDirectoryModelPackage{" + "ip='" + ip + '\'' + ", noticePort=" + noticePort + ", path='" + path + '\'' + ", fileSize=" + fileSize + ", directorySize=" + directorySize + ", length=" + length + '}';
+    }
 }

@@ -1,10 +1,9 @@
-package socket;
+package socket.file;
 
-import com.alibaba.fastjson.JSON;
-import socket.config.CharsetConfig;
-import socket.model.FileList;
-import socket.model.NewFile;
-import socket.model.WantFile;
+import com.qr.order.FileOutOrderImpl;
+import socket.file.model.simglefile.FileList;
+import socket.file.model.simglefile.NewFile;
+import socket.file.model.simglefile.WantFile;
 import util.LocalIp;
 import util.PathBuilder;
 
@@ -18,7 +17,7 @@ import java.util.List;
  */
 public class FileGetter {
 
-    public static void wantFileList(FileList fileList, int getPort) {
+    public static void wantFileList(FileList fileList) {
         System.out.println("开始下载文件");
         List<NewFile> files = fileList.getFiles();
         String sourceIp = fileList.getSourceIp();
@@ -30,6 +29,7 @@ public class FileGetter {
             if (localFile.length() < file.getLength()) {
                 System.out.println((localFile.length() == 0 ? "需要下载文件>>>" : "需要断点续传文件>>") + name);
                 try {
+                    int getPort=5767;
                     wantFile(file, LocalIp.getIP(), getPort, sourceIp, sourcePath, noticePort);
                     boolean success = getFileInt(file, getPort);
                     System.out.println((success ? "文件下载成功<<" : "文件下载失败><") + name);
@@ -45,20 +45,17 @@ public class FileGetter {
 
     private static void wantFile(NewFile newFile, String localIp, int getPort, String sourceIp, String sourcePath, int noticePort) throws IOException {
         String realPath = PathBuilder.addFileName(sourcePath, newFile.getRemoteName());
-        Socket socket = new Socket(sourceIp, noticePort);
-        try (OutputStream outputStream = socket.getOutputStream()) {
-            outputStream.write(wantFile(newFile, localIp, getPort, realPath));
-        }
         System.out.println("请求文件资源 : " + sourceIp + "://" + realPath);
+        FileOutOrderImpl.INSTANCE.wantFile(wantFile(newFile, localIp, getPort, realPath), sourceIp, noticePort);
     }
 
-    private static byte[] wantFile(NewFile newFile, String localIp, int getPort, String realPath) throws UnsupportedEncodingException {
+    private static WantFile wantFile(NewFile newFile, String localIp, int getPort, String realPath) throws UnsupportedEncodingException {
         WantFile wantFile = new WantFile();
         wantFile.setPath(realPath);
         wantFile.setWantIp(localIp);
         wantFile.setPort(getPort);
         wantFile.setBeginLength(newFile.getFile().length());
-        return JSON.toJSONString(wantFile).getBytes(CharsetConfig.UTF8);
+        return wantFile;
     }
 
     /**

@@ -6,4 +6,5 @@ package socket.config;
  */
 public interface CharsetConfig {
     String UTF8 = "UTF-8";
+    String EXIT = "exit";
 }

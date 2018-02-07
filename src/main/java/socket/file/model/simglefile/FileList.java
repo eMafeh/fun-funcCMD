@@ -1,11 +1,14 @@
-package socket.model;
+package socket.file.model.simglefile;
 
+
+import socket.file.model.morefile.IoDirectoryModelPackage;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 用于记录本地需要接受的新文件
+ * @author qianrui
  */
 public class FileList {
     private List<NewFile> files = new ArrayList<>();
@@ -13,7 +16,7 @@ public class FileList {
     private String sourceIp;
     private int noticePort;
 
-    public void setMessageByIo(IODirectoryModelPackage filePackage) {
+    public void setMessageByIo(IoDirectoryModelPackage filePackage) {
         noticePort = filePackage.getNoticePort();
         sourcePath = filePackage.getPath();
         sourceIp = filePackage.getIp();

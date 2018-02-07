@@ -1,16 +1,21 @@
-package socket;
+package socket.file;
 
-import socket.core.CmdMessageController;
+import com.qr.core.CmdBoot;
+import com.qr.order.FileOutOrderImpl;
 import socket.core.ServerSocketInMessageQueue;
-import socket.model.WantFile;
+import socket.file.model.morefile.IoDirectoryModelPackage;
+import socket.file.model.simglefile.WantFile;
 import util.AllThreadUtil;
 import util.BeanToMap;
+import util.StringSplitUtil;
 
 import java.io.*;
 import java.net.Socket;
 
 /**
- * Created by snb on 2017/9/8  9:08
+ * 2017/9/8  9:08
+ *
+ * @author qianrui
  */
 public class FileOutListener {
     private static ServerSocketInMessageQueue server;
@@ -25,7 +30,7 @@ public class FileOutListener {
         ServerSocketInMessageQueue fileServer;
         while (true) {
             try {
-                int inPort = CmdMessageController.getInt("请输入文件服务监听端口");
+                int inPort = CmdBoot.getInt(CmdBoot::getString, "请输入文件服务监听端口");
                 fileServer = ServerSocketInMessageQueue.getServer(inPort);
                 System.out.println("启动文件服务器");
                 return fileServer;
@@ -41,11 +46,23 @@ public class FileOutListener {
         //先完成文件监听
         FileOutListener.listenPort = server.getPort();
         key = AllThreadUtil.whileTrueThread(() -> {
-            String json;
-            WantFile file;
-            if ((json = server.nextMessage()) != null && (file = BeanToMap.getBean(json, WantFile.class)) != null) {
-                giveFile(file);
-                return false;
+            String json = server.nextMessage();
+            if (json == null) {
+                return true;
+            }
+            String[] split = StringSplitUtil.split(json, 1);
+            if (split[0].equals(FileOutOrderImpl.ALL_FILE)) {
+                IoDirectoryModelPackage filePackage = BeanToMap.getBean(split[1], IoDirectoryModelPackage.class);
+                if (filePackage != null) {
+                    FileInListener.listenForFile(filePackage, FileOutOrderImpl.INSTANCE.downLoadPath);
+                    return false;
+                }
+            } else if (split[0].equals(FileOutOrderImpl.WANT_FILE)) {
+                WantFile file = BeanToMap.getBean(split[1], WantFile.class);
+                if (file != null) {
+                    giveFile(file);
+                    return false;
+                }
             }
             return true;
         }, 100);
@@ -79,7 +96,9 @@ public class FileOutListener {
     }
 
     public static void shutDown() {
-        server.shutdown("文件服务器退出成功");
+        if(server!=null) {
+            server.shutdown("文件服务器退出成功");
+        }
         AllThreadUtil.stop(key);
     }
 

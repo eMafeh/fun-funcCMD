@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 Class-Path: libs/fastjson-1.2.7.sec01.jar
-Main-Class: socket.core.CmdMessageController
+Main-Class: com.qr.core.CmdBoot
 

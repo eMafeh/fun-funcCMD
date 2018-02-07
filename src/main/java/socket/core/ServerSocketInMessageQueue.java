@@ -1,6 +1,8 @@
 package socket.core;
 
+import com.qr.core.CmdBoot;
 import socket.config.CharsetConfig;
+import util.AllThreadUtil;
 import util.LocalIp;
 
 import java.io.IOException;
@@ -23,13 +25,13 @@ public class ServerSocketInMessageQueue {
 
     private int port;
     private ServerSocket serverSocket;
-    private volatile boolean flag = false;
+    private AllThreadUtil.Key key;
     private final List<String> messageQueue = new Vector<>();
     private byte[] b = new byte[1 << 16];
 
     public synchronized static ServerSocketInMessageQueue getServer(int inPort) throws IllegalArgumentException {
         ServerSocketInMessageQueue messageQueue = SERVERS.get(inPort);
-        if (messageQueue != null && messageQueue.flag) {
+        if (messageQueue != null && messageQueue.key != null && messageQueue.key.isRun()) {
             throw new IllegalArgumentException(inPort + "该信息队列已经被使用");
         }
         checkPort(inPort);
@@ -61,28 +63,16 @@ public class ServerSocketInMessageQueue {
     }
 
     private synchronized void start() {
-        if (flag) {
+        if (key != null && key.isRun()) {
             return;
         }
-        flag = true;
-        new Thread(() -> {
-            String message;
-            while (flag) {
-                try {
-                    message = getMessage();
-                    if (!"".equals(message)) {
-                        messageQueue.add(message);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        key = AllThreadUtil.whileTrueThread(this::listenerMessage, 0);
         System.out.println("接收端已打开");
     }
 
 
-    private String getMessage() throws IOException {
+    private boolean listenerMessage() {
+        String message;
         StringBuilder result = new StringBuilder();
         try (Socket socket = serverSocket.accept(); InputStream inputStream = socket.getInputStream()) {
             int read;
@@ -92,7 +82,11 @@ public class ServerSocketInMessageQueue {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return result.toString();
+        message = result.toString();
+        if (!"".equals(message)) {
+            messageQueue.add(message);
+        }
+        return false;
     }
 
 
@@ -101,10 +95,11 @@ public class ServerSocketInMessageQueue {
     }
 
     public synchronized void shutdown(String over) {
-        if (!flag) {
+        if (key == null || !key.isRun()) {
             return;
         }
-        flag = false;
+        AllThreadUtil.stop(key);
+        key = null;
         try (Socket socket = new Socket(LocalIp.getIP(), port); OutputStream outputStream = socket.getOutputStream()) {
             outputStream.write((over == null ? "" : over).getBytes(CharsetConfig.UTF8));
         } catch (IOException e) {
@@ -116,15 +111,15 @@ public class ServerSocketInMessageQueue {
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
-        if (CmdMessageController.isNoSilent()) {
-            messageQueue.forEach(CmdMessageController::cmdPrintln);
+        if (CmdBoot.isNoSilent()) {
+            messageQueue.forEach(CmdBoot::cmdPrintln);
         }
         messageQueue.clear();
         serverSocket = null;
     }
 
     public synchronized boolean isalive() {
-        return flag;
+        return key != null && key.isRun();
     }
 
     public int getPort() {
