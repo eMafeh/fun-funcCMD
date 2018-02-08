@@ -82,4 +82,9 @@ public enum ApplicationHome implements PrintlnLogger {
     public Consumer<Callable<String>> getLogger() {
         return logger;
     }
+
+    @Override
+    public void setLogger(Consumer<Callable<String>> logger) {
+        ApplicationHome.logger = logger;
+    }
 }

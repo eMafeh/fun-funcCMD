@@ -10,7 +10,9 @@ import java.util.function.Function;
 public interface CmdOutOrder {
     String getNameSpace();
 
-    void useOrder(String order) throws Throwable;
+    boolean useOrder(String order) throws Throwable;
+
+    boolean isStart();
 
     void install(Function<String, String> getLine) throws Throwable;
 

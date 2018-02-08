@@ -45,19 +45,14 @@ public enum FileOutOrderImpl implements CmdOutOrder {
     }
 
     @Override
-    public void useOrder(String order) throws Throwable {
-        if (!send.isalive()) {
-            System.out.println("file server is not install");
-            return;
-        }
-        if (EXIT.equals(order)) {
-            shutDown();
-            return;
-        }
+    public boolean useOrder(String order) throws Throwable {
         IoDirectoryModelPackage fileModel = IoFilePackageBuilder.getFileModel(order);
         if (fileModel != null) {
             send.addMessage(ALL_FILE + JSON.toJSONString(fileModel), farHost, farPort);
+            return true;
         }
+        CmdBoot.cmdPrintln(" file is not found" + order);
+        return true;
     }
 
     public void wantFile(WantFile wantFile, String sourceIp, int noticePort) {
@@ -75,4 +70,8 @@ public enum FileOutOrderImpl implements CmdOutOrder {
         FileOutListener.shutDown();
     }
 
+    @Override
+    public boolean isStart() {
+        return send.isalive();
+    }
 }

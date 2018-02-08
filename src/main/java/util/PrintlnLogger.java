@@ -10,6 +10,8 @@ import java.util.function.Consumer;
 public interface PrintlnLogger {
     Consumer<Callable<String>> getLogger();
 
+    void setLogger(Consumer<Callable<String>> logger);
+
     default void print(Callable<String> message) {
         try {
             Consumer<Callable<String>> logger = getLogger();

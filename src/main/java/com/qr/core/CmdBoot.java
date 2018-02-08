@@ -2,12 +2,16 @@ package com.qr.core;
 
 import com.qr.order.CmdOutOrder;
 import com.qr.order.FileOutOrderImpl;
-import socket.file.FileOutListener;
+import com.qr.order.MouseOutOrderImpl;
 import com.qr.order.XqyOutOrderImpl;
 import util.AllThreadUtil;
 import util.StringSplitUtil;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -17,14 +21,22 @@ import java.util.function.Function;
  */
 public class CmdBoot {
     private static final Scanner SC = new Scanner(System.in);
-
+    public static final Consumer<Callable<String>> LOGGER = a -> {
+        try {
+            cmdPrintln(a.call());
+        } catch (Exception e) {
+            cmdPrintln(e);
+        }
+    };
     static final Map<String, CmdOutOrder> NAMESPACE = new HashMap<>();
 
     static {
-        NAMESPACE.put(XqyOutOrderImpl.INSTANCE.getNameSpace(), XqyOutOrderImpl.INSTANCE);
+        NAMESPACE.put(ExitOutOrderImpl.INSTANCE.getNameSpace(), ExitOutOrderImpl.INSTANCE);
         NAMESPACE.put(RunOutOrderImpl.INSTANCE.getNameSpace(), RunOutOrderImpl.INSTANCE);
         NAMESPACE.put(ShowOutOrderImpl.INSTANCE.getNameSpace(), ShowOutOrderImpl.INSTANCE);
+        NAMESPACE.put(XqyOutOrderImpl.INSTANCE.getNameSpace(), XqyOutOrderImpl.INSTANCE);
         NAMESPACE.put(FileOutOrderImpl.INSTANCE.getNameSpace(), FileOutOrderImpl.INSTANCE);
+        NAMESPACE.put(MouseOutOrderImpl.INSTANCE.getNameSpace(), MouseOutOrderImpl.INSTANCE);
     }
 
     static volatile boolean noSilent = true;
@@ -33,33 +45,61 @@ public class CmdBoot {
 
         String line;
         String[] orders;
+        CmdOutOrder cmdOutOrder;
         while (true) {
             line = SC.nextLine();
             orders = StringSplitUtil.maxSplitWords(line, 2);
             if (orders[0] == null) {
                 continue;
             }
-            if ("exit".equals(orders[0])) {
-                break;
-            }
-            CmdOutOrder cmdOutOrder = NAMESPACE.get(orders[0]);
+
+            cmdOutOrder = NAMESPACE.get(orders[0]);
             if (cmdOutOrder == null) {
                 System.out.println("-bash: warn: command not found : " + orders[0]);
-            } else {
+                continue;
+            }
+            orders[1] = orders[1] == null ? "" : orders[1];
+
+            try {
+                boolean isStart = cmdOutOrder.isStart();
+                if (isStart) {
+                    boolean success = cmdOutOrder.useOrder(orders[1]);
+                    if (!success) {
+                        System.out.println("-" + cmdOutOrder.getNameSpace() + ": warn: command not found : " + orders[1]);
+                    }
+
+                } else {
+                    System.out.println("-" + cmdOutOrder.getNameSpace() + " is not install");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } catch (Throwable throwable) {
+                System.out.println(throwable.getMessage());
                 try {
-                    cmdOutOrder.useOrder(orders[1]);
-                } catch (Throwable throwable) {
                     cmdOutOrder.shutDown();
-                    System.out.println( throwable.getMessage());
+                } catch (Throwable exit) {
+                    if (exit.equals(ExitOutOrderImpl.EXIT_EXCEPTION)) {
+                        System.out.println(exit.getMessage());
+                        break;
+                    } else {
+                        exit.printStackTrace();
+                    }
                 }
             }
         }
+        CmdOutOrder notAgain = cmdOutOrder;
         NAMESPACE.forEach((a, b) -> {
-            if (b != null) {
-                b.shutDown();
+            if (b != null && !b.equals(notAgain)) {
+                try {
+                    b.shutDown();
+                } catch (Throwable exit) {
+                    exit.printStackTrace();
+                }
             }
         });
         AllThreadUtil.exit();
+        System.out.println("system is exited");
+        System.exit(0);
     }
 
 

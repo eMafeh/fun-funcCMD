@@ -37,6 +37,11 @@ public enum DynamicCompile implements PrintlnLogger {
         return logger;
     }
 
+    @Override
+    public void setLogger(Consumer<Callable<String>> logger) {
+        DynamicCompile.logger = logger;
+    }
+
     /**
      * 类加载器，由spring方法说明
      */

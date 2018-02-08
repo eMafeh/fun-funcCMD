@@ -1,6 +1,5 @@
 package com.qr.core;
 
-import com.qr.order.AbstractCmdOutOrder;
 import util.StringSplitUtil;
 
 /**
@@ -8,6 +7,9 @@ import util.StringSplitUtil;
  * 2018/2/7
  */
 public enum ShowOutOrderImpl implements AbstractCmdOutOrder {
+    /**
+     * 全局唯一实例
+     */
     INSTANCE;
 
     @Override
@@ -16,11 +18,12 @@ public enum ShowOutOrderImpl implements AbstractCmdOutOrder {
     }
 
     @Override
-    public void useOrder(String order) throws Throwable {
+    public boolean useOrder(String order) throws Throwable {
         Boolean noSilent = isSilent(StringSplitUtil.nextWord(order, -1));
         if (noSilent != null) {
             CmdBoot.noSilent = noSilent;
         }
+        return true;
     }
 
     private Boolean isSilent(String order) {
@@ -39,5 +42,4 @@ public enum ShowOutOrderImpl implements AbstractCmdOutOrder {
                 return null;
         }
     }
-
 }

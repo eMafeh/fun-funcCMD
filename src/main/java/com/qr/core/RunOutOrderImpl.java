@@ -1,6 +1,5 @@
 package com.qr.core;
 
-import com.qr.order.AbstractCmdOutOrder;
 import com.qr.order.CmdOutOrder;
 import util.StringSplitUtil;
 
@@ -20,10 +19,7 @@ public enum RunOutOrderImpl implements AbstractCmdOutOrder {
     }
 
     @Override
-    public void useOrder(String order) throws Throwable {
-        if (order == null) {
-            return;
-        }
+    public boolean useOrder(String order) throws Throwable {
         String target = StringSplitUtil.nextWord(order, -1);
         CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(target);
         if (cmdOutOrder != null) {
@@ -32,9 +28,9 @@ public enum RunOutOrderImpl implements AbstractCmdOutOrder {
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }
-        } else {
-            System.out.println("-bash: warn: server does not exist : " + order);
+            return true;
         }
+        return false;
     }
 
 }

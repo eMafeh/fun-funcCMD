@@ -55,16 +55,9 @@ public enum XqyOutOrderImpl implements CmdOutOrder {
     }
 
     @Override
-    public void useOrder(String order) throws Throwable {
-        if (key == null || !key.isRun()) {
-            System.out.println("xqy is not install");
-            return;
-        }
-        if (EXIT.equals(order)) {
-            shutDown();
-            return;
-        }
+    public boolean useOrder(String order) throws Throwable {
         sendMessage(order);
+        return true;
     }
 
     @Override
@@ -73,7 +66,7 @@ public enum XqyOutOrderImpl implements CmdOutOrder {
         key = null;
         send.shutDown();
         if (server != null) {
-            server.shutdown("退出成功，欢迎下次使用");
+            server.shutdown("小蚯蚓聊天退出成功，欢迎下次使用");
         }
     }
 
@@ -92,5 +85,8 @@ public enum XqyOutOrderImpl implements CmdOutOrder {
         return true;
     }
 
-
+    @Override
+    public boolean isStart() {
+        return key != null && key.isRun();
+    }
 }

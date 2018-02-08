@@ -15,7 +15,8 @@ public class AllThreadUtil {
     public static Key whileTrueThread(Callable<Boolean> callable, int sleepTime) {
         Key key = new Key();
         key.isRun = true;
-        InRunnable runnable = getDieLoopRunnable(callable, key, sleepTime);
+        key.setSleepTime(sleepTime);
+        InRunnable runnable = getDieLoopRunnable(callable, key);
         Thread thread = getThread(runnable);
         KEYS.add(key);
         thread.start();
@@ -29,15 +30,14 @@ public class AllThreadUtil {
         return new Thread(runnable);
     }
 
-    private static InRunnable getDieLoopRunnable(Callable<Boolean> callable, Key key, int sleepTime) {
-        int sleep = sleepTime > 0 ? sleepTime : 0;
+    private static InRunnable getDieLoopRunnable(Callable<Boolean> callable, Key key) {
         return () -> {
             while (key.isRun) {
                 try {
                     Boolean isSleep = callable.call();
                     //没有返回或者返回睡一会，那就睡
                     if (isSleep == null || isSleep) {
-                        Thread.sleep(sleep);
+                        Thread.sleep(key.sleepTime);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -61,9 +61,18 @@ public class AllThreadUtil {
 
     public static class Key {
         private volatile boolean isRun;
+        private volatile int sleepTime;
 
         public boolean isRun() {
             return isRun;
+        }
+
+        public int getSleepTime() {
+            return sleepTime;
+        }
+
+        public void setSleepTime(int sleepTime) {
+            this.sleepTime = sleepTime > 0 ? sleepTime : this.sleepTime;
         }
 
         @Override

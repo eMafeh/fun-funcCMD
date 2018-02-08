@@ -31,6 +31,11 @@ public enum JavaCompileOptionsBuilder implements PrintlnLogger {
         return logger;
     }
 
+    @Override
+    public void setLogger(Consumer<Callable<String>> logger) {
+        JavaCompileOptionsBuilder.logger = logger;
+    }
+
     private Set<String> paths = new TreeSet<>();
 
 
