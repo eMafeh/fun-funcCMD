@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
@@ -23,16 +23,16 @@ public enum JavaCompileOptionsBuilder implements PrintlnLogger {
      */
     INSTANCE;
 
-    public static Consumer<Callable<String>> logger;
+    public static Consumer<Supplier<String>> logger;
     private static final String JAR_KIND = ".jar";
 
     @Override
-    public Consumer<Callable<String>> getLogger() {
+    public Consumer<Supplier<String>> getLogger() {
         return logger;
     }
 
     @Override
-    public void setLogger(Consumer<Callable<String>> logger) {
+    public void setLogger(Consumer<Supplier<String>> logger) {
         JavaCompileOptionsBuilder.logger = logger;
     }
 

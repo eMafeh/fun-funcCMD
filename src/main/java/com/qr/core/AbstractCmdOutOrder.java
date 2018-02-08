@@ -2,7 +2,9 @@ package com.qr.core;
 
 import com.qr.order.CmdOutOrder;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
@@ -16,6 +18,10 @@ public interface AbstractCmdOutOrder extends CmdOutOrder {
 
     @Override
     default void shutDown() {
+    }
+
+    @Override
+    default void setLogger(Consumer<Supplier<String>> logger) {
     }
 
     @Override

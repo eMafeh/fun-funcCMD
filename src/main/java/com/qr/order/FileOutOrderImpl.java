@@ -9,7 +9,9 @@ import socket.file.model.morefile.IoDirectoryModelPackage;
 import socket.file.model.simglefile.WantFile;
 
 import java.io.File;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
@@ -20,6 +22,7 @@ public enum FileOutOrderImpl implements CmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
+
     private static final String EXIT = "exit";
     public static final String ALL_FILE = "A";
     public static final String WANT_FILE = "W";
@@ -31,6 +34,13 @@ public enum FileOutOrderImpl implements CmdOutOrder {
     @Override
     public String getNameSpace() {
         return "file";
+    }
+
+    private static Consumer<Supplier<String>> logger;
+
+    @Override
+    public void setLogger(Consumer<Supplier<String>> logger) {
+        FileOutOrderImpl.logger = logger;
     }
 
     @Override
@@ -51,7 +61,7 @@ public enum FileOutOrderImpl implements CmdOutOrder {
             send.addMessage(ALL_FILE + JSON.toJSONString(fileModel), farHost, farPort);
             return true;
         }
-        CmdBoot.cmdPrintln(" file is not found" + order);
+        logger.accept(() -> " file is not found" + order);
         return true;
     }
 

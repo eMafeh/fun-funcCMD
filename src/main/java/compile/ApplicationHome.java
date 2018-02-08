@@ -5,8 +5,8 @@ import util.PrintlnLogger;
 
 import java.io.File;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
@@ -17,7 +17,7 @@ public enum ApplicationHome implements PrintlnLogger {
      * 唯一实例
      */
     INSTANCE;
-    public static Consumer<Callable<String>> logger = System.out::println;
+    public static Consumer<Supplier<String>> logger = System.out::println;
     private static final String CLASSES_PATH = "classes";
     private static final String SEPARATOR_CHAR = "/";
     private static final String SEPARATOR_CHAR2 = "\\";
@@ -79,12 +79,12 @@ public enum ApplicationHome implements PrintlnLogger {
     }
 
     @Override
-    public Consumer<Callable<String>> getLogger() {
+    public Consumer<Supplier<String>> getLogger() {
         return logger;
     }
 
     @Override
-    public void setLogger(Consumer<Callable<String>> logger) {
+    public void setLogger(Consumer<Supplier<String>> logger) {
         ApplicationHome.logger = logger;
     }
 }

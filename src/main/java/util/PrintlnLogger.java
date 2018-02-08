@@ -1,27 +1,21 @@
 package util;
 
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author qianrui
  * 2018/2/7
  */
 public interface PrintlnLogger {
-    Consumer<Callable<String>> getLogger();
+    Consumer<Supplier<String>> getLogger();
 
-    void setLogger(Consumer<Callable<String>> logger);
+    void setLogger(Consumer<Supplier<String>> logger);
 
-    default void print(Callable<String> message) {
-        try {
-            Consumer<Callable<String>> logger = getLogger();
-            if (logger != null) {
-                logger.accept(message);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    default void print(Supplier<String> message) {
+        Consumer<Supplier<String>> logger;
+        if ((logger = getLogger()) != null) {
+            logger.accept(message);
         }
-
-
     }
 }

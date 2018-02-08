@@ -8,7 +8,9 @@ import socket.xqy.XqytpMessage;
 import util.AllThreadUtil;
 import util.LocalIp;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static socket.config.CharsetConfig.EXIT;
 
@@ -32,9 +34,16 @@ public enum XqyOutOrderImpl implements CmdOutOrder {
         return "xqy";
     }
 
+    private static Consumer<Supplier<String>> logger;
+
+    @Override
+    public void setLogger(Consumer<Supplier<String>> logger) {
+        XqyOutOrderImpl.logger = logger;
+    }
+
     @Override
     public void install(Function<String, String> getString) throws Throwable {
-        System.out.println("欢迎使用小蚯蚓聊天工具");
+        logger.accept(() -> "欢迎使用小蚯蚓聊天工具");
         INSTANCE.host = getString.apply("请确认对方ip").trim();
         if (EXIT.equals(INSTANCE.host.trim())) {
             throw new Throwable("终止操作");
@@ -48,10 +57,10 @@ public enum XqyOutOrderImpl implements CmdOutOrder {
                 System.out.println(e.getMessage());
             }
         }
-        System.out.println("小蚯蚓信息接收端口成功打开" + INSTANCE.server.getPort());
+        logger.accept(() -> "小蚯蚓信息接收端口成功打开" + INSTANCE.server.getPort());
         INSTANCE.send.start();
         INSTANCE.key = AllThreadUtil.whileTrueThread(this::useMessage, 100);
-        System.out.println("使用愉快，输入 xqy exit 退出，输入help查看完整指令");
+        logger.accept(() -> "使用愉快，输入 xqy exit 退出，输入help查看完整指令");
     }
 
     @Override

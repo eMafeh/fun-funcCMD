@@ -10,9 +10,9 @@ import util.StringSplitUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * 2017/9/8  9:50
@@ -21,22 +21,21 @@ import java.util.function.Function;
  */
 public class CmdBoot {
     private static final Scanner SC = new Scanner(System.in);
-    public static final Consumer<Callable<String>> LOGGER = a -> {
-        try {
-            cmdPrintln(a.call());
-        } catch (Exception e) {
-            cmdPrintln(e);
-        }
-    };
+    public static final Consumer<Supplier<String>> LOGGER = a -> cmdPrintln(a.get());
     static final Map<String, CmdOutOrder> NAMESPACE = new HashMap<>();
 
     static {
-        NAMESPACE.put(ExitOutOrderImpl.INSTANCE.getNameSpace(), ExitOutOrderImpl.INSTANCE);
-        NAMESPACE.put(RunOutOrderImpl.INSTANCE.getNameSpace(), RunOutOrderImpl.INSTANCE);
-        NAMESPACE.put(ShowOutOrderImpl.INSTANCE.getNameSpace(), ShowOutOrderImpl.INSTANCE);
-        NAMESPACE.put(XqyOutOrderImpl.INSTANCE.getNameSpace(), XqyOutOrderImpl.INSTANCE);
-        NAMESPACE.put(FileOutOrderImpl.INSTANCE.getNameSpace(), FileOutOrderImpl.INSTANCE);
-        NAMESPACE.put(MouseOutOrderImpl.INSTANCE.getNameSpace(), MouseOutOrderImpl.INSTANCE);
+        //load system order
+        addOutOrder(ExitOutOrderImpl.INSTANCE, RunOutOrderImpl.INSTANCE, ShowOutOrderImpl.INSTANCE);
+        //load server order
+        addOutOrder(XqyOutOrderImpl.INSTANCE, FileOutOrderImpl.INSTANCE, MouseOutOrderImpl.INSTANCE);
+    }
+
+    private static void addOutOrder(CmdOutOrder... cmdOutOrders) {
+        for (CmdOutOrder outOrder : cmdOutOrders) {
+            NAMESPACE.put(outOrder.getNameSpace(), outOrder);
+            outOrder.setLogger(LOGGER);
+        }
     }
 
     static volatile boolean noSilent = true;
