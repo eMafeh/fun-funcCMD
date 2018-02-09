@@ -1,7 +1,7 @@
 package compile;
 
 import util.ClassUtils;
-import util.PrintlnLogger;
+import util.IntelligentLogger;
 
 import java.io.File;
 import java.net.URL;
@@ -10,31 +10,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @author kelaite
  * 2018/1/24
  */
-public enum JavaCompileOptionsBuilder implements PrintlnLogger {
+public enum JavaCompileOptionsBuilder implements IntelligentLogger {
     /**
      * 唯一实例
      */
     INSTANCE;
 
-    public static Consumer<Supplier<String>> logger;
     private static final String JAR_KIND = ".jar";
-
-    @Override
-    public Consumer<Supplier<String>> getLogger() {
-        return logger;
-    }
-
-    @Override
-    public void setLogger(Consumer<Supplier<String>> logger) {
-        JavaCompileOptionsBuilder.logger = logger;
-    }
 
     private Set<String> paths = new TreeSet<>();
 

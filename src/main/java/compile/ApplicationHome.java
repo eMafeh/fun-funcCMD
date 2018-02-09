@@ -1,23 +1,20 @@
 package compile;
 
 
-import util.PrintlnLogger;
+import util.IntelligentLogger;
 
 import java.io.File;
 import java.util.Objects;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @author kelaite
  * 2018/2/1
  */
-public enum ApplicationHome implements PrintlnLogger {
+public enum ApplicationHome implements IntelligentLogger {
     /**
      * 唯一实例
      */
     INSTANCE;
-    public static Consumer<Supplier<String>> logger = System.out::println;
     private static final String CLASSES_PATH = "classes";
     private static final String SEPARATOR_CHAR = "/";
     private static final String SEPARATOR_CHAR2 = "\\";
@@ -78,13 +75,4 @@ public enum ApplicationHome implements PrintlnLogger {
         return path + SEPARATOR_CHAR + CLASSES_PATH + SEPARATOR_CHAR;
     }
 
-    @Override
-    public Consumer<Supplier<String>> getLogger() {
-        return logger;
-    }
-
-    @Override
-    public void setLogger(Consumer<Supplier<String>> logger) {
-        ApplicationHome.logger = logger;
-    }
 }

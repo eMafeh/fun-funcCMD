@@ -36,7 +36,6 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
 
     @Override
     public void install(Function<String, String> getLine) throws Throwable {
-        instance.setLogger(logger);
         instance.print(() -> TITLE + "功能" + "\n" + "开启\n");
         install();
     }
@@ -108,7 +107,7 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
     public void setShow(String value) {
         Boolean result = StringValueUtil.caseTrueFalse(value);
         if (result != null) {
-            instance.setLogger(result ? logger : null);
+//            instance.setLogger(result ? logger : null);
         }
     }
 
@@ -123,4 +122,5 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
     public boolean isStart() {
         return key != null && key.isRun();
     }
+
 }

@@ -7,6 +7,7 @@ import com.qr.order.XqyOutOrderImpl;
 import util.AllThreadUtil;
 import util.StringSplitUtil;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -21,7 +22,7 @@ import java.util.function.Supplier;
  */
 public class CmdBoot {
     private static final Scanner SC = new Scanner(System.in);
-    public static final Consumer<Supplier<String>> LOGGER = a -> cmdPrintln(a.get());
+    private static final Consumer<Supplier<String>> LOGGER = a -> cmdPrintln(a.get());
     static final Map<String, CmdOutOrder> NAMESPACE = new HashMap<>();
 
     static {
@@ -41,7 +42,9 @@ public class CmdBoot {
     static volatile boolean noSilent = true;
 
     public static void main(String[] args) {
-
+        final Package[] packages = Package.getPackages();
+        System.out.println(packages.length);
+        Arrays.stream(packages).filter(a->!a.getName().startsWith("java")&&!a.getName().startsWith("sun")).forEach(System.out::println);
         String line;
         String[] orders;
         CmdOutOrder cmdOutOrder;
@@ -98,6 +101,9 @@ public class CmdBoot {
         });
         AllThreadUtil.exit();
         System.out.println("system is exited");
+        final Package[] packages2 = Package.getPackages();
+        System.out.println(packages2.length);
+        Arrays.stream(packages2).filter(a->!a.getName().startsWith("java")&&!a.getName().startsWith("sun")).forEach(System.out::println);
         System.exit(0);
     }
 

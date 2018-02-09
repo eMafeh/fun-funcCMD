@@ -1,19 +1,16 @@
 package socket.script;
 
-import util.PrintlnLogger;
+import util.IntelligentLogger;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @author kelaite
  * 2018/2/8
  */
-public enum RobotMouse implements PrintlnLogger {
+public enum RobotMouse implements IntelligentLogger {
     /**
      * 全局唯一实例
      */
@@ -168,19 +165,6 @@ public enum RobotMouse implements PrintlnLogger {
      */
     private int randomxy() {
         return RANDOM.nextInt(RM) - RM / 2;
-    }
-
-
-    private static Consumer<Supplier<String>> logger;
-
-    @Override
-    public Consumer<Supplier<String>> getLogger() {
-        return logger;
-    }
-
-    @Override
-    public void setLogger(Consumer<Supplier<String>> logger) {
-        RobotMouse.logger = logger;
     }
 
     public void showMouse() {

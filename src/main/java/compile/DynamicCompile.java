@@ -3,7 +3,7 @@ package compile;
 
 import util.ClassUtils;
 import util.FileUtils;
-import util.PrintlnLogger;
+import util.IntelligentLogger;
 
 import javax.tools.*;
 import java.io.ByteArrayOutputStream;
@@ -18,30 +18,16 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 /**
  * @author kelaite
  */
-public enum DynamicCompile implements PrintlnLogger {
+public enum DynamicCompile implements IntelligentLogger {
     /**
      * 唯一实例
      */
     INSTANCE;
-
-    public static Consumer<Supplier<String>> logger = System.out::println;
     private static final String TITLE = "< DynamicCompile >";
-
-    @Override
-    public Consumer<Supplier<String>> getLogger() {
-        return logger;
-    }
-
-    @Override
-    public void setLogger(Consumer<Supplier<String>> logger) {
-        DynamicCompile.logger = logger;
-    }
 
     /**
      * 类加载器，由spring方法说明
