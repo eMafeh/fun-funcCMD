@@ -1,9 +1,6 @@
 package util;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.IntConsumer;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 import static util.IntelligentLogger.AssertHelper.INSTANCE;
 
@@ -14,7 +11,7 @@ import static util.IntelligentLogger.AssertHelper.INSTANCE;
 public interface IntelligentLogger {
     Function<Class<? extends IntelligentLogger>, Consumer<Supplier<String>>> LOGGER_FACTORY = IntelligentLoggerFactory.getFactory();
     Function<Class<? extends IntelligentLogger>, Boolean> ENOUGH_LEVEL = IntelligentLoggerLevel.enoughLevel();
-    IntConsumer CHANGE_LEVEL = IntelligentLoggerLevel.changeLevel();
+    BiConsumer<Class<? extends IntelligentLogger>, Integer> CHANGE_LEVEL = IntelligentLoggerLevel.changeLevel();
 
 
     default void print(Supplier<String> message) {
@@ -34,8 +31,7 @@ public interface IntelligentLogger {
     }
 
     default void setLoggerlevel(int level) {
-
-        CHANGE_LEVEL.accept(level);
+        CHANGE_LEVEL.accept(this.getClass(), level);
     }
 
     AssertHelper ASSERT = INSTANCE;
