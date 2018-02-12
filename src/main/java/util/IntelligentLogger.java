@@ -9,8 +9,8 @@ import static util.IntelligentLogger.AssertHelper.INSTANCE;
  * 2018/2/7
  */
 public interface IntelligentLogger {
-    Function<Class<? extends IntelligentLogger>, Consumer<Supplier<String>>> LOGGER_FACTORY = IntelligentLoggerFactory.getFactory();
-    Function<Class<? extends IntelligentLogger>, Boolean> ENOUGH_LEVEL = IntelligentLoggerLevel.enoughLevel();
+    Function<Class<? extends IntelligentLogger>, Consumer<Supplier<String>>> MESSAGE_CONSUMER = IntelligentLoggerFactory.getFactory();
+    Function<Class<? extends IntelligentLogger>, Boolean> ENOUGH_LEVEL = IntelligentLoggerLevel.level();
     BiConsumer<Class<? extends IntelligentLogger>, Integer> CHANGE_LEVEL = IntelligentLoggerLevel.changeLevel();
 
 
@@ -23,7 +23,7 @@ public interface IntelligentLogger {
         if (enough == null || !enough) {
             return;
         }
-        Consumer<Supplier<String>> logger = LOGGER_FACTORY.apply(thisType);
+        Consumer<Supplier<String>> logger = MESSAGE_CONSUMER.apply(thisType);
         if (logger == null) {
             return;
         }
@@ -49,8 +49,8 @@ public interface IntelligentLogger {
             if (ENOUGH_LEVEL == null) {
                 throw new NullPointerException("field ENOUGH_LEVEL can not be null");
             }
-            if (LOGGER_FACTORY == null) {
-                throw new NullPointerException("field LOGGER_FACTORY can not be null");
+            if (MESSAGE_CONSUMER == null) {
+                throw new NullPointerException("field MESSAGE_CONSUMER can not be null");
             }
         }
     }
