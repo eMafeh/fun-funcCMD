@@ -11,9 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * 2017/9/8  9:50
@@ -22,7 +20,6 @@ import java.util.function.Supplier;
  */
 public class CmdBoot {
     private static final Scanner SC = new Scanner(System.in);
-    private static final Consumer<Supplier<String>> LOGGER = a -> cmdPrintln(a.get());
     static final Map<String, CmdOutOrder> NAMESPACE = new HashMap<>();
 
     static {
@@ -35,16 +32,14 @@ public class CmdBoot {
     private static void addOutOrder(CmdOutOrder... cmdOutOrders) {
         for (CmdOutOrder outOrder : cmdOutOrders) {
             NAMESPACE.put(outOrder.getNameSpace(), outOrder);
-            outOrder.setLogger(LOGGER);
         }
     }
 
-    static volatile boolean noSilent = true;
 
     public static void main(String[] args) {
         final Package[] packages = Package.getPackages();
         System.out.println(packages.length);
-        Arrays.stream(packages).filter(a->!a.getName().startsWith("java")&&!a.getName().startsWith("sun")).forEach(System.out::println);
+        Arrays.stream(packages).filter(a -> !a.getName().startsWith("java") && !a.getName().startsWith("sun")).forEach(System.out::println);
         String line;
         String[] orders;
         CmdOutOrder cmdOutOrder;
@@ -74,7 +69,7 @@ public class CmdBoot {
                     System.out.println("-" + cmdOutOrder.getNameSpace() + " is not install");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             } catch (Throwable throwable) {
                 System.out.println(throwable.getMessage());
                 try {
@@ -103,7 +98,7 @@ public class CmdBoot {
         System.out.println("system is exited");
         final Package[] packages2 = Package.getPackages();
         System.out.println(packages2.length);
-        Arrays.stream(packages2).filter(a->!a.getName().startsWith("java")&&!a.getName().startsWith("sun")).forEach(System.out::println);
+        Arrays.stream(packages2).filter(a -> !a.getName().startsWith("java") && !a.getName().startsWith("sun")).forEach(System.out::println);
         System.exit(0);
     }
 
@@ -131,12 +126,7 @@ public class CmdBoot {
     }
 
     public static <E> void cmdPrintln(E e) {
-        if (noSilent) {
-            System.out.println(e);
-        }
+        System.out.println(e);
     }
 
-    public static boolean isNoSilent() {
-        return noSilent;
-    }
 }

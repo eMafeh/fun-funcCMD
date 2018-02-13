@@ -1,6 +1,6 @@
 package socket.script;
 
-import util.IntelligentLogger;
+import com.qr.log.IntelligentLogger;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
@@ -18,7 +18,7 @@ public enum RobotMouse implements IntelligentLogger {
     /**
      * 默认不点击
      */
-    public boolean clock = false;
+    public boolean click = false;
 
     /**
      * 获取当前鼠标位置和目标位置
@@ -151,7 +151,7 @@ public enum RobotMouse implements IntelligentLogger {
      * 鼠标点左键，鼠标松开左键
      */
     private void robotClick() {
-        if (clock) {
+        if (click) {
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
             print(() -> "click");

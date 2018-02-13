@@ -5,9 +5,7 @@ import util.AllThreadUtil;
 import util.StringSplitUtil;
 import util.StringValueUtil;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @author QianRui
@@ -66,8 +64,8 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
             case "move":
                 setMove(value);
                 return true;
-            case "clock":
-                setClock(value);
+            case "click":
+                setClick(value);
                 return true;
             case "time":
                 setTime(value);
@@ -92,10 +90,10 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
         }
     }
 
-    private void setClock(String value) {
+    private void setClick(String value) {
         Boolean result = StringValueUtil.caseTrueFalse(value);
         if (result != null) {
-            instance.clock = result;
+            instance.click = result;
         }
     }
 
@@ -104,18 +102,8 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
         install();
     }
 
-    public void setShow(String value) {
-        Boolean result = StringValueUtil.caseTrueFalse(value);
-        if (result != null) {
-//            instance.setLogger(result ? logger : null);
-        }
-    }
-
-    private static Consumer<Supplier<String>> logger;
-
-    @Override
-    public void setLogger(Consumer<Supplier<String>> logger) {
-        MouseOutOrderImpl.logger = logger;
+    private void setShow(String value) {
+        instance.logLevel(value);
     }
 
     @Override

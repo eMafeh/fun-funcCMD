@@ -3,7 +3,7 @@ package compile;
 
 import util.ClassUtils;
 import util.FileUtils;
-import util.IntelligentLogger;
+import com.qr.log.IntelligentLogger;
 
 import javax.tools.*;
 import java.io.ByteArrayOutputStream;

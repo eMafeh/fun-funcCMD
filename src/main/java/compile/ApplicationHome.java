@@ -1,7 +1,7 @@
 package compile;
 
 
-import util.IntelligentLogger;
+import com.qr.log.IntelligentLogger;
 
 import java.io.File;
 import java.util.Objects;

@@ -1,5 +1,7 @@
 package com.qr.core;
 
+import com.qr.log.IntelligentLogger;
+import com.qr.log.LogLevel;
 import util.StringSplitUtil;
 
 /**
@@ -19,10 +21,7 @@ public enum ShowOutOrderImpl implements AbstractCmdOutOrder {
 
     @Override
     public boolean useOrder(String order) throws Throwable {
-        Boolean noSilent = isSilent(StringSplitUtil.nextWord(order, -1));
-        if (noSilent != null) {
-            CmdBoot.noSilent = noSilent;
-        }
+        IntelligentLogger.setRootLevel(LogLevel.getLoggerLevel(StringSplitUtil.nextWord(order, -1)));
         return true;
     }
 

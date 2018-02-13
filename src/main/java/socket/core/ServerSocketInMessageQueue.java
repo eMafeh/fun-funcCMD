@@ -111,9 +111,7 @@ public class ServerSocketInMessageQueue {
         } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
-        if (CmdBoot.isNoSilent()) {
-            messageQueue.forEach(CmdBoot::cmdPrintln);
-        }
+        messageQueue.forEach(CmdBoot::cmdPrintln);
         messageQueue.clear();
         serverSocket = null;
     }

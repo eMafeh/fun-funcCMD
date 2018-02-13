@@ -17,4 +17,12 @@ public class StringValueUtil {
                 return null;
         }
     }
+
+    public static Integer caseInteger(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }

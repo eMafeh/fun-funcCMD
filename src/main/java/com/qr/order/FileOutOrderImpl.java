@@ -2,24 +2,21 @@ package com.qr.order;
 
 import com.alibaba.fastjson.JSON;
 import com.qr.core.CmdBoot;
-import compile.ApplicationHome;
-import compile.DynamicCompile;
 import socket.core.ClientSocketMessageSend;
 import socket.file.FileOutListener;
 import socket.file.messagebuild.IoFilePackageBuilder;
 import socket.file.model.morefile.IoDirectoryModelPackage;
 import socket.file.model.simglefile.WantFile;
+import com.qr.log.IntelligentLogger;
 
 import java.io.File;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * @author kelaite
  * 2018/2/7
  */
-public enum FileOutOrderImpl implements CmdOutOrder {
+public enum FileOutOrderImpl implements CmdOutOrder , IntelligentLogger{
     /**
      * 全局唯一实例
      */
@@ -36,13 +33,6 @@ public enum FileOutOrderImpl implements CmdOutOrder {
     @Override
     public String getNameSpace() {
         return "file";
-    }
-
-    private static Consumer<Supplier<String>> logger;
-
-    @Override
-    public void setLogger(Consumer<Supplier<String>> logger) {
-        FileOutOrderImpl.logger = logger;
     }
 
     @Override
@@ -63,7 +53,7 @@ public enum FileOutOrderImpl implements CmdOutOrder {
             send.addMessage(ALL_FILE + JSON.toJSONString(fileModel), farHost, farPort);
             return true;
         }
-        logger.accept(() -> " file is not found" + order);
+        print(() -> " file is not found" + order);
         return true;
     }
 

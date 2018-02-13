@@ -21,10 +21,6 @@ public interface AbstractCmdOutOrder extends CmdOutOrder {
     }
 
     @Override
-    default void setLogger(Consumer<Supplier<String>> logger) {
-    }
-
-    @Override
     default boolean isStart() {
         return true;
     }
