@@ -9,7 +9,7 @@ import java.util.function.Function;
  *
  * @author qianrui
  */
-public interface CmdOutOrder extends IntelligentLogger{
+public interface CmdOutOrder extends IntelligentLogger {
     String getNameSpace();
 
     boolean useOrder(String order) throws Throwable;
@@ -19,5 +19,9 @@ public interface CmdOutOrder extends IntelligentLogger{
     void install(Function<String, String> getLine) throws Throwable;
 
     void shutDown();
+
+    default String getDescription() {
+        return "";
+    }
 
 }

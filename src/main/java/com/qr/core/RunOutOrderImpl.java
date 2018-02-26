@@ -7,7 +7,7 @@ import util.StringSplitUtil;
  * @author kelaite
  * 2018/2/7
  */
-public enum RunOutOrderImpl implements AbstractCmdOutOrder {
+public enum RunOutOrderImpl implements SystemCmdOutOrder {
     /**
      * 全局唯一实例
      */

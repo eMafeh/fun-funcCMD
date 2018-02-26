@@ -1,20 +1,21 @@
 package socket.script;
 
-import com.qr.log.IntelligentLogger;
-
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.util.Random;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
  * 2018/2/8
  */
-public enum RobotMouse implements IntelligentLogger {
+public enum RobotMouse {
     /**
      * 全局唯一实例
      */
     INSTANCE;
+    public Consumer<Supplier<String>> log = a -> System.out.println(a.get());
     /**
      * 默认不点击
      */
@@ -27,7 +28,7 @@ public enum RobotMouse implements IntelligentLogger {
     public void moveROBET() {
         Point location = MouseInfo.getPointerInfo().getLocation();
         Point target = clickPoint();
-        print(() -> "RandomMouse x:" + target.x + "   y:" + target.y);
+        log.accept(() -> "RandomMouse x:" + target.x + "   y:" + target.y);
         notLock(location, target);
     }
 
@@ -36,7 +37,7 @@ public enum RobotMouse implements IntelligentLogger {
      */
     public void lazyROBET() {
         Point location = MouseInfo.getPointerInfo().getLocation();
-        print(() -> "lazyMouse x:" + location.x + "   y:" + location.y);
+        log.accept(() -> "lazyMouse x:" + location.x + "   y:" + location.y);
         robotClick();
     }
 
@@ -154,9 +155,9 @@ public enum RobotMouse implements IntelligentLogger {
         if (click) {
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
-            print(() -> "click");
+            log.accept(() -> "click");
         } else {
-            print(() -> "noClick");
+            log.accept(() -> "noClick");
         }
     }
 
@@ -169,7 +170,7 @@ public enum RobotMouse implements IntelligentLogger {
 
     public void showMouse() {
         Point location = MouseInfo.getPointerInfo().getLocation();
-        print(() -> robot.getPixelColor(location.x, location.y).toString());
+        log.accept(() -> robot.getPixelColor(location.x, location.y).toString());
     }
 
 }

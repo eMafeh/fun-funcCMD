@@ -7,7 +7,7 @@ import util.StringSplitUtil;
  * @author kelaite
  * 2018/2/7
  */
-public enum ExitOutOrderImpl implements AbstractCmdOutOrder {
+public enum ExitOutOrderImpl implements SystemCmdOutOrder {
     /**
      * 全局唯一实例
      */
@@ -28,6 +28,10 @@ public enum ExitOutOrderImpl implements AbstractCmdOutOrder {
         }
         String target = StringSplitUtil.nextWord(order, -1);
         CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(target);
+        if (cmdOutOrder == INSTANCE) {
+            SystemCmdOutOrder.super.shutDown();
+            return true;
+        }
         if (cmdOutOrder != null) {
             cmdOutOrder.shutDown();
             return true;
@@ -39,6 +43,8 @@ public enum ExitOutOrderImpl implements AbstractCmdOutOrder {
     public void shutDown() {
         if (YES.equals(CmdBoot.getString(TITLE))) {
             throw EXIT_EXCEPTION;
+        } else {
+            print(() -> "system exit is cancel");
         }
     }
 }

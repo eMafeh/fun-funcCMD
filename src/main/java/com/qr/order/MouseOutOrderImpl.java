@@ -15,7 +15,29 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
+
+    @Override
+    public String getDescription() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("\nmouse is a robot\n");
+        builder.append("it have a loop time\n");
+        builder.append("when time over\n");
+        builder.append("mouse can move and click\n");
+        builder.append("use this trick to make windows never lock.\n");
+        builder.append("and mouse can get pointer color.\n\n");
+        builder.append(StringValueUtil.addSpacingToLength("'" + getNameSpace() + " move  true/false'", 40)).append("when time up,mouse move to the windows centre and back,or never move\n");
+        builder.append(StringValueUtil.addSpacingToLength("'" + getNameSpace() + " click true/false'", 40)).append("when time up,mouse click left key once ,or not click\n");
+        builder.append(StringValueUtil.addSpacingToLength("'" + getNameSpace() + " time  [integer number]'", 40)).append("set time loops length\n");
+        builder.append(StringValueUtil.addSpacingToLength("'" + getNameSpace() + " detail'", 40)).append("show mouse point color\n");
+        return builder.toString();
+    }
+
     private RobotMouse instance = RobotMouse.INSTANCE;
+
+    {
+        instance.log = this::print;
+    }
+
     /**
      * 默认移动鼠标
      */
@@ -34,13 +56,13 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
 
     @Override
     public void install(Function<String, String> getLine) throws Throwable {
-        instance.print(() -> TITLE + "功能" + "\n" + "开启\n");
+        print(() -> TITLE + "功能" + "\n" + "开启\n");
         install();
     }
 
     private void install() {
         AllThreadUtil.stop(key);
-        instance.print(() -> "当前每 " + period / 1000 + " 秒，点击一次");
+        print(() -> "当前每 " + period / 1000 + " 秒，点击一次");
         key = AllThreadUtil.whileTrueThread(() -> {
             order.run();
             return true;
@@ -70,9 +92,6 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
             case "time":
                 setTime(value);
                 return true;
-            case "show":
-                setShow(value);
-                return true;
             case "detail":
                 instance.showMouse();
                 return true;
@@ -80,7 +99,6 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
                 return false;
         }
     }
-
 
     private void setMove(String value) {
         Boolean result = StringValueUtil.caseTrueFalse(value);
@@ -100,10 +118,6 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
     private void setTime(String value) {
         period = Integer.parseInt(value) * 1000;
         install();
-    }
-
-    private void setShow(String value) {
-        instance.logLevel(value);
     }
 
     @Override

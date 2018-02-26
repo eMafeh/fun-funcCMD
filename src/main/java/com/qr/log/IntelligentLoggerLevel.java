@@ -16,13 +16,17 @@ class IntelligentLoggerLevel extends Config.Level {
      * 记录一个类的日志级别
      * 初始值默认为0
      */
-    private static final Map<Class<? extends IntelligentLogger>, Integer> LEVEL_CACHE = new ConcurrentSkipListMap<>(Comparator.comparing(Class::getName));
+    private static final Map<Class<? extends IntelligentLogger>, LogLevel> LEVEL_CACHE = new ConcurrentSkipListMap<>(Comparator.comparing(Class::getName));
 
     /**
      * 提供一个函数方法，该方法描述指定类的级别是否足够
      */
     static Function<Class<? extends IntelligentLogger>, Boolean> classLevel() {
-        return (Function<Class<? extends IntelligentLogger>, Boolean> & Serializable) a -> LEVEL_CACHE.computeIfAbsent(a, b -> DEFAULT_LEVEL.getLevel()) >= rootLevel.getLevel();
+        return (Function<Class<? extends IntelligentLogger>, Boolean> & Serializable) a -> getClassLevel().apply(a).getLevel() >= rootLevel.getLevel();
+    }
+
+    static Function<Class<? extends IntelligentLogger>, LogLevel> getClassLevel() {
+        return (Function<Class<? extends IntelligentLogger>, LogLevel> & Serializable) a -> LEVEL_CACHE.computeIfAbsent(a, b -> DEFAULT_LEVEL);
     }
 
     /**
@@ -36,7 +40,7 @@ class IntelligentLoggerLevel extends Config.Level {
      * 提供一个消费方法，该方法设定指定类的级别值
      */
     static BiConsumer<Class<? extends IntelligentLogger>, String> changeLevel() {
-        return (BiConsumer<Class<? extends IntelligentLogger>, String> & Serializable) (a, b) -> LEVEL_CACHE.put(a, toLevel.apply(b).getLevel());
+        return (BiConsumer<Class<? extends IntelligentLogger>, String> & Serializable) (a, b) -> LEVEL_CACHE.put(a, toLevel.apply(b));
     }
 
 }

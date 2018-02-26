@@ -1,13 +1,14 @@
 package com.qr.core;
 
+import com.qr.log.LogLevel;
 import com.qr.order.CmdOutOrder;
 import com.qr.order.FileOutOrderImpl;
 import com.qr.order.MouseOutOrderImpl;
 import com.qr.order.XqyOutOrderImpl;
 import util.AllThreadUtil;
 import util.StringSplitUtil;
+import util.StringValueUtil;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -24,22 +25,42 @@ public class CmdBoot {
 
     static {
         //load system order
-        addOutOrder(ExitOutOrderImpl.INSTANCE, RunOutOrderImpl.INSTANCE, ShowOutOrderImpl.INSTANCE);
+        addOutOrder(ExitOutOrderImpl.INSTANCE, RunOutOrderImpl.INSTANCE, LogOutOrderImpl.INSTANCE, HelpOutOrderImpl.INSTANCE);
+        NAMESPACE.forEach((a, b) -> b.setLogLevel(LogLevel.ERROR.name()));
         //load server order
         addOutOrder(XqyOutOrderImpl.INSTANCE, FileOutOrderImpl.INSTANCE, MouseOutOrderImpl.INSTANCE);
     }
 
-    private static void addOutOrder(CmdOutOrder... cmdOutOrders) {
+    static void addOutOrder(CmdOutOrder... cmdOutOrders) {
         for (CmdOutOrder outOrder : cmdOutOrders) {
-            NAMESPACE.put(outOrder.getNameSpace(), outOrder);
+            addOutOrder(outOrder);
         }
+    }
+
+    static String getDescription() {
+        StringBuilder result = new StringBuilder("QianRui Cmd\nis a test fun work and it support some order\n");
+        result.append("\ninput '").append(HelpOutOrderImpl.INSTANCE.getNameSpace()).append(" [order]'\nto show how to use this order\n");
+        result.append("\nnow have order list is : \n");
+        NAMESPACE.forEach((a, b) -> result.append(StringValueUtil.addSpacingToLength(a, 20)).append("by(").append(b.getClass()).append(")\n"));
+        result.append("\nif you have some awesome ideas or codes or you just want to join this work\n");
+        result.append("please contact me!!!\n>>>\temail 1135901259@qq.com\n>>>\tphoneNumber 18715600499\n");
+        return result.toString();
+    }
+
+    static void addOutOrder(CmdOutOrder outOrder) {
+        final String nameSpace = outOrder.getNameSpace();
+        final CmdOutOrder cmdOutOrder = NAMESPACE.get(nameSpace);
+        if (cmdOutOrder != null) {
+            throw new RuntimeException(cmdOutOrder.getClass() + " | " + outOrder.getClass() + " have same namespace : " + nameSpace);
+        }
+        NAMESPACE.put(nameSpace, outOrder);
     }
 
 
     public static void main(String[] args) {
-        final Package[] packages = Package.getPackages();
-        System.out.println(packages.length);
-        Arrays.stream(packages).filter(a -> !a.getName().startsWith("java") && !a.getName().startsWith("sun")).forEach(System.out::println);
+//        final Package[] packages = Package.getPackages();
+//        System.out.println(packages.length);
+//        Arrays.stream(packages).filter(a -> !a.getName().startsWith("java") && !a.getName().startsWith("sun")).forEach(System.out::println);
         String line;
         String[] orders;
         CmdOutOrder cmdOutOrder;
@@ -84,9 +105,8 @@ public class CmdBoot {
                 }
             }
         }
-        CmdOutOrder notAgain = cmdOutOrder;
         NAMESPACE.forEach((a, b) -> {
-            if (b != null && !b.equals(notAgain)) {
+            if (b != null && !(b instanceof SystemCmdOutOrder)) {
                 try {
                     b.shutDown();
                 } catch (Throwable exit) {
@@ -96,9 +116,9 @@ public class CmdBoot {
         });
         AllThreadUtil.exit();
         System.out.println("system is exited");
-        final Package[] packages2 = Package.getPackages();
-        System.out.println(packages2.length);
-        Arrays.stream(packages2).filter(a -> !a.getName().startsWith("java") && !a.getName().startsWith("sun")).forEach(System.out::println);
+//        final Package[] packages2 = Package.getPackages();
+//        System.out.println(packages2.length);
+//        Arrays.stream(packages2).filter(a -> !a.getName().startsWith("java") && !a.getName().startsWith("sun")).forEach(System.out::println);
         System.exit(0);
     }
 

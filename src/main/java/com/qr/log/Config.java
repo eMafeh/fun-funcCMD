@@ -17,6 +17,7 @@ interface Config {
         final static Function<Class<? extends IntelligentLogger>, Boolean> CLASS_ENOUGH_LEVEL = IntelligentLoggerLevel.classLevel();
         final static Function<Integer, Boolean> THIS_ENOUGH_LEVEL = IntelligentLoggerLevel.thisLevel();
         final static BiConsumer<Class<? extends IntelligentLogger>, String> CHANGE_LEVEL = IntelligentLoggerLevel.changeLevel();
+        final static Function<Class<? extends IntelligentLogger>, LogLevel> CLASS_LOG_LEVEL = IntelligentLoggerLevel.getClassLevel();
     }
 
     /**
@@ -31,7 +32,7 @@ interface Config {
      */
     class Level {
         final static LogLevel DEFAULT_LEVEL = LogLevel.INFO;
-        static LogLevel rootLevel = LogLevel.DEBUG;
+        static LogLevel rootLevel = LogLevel.INFO;
         static Function<String, LogLevel> toLevel = LogLevel::getLoggerLevel;
     }
 }

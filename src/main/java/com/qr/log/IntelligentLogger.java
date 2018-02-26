@@ -55,7 +55,11 @@ public interface IntelligentLogger {
         logger.accept(message);
     }
 
-    default void logLevel(String level) {
+    default void setLogLevel(String level) {
         CHANGE_LEVEL.accept(this.getClass(), level);
+    }
+
+    default LogLevel getLogLevel() {
+        return CLASS_LOG_LEVEL.apply(this.getClass());
     }
 }
