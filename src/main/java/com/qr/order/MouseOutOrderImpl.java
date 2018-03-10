@@ -1,10 +1,15 @@
 package com.qr.order;
 
+import com.qr.annotation.Orders;
+import com.qr.core.CmdOutOrder;
 import socket.script.RobotMouse;
 import util.AllThreadUtil;
 import util.StringSplitUtil;
 import util.StringValueUtil;
 
+import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
@@ -15,6 +20,19 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
+    private Function<String, Boolean> caseTrueFalse = StringValueUtil::caseTrueFalse;
+    private Function<String, Integer> caseInt = Integer::parseInt;
+
+    public static void main(String[] args) throws NoSuchFieldException {
+        Map<Type, Integer> functionMap = new ConcurrentHashMap<>();
+        final Type caseTrueFalse = INSTANCE.getClass().getDeclaredField("caseTrueFalse").getGenericType();
+        functionMap.put(caseTrueFalse, 1);
+
+        final Type test = INSTANCE.getClass().getDeclaredField("test").getGenericType();
+        functionMap.put(test, 1);
+        System.out.println(caseTrueFalse.equals(test));
+        System.out.println(functionMap);
+    }
 
     @Override
     public String getDescription() {
@@ -41,7 +59,7 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
     /**
      * 默认移动鼠标
      */
-    private Runnable order = instance::moveROBET;
+    private Runnable order = instance::robotMoveAndDo;
     /**
      * 默认三分钟间隔
      */
@@ -100,23 +118,17 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
         }
     }
 
+    @Orders
     private void setMove(String value) {
-        Boolean result = StringValueUtil.caseTrueFalse(value);
-        if (result != null) {
-            order = result ? instance::moveROBET : instance::lazyROBET;
-            install();
-        }
+        instance.move = caseTrueFalse.apply(value);
     }
 
     private void setClick(String value) {
-        Boolean result = StringValueUtil.caseTrueFalse(value);
-        if (result != null) {
-            instance.click = result;
-        }
+        instance.click = caseTrueFalse.apply(value);
     }
 
     private void setTime(String value) {
-        period = Integer.parseInt(value) * 1000;
+        period = caseInt.apply(value) * 1000;
         install();
     }
 

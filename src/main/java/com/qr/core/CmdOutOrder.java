@@ -1,4 +1,4 @@
-package com.qr.order;
+package com.qr.core;
 
 import com.qr.log.IntelligentLogger;
 

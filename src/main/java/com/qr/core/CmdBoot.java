@@ -1,7 +1,6 @@
 package com.qr.core;
 
 import com.qr.log.LogLevel;
-import com.qr.order.CmdOutOrder;
 import com.qr.order.FileOutOrderImpl;
 import com.qr.order.MouseOutOrderImpl;
 import com.qr.order.XqyOutOrderImpl;
@@ -65,6 +64,7 @@ public class CmdBoot {
         String[] orders;
         CmdOutOrder cmdOutOrder;
         while (true) {
+//            System.out.print("[cmd@root]$ ");
             line = SC.nextLine();
             orders = StringSplitUtil.maxSplitWords(line, 2);
             if (orders[0] == null) {

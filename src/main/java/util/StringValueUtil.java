@@ -1,5 +1,7 @@
 package util;
 
+import javax.annotation.Resource;
+
 /**
  * @author kelaite
  * 2018/2/8
@@ -13,6 +15,7 @@ public class StringValueUtil {
      * 如果目标为空，返回定长的空格
      * 如果目标不为空，且目标长度超过指定长度，额外追加一个空格
      */
+    @Resource
     public static String addSpacingToLength(String s, int length) {
 
         int fixLength = length <= 0 ? 1 : length;
@@ -31,7 +34,10 @@ public class StringValueUtil {
         return sBuilder.toString();
     }
 
-    public static Boolean caseTrueFalse(String s) {
+    public static boolean caseTrueFalse(String s) {
+        if (s == null) {
+            s = "";
+        }
         switch (s) {
             case "true":
             case "TRUE":
@@ -40,15 +46,11 @@ public class StringValueUtil {
             case "FALSE":
                 return false;
             default:
-                return null;
+                throw new RuntimeException("try understand this value is a boolean but fail : " + s);
         }
     }
 
-    public static Integer caseInteger(String s) {
-        try {
-            return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
-            return null;
-        }
+    public static int caseInteger(String s) {
+        return Integer.parseInt(s);
     }
 }

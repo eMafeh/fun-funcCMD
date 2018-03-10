@@ -15,36 +15,29 @@ public enum RobotMouse {
      * 全局唯一实例
      */
     INSTANCE;
-    public Consumer<Supplier<String>> log = a -> System.out.println(a.get());
+    public Consumer<Supplier<String>> log;
     /**
      * 默认不点击
      */
     public boolean click = false;
 
     /**
+     * 默认不移动
+     */
+    public boolean move = false;
+
+    /**
      * 获取当前鼠标位置和目标位置
      * 然后点击避免锁屏
      */
-    public void moveROBET() {
-        Point location = MouseInfo.getPointerInfo().getLocation();
-        Point target = clickPoint();
-        log.accept(() -> "RandomMouse x:" + target.x + "   y:" + target.y);
-        notLock(location, target);
-    }
-
-    /**
-     * 原位点击来避免锁屏
-     */
-    public void lazyROBET() {
-        Point location = MouseInfo.getPointerInfo().getLocation();
-        log.accept(() -> "lazyMouse x:" + location.x + "   y:" + location.y);
-        robotClick();
+    public void robotMoveAndDo() {
+        robotMoveAndDo(this::robotClick);
     }
 
     /**
      * 机器人
      */
-    public Robot robot;
+    private Robot robot;
 
     {
         try {
@@ -109,10 +102,18 @@ public enum RobotMouse {
      * 点击
      * 移回原位
      */
-    private void notLock(Point location, Point target) {
-        robot.mouseMove(target.x, target.y);
-        robotClick();
-        robot.mouseMove(location.x, location.y);
+    private void robotMoveAndDo(Runnable doSome) {
+        Point location = MouseInfo.getPointerInfo().getLocation();
+        if (move) {
+            Point target = clickPoint();
+            robot.mouseMove(target.x, target.y);
+            doSome.run();
+            robot.mouseMove(location.x, location.y);
+        } else {
+            doSome.run();
+        }
+        log.accept(() -> (move ? "Move" : "lazy") + "Mouse x:" + location.x + "   y:" + location.y);
+
     }
 
     /**
@@ -155,10 +156,8 @@ public enum RobotMouse {
         if (click) {
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
-            log.accept(() -> "click");
-        } else {
-            log.accept(() -> "noClick");
         }
+        log.accept(() -> click ? "click" : "noClick");
     }
 
     /**
@@ -170,7 +169,7 @@ public enum RobotMouse {
 
     public void showMouse() {
         Point location = MouseInfo.getPointerInfo().getLocation();
-        log.accept(() -> robot.getPixelColor(location.x, location.y).toString());
+        log.accept(() -> "(" + location.x + "," + location.y + ")" + robot.getPixelColor(location.x, location.y).toString());
     }
 
 }

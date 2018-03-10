@@ -2,6 +2,7 @@ package com.qr.order;
 
 import com.alibaba.fastjson.JSON;
 import com.qr.core.CmdBoot;
+import com.qr.core.CmdOutOrder;
 import socket.core.ClientSocketMessageSend;
 import socket.file.FileOutListener;
 import socket.file.messagebuild.IoFilePackageBuilder;
@@ -16,7 +17,7 @@ import java.util.function.Function;
  * @author kelaite
  * 2018/2/7
  */
-public enum FileOutOrderImpl implements CmdOutOrder , IntelligentLogger{
+public enum FileOutOrderImpl implements CmdOutOrder, IntelligentLogger{
     /**
      * 全局唯一实例
      */
