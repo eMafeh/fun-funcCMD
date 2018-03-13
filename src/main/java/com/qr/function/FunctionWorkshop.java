@@ -2,9 +2,9 @@ package com.qr.function;
 
 import com.qr.order.MouseOutOrderImpl;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
-import util.*;
 
 import java.lang.reflect.*;
+import java.security.SecureRandom;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.*;
@@ -13,53 +13,62 @@ import java.util.function.*;
  * @author qr
  * 2018/3/10
  */
-class FunctionWorkshop {
+public class FunctionWorkshop {
+
     /**
      * todo 暂定，该容器并不合适
      */
     private static final Map<Type, Map<Method, ProxyFunction>> FUNCTIONS = new ConcurrentHashMap<>();
+    private static final String MAIN_NAME = "main";
 
-    private static ProxyFunction toFunction(Method method) {
+    private static void toFunction(Method method) {
         //说明是java编译器生成的$的类或方法，不是真正想采集的方法
         if (method.isSynthetic()) {
-            return null;
+            return;
         }
         //不是静态方法暂时不搞事，要对象才能调用的方法不配做function
         if (!Modifier.isStatic(method.getModifiers())) {
-            return null;
+            return;
         }
         //私有方法就不搞了,私有的功能可能不完备
         if (Modifier.isPrivate(method.getModifiers())) {
-            return null;
+            return;
         }
         method.setAccessible(true);
         final Type[] types = method.getGenericParameterTypes();
         final Type returnType = method.getGenericReturnType();
-        return void.class.equals(returnType) ? voidReturnFunction(method, types) : typeReturnFunction(method, types, returnType);
+        if (void.class.equals(returnType)) {
+            voidReturnFunction(method, types);
+        } else {
+            typeReturnFunction(method, types, returnType);
+        }
 
     }
 
-    private static ProxyFunction voidReturnFunction(Method method, Type[] types) {
+    private static void voidReturnFunction(Method method, Type[] types) {
         Type type;
         final ProxyFunction proxyFunction;
         switch (types.length) {
             case 0:
                 //入参也为空，出参也为空就不搞了
-                return null;
+                return;
             case 1:
+                //main 方法就不搞了,不管是不是public的，main方法不搞
+                if (types[0].equals(String[].class) && MAIN_NAME.equals(method.getName())) {
+                    return;
+                }
                 type = getType(Consumer.class, types[0]);
-                proxyFunction = new ProxyFunction<>(getConsumer(method));
+                proxyFunction = new ProxyFunction<>(getConsumer(method), method);
                 break;
             case 2:
                 type = getType(BiConsumer.class, types[0], types[1]);
-                proxyFunction = new ProxyFunction<>(getBiConsumer(method));
+                proxyFunction = new ProxyFunction<>(getBiConsumer(method), method);
                 break;
             //暂不支持更多入参的方法变成函数
             default:
-                return null;
+                return;
         }
         cacheFunction(type, method, proxyFunction);
-        return proxyFunction;
     }
 
 
@@ -69,15 +78,15 @@ class FunctionWorkshop {
         switch (types.length) {
             case 0:
                 type = getType(Supplier.class, returnType);
-                proxyFunction = new ProxyFunction<>(getSupplier(method));
+                proxyFunction = new ProxyFunction<>(getSupplier(method), method);
                 break;
             case 1:
                 type = getType(Function.class, types[0], returnType);
-                proxyFunction = new ProxyFunction<>(getFunction(method));
+                proxyFunction = new ProxyFunction<>(getFunction(method), method);
                 break;
             case 2:
                 type = getType(BiFunction.class, types[0], types[1], returnType);
-                proxyFunction = new ProxyFunction<>(getBiFunction(method));
+                proxyFunction = new ProxyFunction<>(getBiFunction(method), method);
                 break;
             //暂不支持更多入参的方法变成函数
             default:
@@ -174,7 +183,7 @@ class FunctionWorkshop {
 
     }
 
-    private static void addFunction(Class<?>... classes) {
+    public static void addFunction(Class<?>... classes) {
         for (Class<?> aClass : classes) {
             final Method[] methods = aClass.getDeclaredMethods();
             for (Method method : methods) {
@@ -183,15 +192,17 @@ class FunctionWorkshop {
         }
     }
 
+    public static Map<Type, Map<Method, ProxyFunction>> getFUNCTIONS() {
+        return FUNCTIONS;
+    }
+
     public static void main(String[] args) throws Throwable {
-        addFunction(AllThreadUtil.class, BeanToMap.class, ClassUtils.class, DateUtils.class, FileUtils.class, FindClassUtils.class, LocalIp.class, LoopThread.class, PathBuilder.class, StringSplitUtil.class, StringValueUtil.class, UnUsePort.class);
-        addFunction(AllThreadUtil.class, BeanToMap.class, ClassUtils.class, DateUtils.class, FileUtils.class, FindClassUtils.class, LocalIp.class, LoopThread.class, PathBuilder.class, StringSplitUtil.class, StringValueUtil.class, UnUsePort.class);
-        FUNCTIONS.forEach((a, b) -> System.out.println(b));
-        System.err.println(FUNCTIONS);
 
         final Field trueFalse = MouseOutOrderImpl.INSTANCE.getClass().getDeclaredField("caseTrueFalse");
         trueFalse.setAccessible(true);
-        trueFalse.set(MouseOutOrderImpl.INSTANCE, FUNCTIONS.get(trueFalse.getGenericType()).values().toArray()[0]);
+        final Object[] objects = FUNCTIONS.get(trueFalse.getGenericType()).values().toArray();
+
+        trueFalse.set(MouseOutOrderImpl.INSTANCE, objects[SecureRandom.getInstanceStrong().nextInt(objects.length)]);
         try {
             MouseOutOrderImpl.INSTANCE.useOrder("move fsf");
         } catch (Exception e) {

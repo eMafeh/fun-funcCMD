@@ -17,7 +17,7 @@ import java.util.function.Function;
  * @author kelaite
  * 2018/2/7
  */
-public enum FileOutOrderImpl implements CmdOutOrder, IntelligentLogger{
+public enum FileOutOrderImpl implements CmdOutOrder, IntelligentLogger {
     /**
      * 全局唯一实例
      */

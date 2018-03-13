@@ -1,17 +1,24 @@
 package com.qr.core;
 
+import com.qr.function.FunctionWorkshop;
 import com.qr.log.LogLevel;
-import com.qr.order.FileOutOrderImpl;
 import com.qr.order.MouseOutOrderImpl;
-import com.qr.order.XqyOutOrderImpl;
 import util.AllThreadUtil;
+import util.FindClassUtils;
 import util.StringSplitUtil;
 import util.StringValueUtil;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.function.Function;
+
+import static com.qr.function.FunctionWorkshop.getFUNCTIONS;
 
 /**
  * 2017/9/8  9:50
@@ -22,18 +29,48 @@ public class CmdBoot {
     private static final Scanner SC = new Scanner(System.in);
     static final Map<String, CmdOutOrder> NAMESPACE = new HashMap<>();
 
+
     static {
-        //load system order
-        addOutOrder(ExitOutOrderImpl.INSTANCE, RunOutOrderImpl.INSTANCE, LogOutOrderImpl.INSTANCE, HelpOutOrderImpl.INSTANCE);
-        NAMESPACE.forEach((a, b) -> b.setLogLevel(LogLevel.ERROR.name()));
-        //load server order
-        addOutOrder(XqyOutOrderImpl.INSTANCE, FileOutOrderImpl.INSTANCE, MouseOutOrderImpl.INSTANCE);
+        final Set<Class<?>> classes = FindClassUtils.SINGLETON.getClasses();
+
+        classes.stream().filter(CmdOutOrder.class::isAssignableFrom).forEach(a -> {
+            @SuppressWarnings({"unchecked"}) final Class<? extends CmdOutOrder> outOrder = (Class<? extends CmdOutOrder>) a;
+            addOutOrder(outOrder);
+        });
+        FunctionWorkshop.addFunction(classes.toArray(new Class[classes.size()]));
     }
 
-    static void addOutOrder(CmdOutOrder... cmdOutOrders) {
-        for (CmdOutOrder outOrder : cmdOutOrders) {
-            addOutOrder(outOrder);
+    static void addOutOrder(Class<? extends CmdOutOrder> outOrder) {
+        try {
+            if (outOrder.isInterface() || outOrder.isAnonymousClass() || outOrder.isLocalClass() || outOrder.isMemberClass()) {
+                return;
+            }
+            CmdOutOrder cmdOutOrder;
+            if (outOrder.isEnum()) {
+                final CmdOutOrder[] invoke = (CmdOutOrder[]) outOrder.getMethod("values").invoke(null);
+                if (invoke.length != 1) {
+                    throw new RuntimeException(outOrder + " enumType must have only one instance");
+                }
+                cmdOutOrder = invoke[0];
+            } else {
+                cmdOutOrder = outOrder.newInstance();
+            }
+            addOutOrder(cmdOutOrder);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    static void addOutOrder(CmdOutOrder outOrder) {
+        final String nameSpace = outOrder.getNameSpace();
+        final CmdOutOrder cmdOutOrder = NAMESPACE.get(nameSpace);
+        if (cmdOutOrder != null) {
+            throw new RuntimeException(cmdOutOrder.getClass() + " | " + outOrder.getClass() + " have same namespace : " + nameSpace);
+        }
+        if (outOrder instanceof SystemCmdOutOrder) {
+            outOrder.setLogLevel(LogLevel.ERROR.name());
+        }
+        NAMESPACE.put(nameSpace, outOrder);
     }
 
     static String getDescription() {
@@ -46,17 +83,25 @@ public class CmdBoot {
         return result.toString();
     }
 
-    static void addOutOrder(CmdOutOrder outOrder) {
-        final String nameSpace = outOrder.getNameSpace();
-        final CmdOutOrder cmdOutOrder = NAMESPACE.get(nameSpace);
-        if (cmdOutOrder != null) {
-            throw new RuntimeException(cmdOutOrder.getClass() + " | " + outOrder.getClass() + " have same namespace : " + nameSpace);
-        }
-        NAMESPACE.put(nameSpace, outOrder);
-    }
-
 
     public static void main(String[] args) {
+        try {
+            final Field trueFalse = MouseOutOrderImpl.INSTANCE.getClass().getDeclaredField("caseTrueFalse");
+            trueFalse.setAccessible(true);
+            final Object[] objects = getFUNCTIONS().get(trueFalse.getGenericType()).values().toArray();
+            for (Object object : objects) {
+                System.out.println(object);
+            }
+            final Object object = objects[SecureRandom.getInstanceStrong().nextInt(objects.length)];
+            System.out.println("chose : " + object);
+            trueFalse.set(MouseOutOrderImpl.INSTANCE, object);
+        } catch (IllegalAccessException | NoSuchAlgorithmException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+
+//        FunctionWorkshop.addFunction(classes.toArray(new Class[classes.size()]));
+
+//        System.getProperties().forEach((a,b)-> System.out.println(a+"    "+b));
 //        final Package[] packages = Package.getPackages();
 //        System.out.println(packages.length);
 //        Arrays.stream(packages).filter(a -> !a.getName().startsWith("java") && !a.getName().startsWith("sun")).forEach(System.out::println);

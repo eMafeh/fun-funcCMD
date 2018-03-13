@@ -18,10 +18,9 @@ public enum HelpOutOrderImpl implements SystemCmdOutOrder {
         return "help";
     }
 
-
     @Override
     public String getDescription() {
-        return "\n"+StringValueUtil.addSpacingToLength("'" + getNameSpace() + "'", 30) + "introduce this app basic information\n" + StringValueUtil.addSpacingToLength("'" + getNameSpace() + " [order]" + "'", 30) + "show [order] description( [order] must exist in the order list )\n";
+        return "\n" + StringValueUtil.addSpacingToLength("'" + getNameSpace() + "'", 30) + "introduce this app basic information\n" + StringValueUtil.addSpacingToLength("'" + getNameSpace() + " [order]" + "'", 30) + "show [order] description( [order] must exist in the order list )\n";
     }
 
     @Override
