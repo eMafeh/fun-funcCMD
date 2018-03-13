@@ -1,26 +1,24 @@
 package com.qr.log;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static com.qr.log.Config.Nucleus.*;
+import static com.qr.log.IntelligentLogger.LogFunction.*;
+
 
 /**
  * @author qianrui
  * 2018/2/7
  */
 public interface IntelligentLogger {
-    /**
-     * 设置全局的最低级别
-     */
-    static void setRootLevel(LogLevel rootLevel) {
-        if (rootLevel != null) {
-            Config.Level.rootLevel = rootLevel;
-        }
-    }
-
-    static LogLevel getRootLevel() {
-        return Config.Level.rootLevel;
+    class LogFunction {
+        static Function<Class<? extends IntelligentLogger>, Consumer<Supplier<String>>> MESSAGE_CONSUMER;
+        static Function<Class<? extends IntelligentLogger>, Boolean> CLASS_ENOUGH_LEVEL;
+        static Function<LogLevel, Boolean> THIS_ENOUGH_LEVEL;
+        static BiConsumer<Class<? extends IntelligentLogger>, String> CHANGE_LEVEL;
+        static Function<Class<? extends IntelligentLogger>, LogLevel> CLASS_LOG_LEVEL;
     }
 
     default void print(Supplier<String> message) {
@@ -43,7 +41,7 @@ public interface IntelligentLogger {
         if (level == null || message == null) {
             return;
         }
-        final Boolean enough = THIS_ENOUGH_LEVEL.apply(level.getLevel());
+        final Boolean enough = THIS_ENOUGH_LEVEL.apply(level);
         if (enough == null || !enough) {
             return;
         }

@@ -1,6 +1,5 @@
 package com.qr.core;
 
-import com.qr.log.IntelligentLogger;
 import com.qr.log.LogLevel;
 import util.StringSplitUtil;
 
@@ -25,22 +24,22 @@ public enum LogOutOrderImpl implements SystemCmdOutOrder {
         final String order1 = strings[0];
         final String order2 = strings[1];
         if (order1 == null || "".equals(order1)) {
-            print(() -> "root log level is " + IntelligentLogger.getRootLevel().name());
+            print(() -> "root log level is " + LogLevel.getRootLevel().name());
             return true;
         }
         CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(order1);
         if (cmdOutOrder == null) {
             if (order2 == null) {
-                IntelligentLogger.setRootLevel(LogLevel.getLoggerLevel(order1));
-                print(() -> "root log level change to " + IntelligentLogger.getRootLevel().name());
+                LogLevel.setRootLevel(LogLevel.getLoggerLevel(order1));
+                print(() -> "root log level change to " + LogLevel.getRootLevel().name());
                 return true;
             }
             return false;
         }
         if (order2 == null) {
             print(() -> cmdOutOrder.getNameSpace() + " : log level is " + cmdOutOrder.getLogLevel().name());
-            IntelligentLogger.setRootLevel(LogLevel.getLoggerLevel(order1));
-            print(() -> "root log level change to " + IntelligentLogger.getRootLevel().name());
+            LogLevel.setRootLevel(LogLevel.getLoggerLevel(order1));
+            print(() -> "root log level change to " + LogLevel.getRootLevel().name());
             return true;
         }
         cmdOutOrder.setLogLevel(order2);

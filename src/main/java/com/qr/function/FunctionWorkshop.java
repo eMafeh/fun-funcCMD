@@ -1,12 +1,16 @@
 package com.qr.function;
 
-import com.qr.order.MouseOutOrderImpl;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
-import java.lang.reflect.*;
-import java.security.SecureRandom;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.Comparator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.function.*;
 
 /**
@@ -19,6 +23,8 @@ public class FunctionWorkshop {
      * todo 暂定，该容器并不合适
      */
     private static final Map<Type, Map<Method, ProxyFunction>> FUNCTIONS = new ConcurrentHashMap<>();
+
+    private static final Set<Class<?>> USE_CLASS_MARK = new ConcurrentSkipListSet<>(Comparator.comparing(Class::toString));
     private static final String MAIN_NAME = "main";
 
     private static void toFunction(Method method) {
@@ -185,6 +191,10 @@ public class FunctionWorkshop {
 
     public static void addFunction(Class<?>... classes) {
         for (Class<?> aClass : classes) {
+            if (USE_CLASS_MARK.contains(aClass)) {
+                continue;
+            }
+            USE_CLASS_MARK.add(aClass);
             final Method[] methods = aClass.getDeclaredMethods();
             for (Method method : methods) {
                 toFunction(method);
@@ -195,26 +205,4 @@ public class FunctionWorkshop {
     public static Map<Type, Map<Method, ProxyFunction>> getFUNCTIONS() {
         return FUNCTIONS;
     }
-
-    public static void main(String[] args) throws Throwable {
-
-        final Field trueFalse = MouseOutOrderImpl.INSTANCE.getClass().getDeclaredField("caseTrueFalse");
-        trueFalse.setAccessible(true);
-        final Object[] objects = FUNCTIONS.get(trueFalse.getGenericType()).values().toArray();
-
-        trueFalse.set(MouseOutOrderImpl.INSTANCE, objects[SecureRandom.getInstanceStrong().nextInt(objects.length)]);
-        try {
-            MouseOutOrderImpl.INSTANCE.useOrder("move fsf");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        final Field test = FunctionWorkshop.class.getDeclaredField("test");
-        test.setAccessible(true);
-        final FunctionWorkshop workshop = new FunctionWorkshop();
-        test.set(workshop, FUNCTIONS.get(test.getGenericType()).values().toArray()[0]);
-        final String apply = workshop.test.apply("nihao", 20);
-        System.out.println(apply);
-    }
-
-    private BiFunction<String, Integer, String> test;
 }

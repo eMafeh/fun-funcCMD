@@ -1,6 +1,7 @@
 package com.qr.core;
 
 import com.qr.function.FunctionWorkshop;
+import com.qr.function.ProxyFunction;
 import com.qr.log.LogLevel;
 import com.qr.order.MouseOutOrderImpl;
 import util.AllThreadUtil;
@@ -10,6 +11,8 @@ import util.StringValueUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -17,6 +20,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static com.qr.function.FunctionWorkshop.getFUNCTIONS;
 
@@ -31,13 +35,42 @@ public class CmdBoot {
 
 
     static {
-        final Set<Class<?>> classes = FindClassUtils.SINGLETON.getClasses();
+        //加载系统类
+        final Class<?>[] systemClasses = FindClassUtils.SINGLETON.getSystemClasses();
+        //系统类函数采集
+        FunctionWorkshop.addFunction(systemClasses);
 
+        //加载用户类
+        final Set<Class<?>> classes = FindClassUtils.SINGLETON.getClasses();
+        //用户类函数采集
+        FunctionWorkshop.addFunction(classes.toArray(new Class[classes.size()]));
+
+        classes.stream().filter(aClass -> aClass.getName().startsWith("com.qr.log")).forEach(aClass -> {
+            final Field[] fields = aClass.getDeclaredFields();
+            for (Field field : fields) {
+                if (!Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
+                    continue;
+                }
+                final Map<Method, ProxyFunction> functionMap = FunctionWorkshop.getFUNCTIONS().get(field.getGenericType());
+                if (functionMap != null) {
+                    try {
+                        field.setAccessible(true);
+                        final Object value = functionMap.values().toArray()[0];
+                        System.err.println(field + "     " + value);
+                        field.set(null, value);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        //加载指令
         classes.stream().filter(CmdOutOrder.class::isAssignableFrom).forEach(a -> {
             @SuppressWarnings({"unchecked"}) final Class<? extends CmdOutOrder> outOrder = (Class<? extends CmdOutOrder>) a;
             addOutOrder(outOrder);
         });
-        FunctionWorkshop.addFunction(classes.toArray(new Class[classes.size()]));
+
+
     }
 
     static void addOutOrder(Class<? extends CmdOutOrder> outOrder) {
@@ -85,21 +118,19 @@ public class CmdBoot {
 
 
     public static void main(String[] args) {
-        try {
-            final Field trueFalse = MouseOutOrderImpl.INSTANCE.getClass().getDeclaredField("caseTrueFalse");
-            trueFalse.setAccessible(true);
-            final Object[] objects = getFUNCTIONS().get(trueFalse.getGenericType()).values().toArray();
-            for (Object object : objects) {
-                System.out.println(object);
-            }
-            final Object object = objects[SecureRandom.getInstanceStrong().nextInt(objects.length)];
-            System.out.println("chose : " + object);
-            trueFalse.set(MouseOutOrderImpl.INSTANCE, object);
-        } catch (IllegalAccessException | NoSuchAlgorithmException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
-
-//        FunctionWorkshop.addFunction(classes.toArray(new Class[classes.size()]));
+//        try {
+//            final Field trueFalse = MouseOutOrderImpl.INSTANCE.getClass().getDeclaredField("caseTrueFalse");
+//            trueFalse.setAccessible(true);
+//            final Object[] objects = getFUNCTIONS().get(trueFalse.getGenericType()).values().toArray();
+//            for (Object object : objects) {
+//                System.out.println(object);
+//            }
+//            final Object object = objects[SecureRandom.getInstanceStrong().nextInt(objects.length)];
+//            System.out.println("chose : " + object);
+//            trueFalse.set(MouseOutOrderImpl.INSTANCE, object);
+//        } catch (IllegalAccessException | NoSuchAlgorithmException | NoSuchFieldException e) {
+//            e.printStackTrace();
+//        }
 
 //        System.getProperties().forEach((a,b)-> System.out.println(a+"    "+b));
 //        final Package[] packages = Package.getPackages();
@@ -194,4 +225,7 @@ public class CmdBoot {
         System.out.println(e);
     }
 
+    public static <E> void cmdPrintln2(Supplier<String> message) {
+        cmdPrintln(message.get());
+    }
 }
