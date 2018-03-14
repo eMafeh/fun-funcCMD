@@ -2,18 +2,14 @@ package com.qr.order;
 
 import com.qr.annotation.Orders;
 import com.qr.core.CmdOutOrder;
-import com.sun.tracing.dtrace.Attributes;
-import com.sun.tracing.dtrace.FunctionAttributes;
-import com.sun.tracing.dtrace.FunctionName;
-import jdk.nashorn.internal.objects.annotations.SpecializedFunction;
 import socket.script.RobotMouse;
 import util.AllThreadUtil;
-import util.StringSplitUtil;
 import util.StringValueUtil;
 
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -24,8 +20,9 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
-    private Function<String, Boolean> caseTrueFalse = StringValueUtil::caseTrueFalse;
-    private Function<String, Integer> caseInt = Integer::parseInt;
+    static BiFunction<String, Integer, String[]> maxSplitWords;
+    static Function<String, Boolean> caseTrueFalse;
+    static Function<String, Integer> parseInt;
 
     public static void main(String[] args) throws NoSuchFieldException {
         Map<Type, Integer> functionMap = new ConcurrentHashMap<>();
@@ -99,7 +96,7 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
 
     @Override
     public boolean useOrder(String order) throws Throwable {
-        String[] strings = StringSplitUtil.maxSplitWords(order, 3);
+        String[] strings = maxSplitWords.apply(order, 3);
         return userOrder(strings[0], strings[1]);
     }
 
@@ -132,7 +129,7 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
     }
 
     private void setTime(String value) {
-        period = caseInt.apply(value) * 1000;
+        period = parseInt.apply(value) * 1000;
         install();
     }
 

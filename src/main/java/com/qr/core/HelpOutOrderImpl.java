@@ -1,7 +1,8 @@
 package com.qr.core;
 
-import util.StringSplitUtil;
 import util.StringValueUtil;
+
+import java.util.function.BiFunction;
 
 /**
  * @author kelaite
@@ -12,6 +13,7 @@ public enum HelpOutOrderImpl implements SystemCmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
+    static BiFunction<String, Integer, String> nextWord;
 
     @Override
     public String getNameSpace() {
@@ -29,7 +31,7 @@ public enum HelpOutOrderImpl implements SystemCmdOutOrder {
             print(CmdBoot::getDescription);
             return true;
         }
-        String target = StringSplitUtil.nextWord(order, -1);
+        String target = nextWord.apply(order, -1);
         CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(target);
         if (cmdOutOrder != null) {
             print(cmdOutOrder::getDescription);

@@ -1,7 +1,6 @@
 package util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -10,10 +9,6 @@ import java.util.List;
  */
 public class StringSplitUtil {
     private static final int NOT_WORD = -1;
-
-    public static void main(String[] args) {
-        System.out.println(Arrays.toString(split("123456", 6)));
-    }
 
     /**
      * 将字符串切割为两份，整体不返回null，元素也不会为null

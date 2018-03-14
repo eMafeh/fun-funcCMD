@@ -2,6 +2,7 @@ package com.qr.core;
 
 import util.StringSplitUtil;
 
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -16,6 +17,7 @@ public enum LogOutOrderImpl implements SystemCmdOutOrder {
     INSTANCE;
     private static Consumer<String> setRootLevel;
     private static Supplier<String> getRootLevel;
+    private static BiFunction<String, Integer, String[]> maxSplitWords;
 
     @Override
     public String getNameSpace() {
@@ -24,7 +26,7 @@ public enum LogOutOrderImpl implements SystemCmdOutOrder {
 
     @Override
     public boolean useOrder(String order) throws Throwable {
-        String[] strings = StringSplitUtil.maxSplitWords(order, 3);
+        String[] strings = maxSplitWords.apply(order, 3);
         final String order1 = strings[0];
         final String order2 = strings[1];
         if (order1 == null || "".equals(order1)) {

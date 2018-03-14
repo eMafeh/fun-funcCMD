@@ -1,6 +1,6 @@
 package com.qr.core;
 
-import util.StringSplitUtil;
+import java.util.function.BiFunction;
 
 /**
  * @author kelaite
@@ -11,6 +11,7 @@ public enum ExitOutOrderImpl implements SystemCmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
+    private static BiFunction<String, Integer, String> nextWord;
     private static final String TITLE = "yes/no";
     private static final String YES = "yes";
     static final RuntimeException EXIT_EXCEPTION = new RuntimeException("system exiting");
@@ -25,7 +26,7 @@ public enum ExitOutOrderImpl implements SystemCmdOutOrder {
         if ("".equals(order)) {
             throw new Throwable("system try exit");
         }
-        String target = StringSplitUtil.nextWord(order, -1);
+        String target = nextWord.apply(order, -1);
         CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(target);
         if (cmdOutOrder == INSTANCE) {
             SystemCmdOutOrder.super.shutDown();

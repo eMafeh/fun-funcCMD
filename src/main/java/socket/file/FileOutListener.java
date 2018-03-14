@@ -7,10 +7,10 @@ import socket.file.model.morefile.IoDirectoryModelPackage;
 import socket.file.model.simglefile.WantFile;
 import util.AllThreadUtil;
 import util.BeanToMap;
-import util.StringSplitUtil;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.function.BiFunction;
 
 /**
  * 2017/9/8  9:08
@@ -18,6 +18,7 @@ import java.net.Socket;
  * @author qianrui
  */
 public class FileOutListener {
+    private static BiFunction<String, Integer, String[]> split;
     private static ServerSocketInMessageQueue server;
     private static int listenPort;
     private static AllThreadUtil.Key key;
@@ -50,7 +51,7 @@ public class FileOutListener {
             if (json == null) {
                 return true;
             }
-            String[] split = StringSplitUtil.split(json, 1);
+            String[] split = FileOutListener.split.apply(json, 1);
             if (split[0].equals(FileOutOrderImpl.ALL_FILE)) {
                 IoDirectoryModelPackage filePackage = BeanToMap.getBean(split[1], IoDirectoryModelPackage.class);
                 if (filePackage != null) {
@@ -96,7 +97,7 @@ public class FileOutListener {
     }
 
     public static void shutDown() {
-        if(server!=null) {
+        if (server != null) {
             server.shutdown("文件服务器退出成功");
         }
         AllThreadUtil.stop(key);

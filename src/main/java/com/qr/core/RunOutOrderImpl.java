@@ -1,6 +1,6 @@
 package com.qr.core;
 
-import util.StringSplitUtil;
+import java.util.function.BiFunction;
 
 /**
  * @author kelaite
@@ -11,6 +11,7 @@ public enum RunOutOrderImpl implements SystemCmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
+    static BiFunction<String, Integer, String> nextWord;
 
     @Override
     public String getNameSpace() {
@@ -19,7 +20,7 @@ public enum RunOutOrderImpl implements SystemCmdOutOrder {
 
     @Override
     public boolean useOrder(String order) throws Throwable {
-        String target = StringSplitUtil.nextWord(order, -1);
+        String target = nextWord.apply(order, -1);
         CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(target);
         if (cmdOutOrder != null) {
             try {
