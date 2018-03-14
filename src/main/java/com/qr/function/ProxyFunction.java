@@ -96,6 +96,6 @@ public class ProxyFunction<T, U, R> implements Function<T, R>, BiFunction<T, U, 
 
     @Override
     public String toString() {
-        return "ProxyFunction{" + "function=" + whatFunction() + ", method=" + method + '}';
+        return whatFunction() + "=>" + method;
     }
 }

@@ -122,7 +122,7 @@ public class FunctionWorkshop {
             try {
                 method.invoke(null, o1, o2);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getCause());
             }
         };
     }
@@ -132,7 +132,7 @@ public class FunctionWorkshop {
             try {
                 return method.invoke(null, o);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getCause());
             }
         };
     }
@@ -142,7 +142,7 @@ public class FunctionWorkshop {
             try {
                 return method.invoke(null, o1, o2);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getCause());
             }
         };
     }
@@ -152,7 +152,7 @@ public class FunctionWorkshop {
             try {
                 return method.invoke(null);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e.getCause());
             }
         };
     }

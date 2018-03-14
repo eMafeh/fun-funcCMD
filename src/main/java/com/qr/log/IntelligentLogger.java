@@ -14,11 +14,11 @@ import static com.qr.log.IntelligentLogger.LogFunction.*;
  */
 public interface IntelligentLogger {
     class LogFunction {
-        static Function<Class<? extends IntelligentLogger>, Consumer<Supplier<String>>> MESSAGE_CONSUMER;
-        static Function<Class<? extends IntelligentLogger>, Boolean> CLASS_ENOUGH_LEVEL;
-        static Function<LogLevel, Boolean> THIS_ENOUGH_LEVEL;
-        static BiConsumer<Class<? extends IntelligentLogger>, String> CHANGE_LEVEL;
-        static Function<Class<? extends IntelligentLogger>, LogLevel> CLASS_LOG_LEVEL;
+        static Function<Class<?>, Consumer<Supplier<String>>> logFactory;
+        static Function<Class<?>, Boolean> enoughLevel;
+        static Function<String, Boolean> stringEnoughLevel;
+        static BiConsumer<Class<?>, String> changeLevel;
+        static Function<Class<?>, String> logLevel;
     }
 
     default void print(Supplier<String> message) {
@@ -26,27 +26,27 @@ public interface IntelligentLogger {
             return;
         }
         Class<? extends IntelligentLogger> thisType = this.getClass();
-        final Boolean enough = CLASS_ENOUGH_LEVEL.apply(thisType);
+        final Boolean enough = enoughLevel.apply(thisType);
         if (enough == null || !enough) {
             return;
         }
-        Consumer<Supplier<String>> logger = MESSAGE_CONSUMER.apply(thisType);
+        Consumer<Supplier<String>> logger = logFactory.apply(thisType);
         if (logger == null) {
             return;
         }
         logger.accept(message);
     }
 
-    default void print(LogLevel level, Supplier<String> message) {
+    default void print(String level, Supplier<String> message) {
         if (level == null || message == null) {
             return;
         }
-        final Boolean enough = THIS_ENOUGH_LEVEL.apply(level);
+        final Boolean enough = stringEnoughLevel.apply(level);
         if (enough == null || !enough) {
             return;
         }
         Class<? extends IntelligentLogger> thisType = this.getClass();
-        Consumer<Supplier<String>> logger = MESSAGE_CONSUMER.apply(thisType);
+        Consumer<Supplier<String>> logger = logFactory.apply(thisType);
         if (logger == null) {
             return;
         }
@@ -54,10 +54,10 @@ public interface IntelligentLogger {
     }
 
     default void setLogLevel(String level) {
-        CHANGE_LEVEL.accept(this.getClass(), level);
+        changeLevel.accept(this.getClass(), level);
     }
 
-    default LogLevel getLogLevel() {
-        return CLASS_LOG_LEVEL.apply(this.getClass());
+    default String getLogLevel() {
+        return logLevel.apply(this.getClass());
     }
 }

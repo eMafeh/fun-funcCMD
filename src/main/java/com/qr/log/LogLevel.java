@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @author qianrui
  */
 
-public enum LogLevel {
+enum LogLevel {
     /**
      * 调试
      */
@@ -30,7 +30,7 @@ public enum LogLevel {
         this.level = level;
     }
 
-    public int getLevel() {
+    int getLevel() {
         return level;
     }
 
@@ -38,7 +38,7 @@ public enum LogLevel {
      * 记录一个类的日志级别
      * 初始值默认为0
      */
-    private static final Map<Class<? extends IntelligentLogger>, LogLevel> LEVEL_CACHE = new ConcurrentSkipListMap<>(Comparator.comparing(Class::getName));
+    private static final Map<Class<?>, LogLevel> LEVEL_CACHE = new ConcurrentSkipListMap<>(Comparator.comparing(Class::getName));
 
     private final static LogLevel DEFAULT_LEVEL = LogLevel.INFO;
     private static LogLevel rootLevel = LogLevel.INFO;
@@ -46,42 +46,40 @@ public enum LogLevel {
     /**
      * 设置全局的最低级别
      */
-    public static void setRootLevel(LogLevel rootLevel) {
-        if (rootLevel != null) {
-            LogLevel.rootLevel = rootLevel;
-        }
+    static void setRootLevel(String rootLevel) {
+        LogLevel.rootLevel = getLoggerLevel(rootLevel);
     }
 
-    public static LogLevel getRootLevel() {
-        return rootLevel;
+    static String getRootLevel() {
+        return rootLevel.name();
     }
 
     /**
      * 提供一个函数方法，该方法描述指定类的级别是否足够
      */
-    static Boolean classLevel(Class<? extends IntelligentLogger> aClass) {
-        return getClassLevel(aClass).getLevel() >= rootLevel.getLevel();
+    static Boolean enoughLevel(Class<?> aClass) {
+        return LEVEL_CACHE.computeIfAbsent(aClass, b -> DEFAULT_LEVEL).getLevel() >= rootLevel.getLevel();
     }
 
-    static LogLevel getClassLevel(Class<? extends IntelligentLogger> aClass) {
-        return LEVEL_CACHE.computeIfAbsent(aClass, b -> DEFAULT_LEVEL);
+    static String logLevel(Class<?> aClass) {
+        return LEVEL_CACHE.computeIfAbsent(aClass, b -> DEFAULT_LEVEL).name();
     }
 
     /**
      * 提供一个函数方法，该方法描述指定调用的级别是否足够
      */
-    static boolean thisLevel(LogLevel level) {
-        return level.getLevel() >= rootLevel.getLevel();
+    static boolean stringEnoughLevel(String level) {
+        return getLoggerLevel(level).getLevel() >= rootLevel.getLevel();
     }
 
     /**
      * 提供一个消费方法，该方法设定指定类的级别值
      */
-    static void changeLevel(Class<? extends IntelligentLogger> aClass, String level) {
+    static void changeLevel(Class<?> aClass, String level) {
         LEVEL_CACHE.put(aClass, getLoggerLevel(level));
     }
 
-    public static LogLevel getLoggerLevel(String string) {
+    static LogLevel getLoggerLevel(String string) {
         if (string != null && !"".equals(string)) {
             try {
                 return LogLevel.valueOf(string.toUpperCase());

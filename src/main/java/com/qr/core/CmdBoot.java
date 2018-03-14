@@ -2,8 +2,6 @@ package com.qr.core;
 
 import com.qr.function.FunctionWorkshop;
 import com.qr.function.ProxyFunction;
-import com.qr.log.LogLevel;
-import com.qr.order.MouseOutOrderImpl;
 import util.AllThreadUtil;
 import util.FindClassUtils;
 import util.StringSplitUtil;
@@ -13,16 +11,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static com.qr.function.FunctionWorkshop.getFUNCTIONS;
 
 /**
  * 2017/9/8  9:50
@@ -45,7 +39,8 @@ public class CmdBoot {
         //用户类函数采集
         FunctionWorkshop.addFunction(classes.toArray(new Class[classes.size()]));
 
-        classes.stream().filter(aClass -> aClass.getName().startsWith("com.qr.log")).forEach(aClass -> {
+        System.out.println("com.qr包下内容进行自动注入");
+        classes.stream().filter(aClass -> aClass.getName().startsWith("com.qr")).forEach(aClass -> {
             final Field[] fields = aClass.getDeclaredFields();
             for (Field field : fields) {
                 if (!Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
@@ -53,11 +48,22 @@ public class CmdBoot {
                 }
                 final Map<Method, ProxyFunction> functionMap = FunctionWorkshop.getFUNCTIONS().get(field.getGenericType());
                 if (functionMap != null) {
+                    Method mark = null;
+                    int count = 0;
+                    for (Method method : functionMap.keySet()) {
+                        if (method.getName().equals(field.getName())) {
+                            mark = method;
+                            count++;
+                        }
+                    }
+                    if (mark == null) {
+                        mark = (Method) functionMap.values().toArray()[0];
+                    }
                     try {
                         field.setAccessible(true);
-                        final Object value = functionMap.values().toArray()[0];
-                        System.err.println(field + "     " + value);
-                        field.set(null, value);
+                        final ProxyFunction proxyFunction = functionMap.get(mark);
+                        System.out.println(field + " 有" + count + "个合适的函数可用，选则了" + proxyFunction);
+                        field.set(null, proxyFunction);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
@@ -101,7 +107,7 @@ public class CmdBoot {
             throw new RuntimeException(cmdOutOrder.getClass() + " | " + outOrder.getClass() + " have same namespace : " + nameSpace);
         }
         if (outOrder instanceof SystemCmdOutOrder) {
-            outOrder.setLogLevel(LogLevel.ERROR.name());
+            outOrder.setLogLevel("ERROR");
         }
         NAMESPACE.put(nameSpace, outOrder);
     }
@@ -166,7 +172,7 @@ public class CmdBoot {
                     System.out.println("-" + cmdOutOrder.getNameSpace() + " is not install");
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                System.out.println(getMessage(e));
             } catch (Throwable throwable) {
                 System.out.println(throwable.getMessage());
                 try {
@@ -198,6 +204,13 @@ public class CmdBoot {
         System.exit(0);
     }
 
+    private static String getMessage(Throwable e) {
+        if (e.getCause() != null) {
+            return getMessage(e.getCause());
+        }
+        return e.getMessage();
+    }
+
 
     /**
      * TODO basic cmd input or output operate>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -225,7 +238,7 @@ public class CmdBoot {
         System.out.println(e);
     }
 
-    public static <E> void cmdPrintln2(Supplier<String> message) {
+    public static <E> void cmdPrintln(Supplier<String> message) {
         cmdPrintln(message.get());
     }
 }

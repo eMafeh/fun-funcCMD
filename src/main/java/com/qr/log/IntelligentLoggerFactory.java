@@ -12,11 +12,11 @@ import java.util.function.Supplier;
  * 2018/2/9
  */
 class IntelligentLoggerFactory {
-    private final static Map<Class<? extends IntelligentLogger>, Consumer<Supplier<String>>> LOGGER_FACTORY = new ConcurrentSkipListMap<>(Comparator.comparing(Class::getName));
-    static Consumer<Supplier<String>> DEFAULT_BUILDER;
+    private final static Map<Class<?>, Consumer<Supplier<String>>> LOGGER_FACTORY = new ConcurrentSkipListMap<>(Comparator.comparing(Class::getName));
+    static Consumer<Supplier<String>> cmdPrintln;
 
-    static Consumer<Supplier<String>> getFactory(Class<? extends IntelligentLogger> aClass) {
-        return LOGGER_FACTORY.computeIfAbsent(aClass, a -> DEFAULT_BUILDER);
+    static Consumer<Supplier<String>> logFactory(Class<?> aClass) {
+        return LOGGER_FACTORY.computeIfAbsent(aClass, a -> cmdPrintln);
     }
 
 }
