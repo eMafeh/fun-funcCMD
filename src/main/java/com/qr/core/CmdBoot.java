@@ -124,20 +124,6 @@ public class CmdBoot {
 
 
     public static void main(String[] args) {
-//        try {
-//            final Field trueFalse = MouseOutOrderImpl.INSTANCE.getClass().getDeclaredField("caseTrueFalse");
-//            trueFalse.setAccessible(true);
-//            final Object[] objects = getFUNCTIONS().get(trueFalse.getGenericType()).values().toArray();
-//            for (Object object : objects) {
-//                System.out.println(object);
-//            }
-//            final Object object = objects[SecureRandom.getInstanceStrong().nextInt(objects.length)];
-//            System.out.println("chose : " + object);
-//            trueFalse.set(MouseOutOrderImpl.INSTANCE, object);
-//        } catch (IllegalAccessException | NoSuchAlgorithmException | NoSuchFieldException e) {
-//            e.printStackTrace();
-//        }
-
 //        System.getProperties().forEach((a,b)-> System.out.println(a+"    "+b));
 //        final Package[] packages = Package.getPackages();
 //        System.out.println(packages.length);
