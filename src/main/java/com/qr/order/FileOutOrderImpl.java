@@ -1,32 +1,34 @@
 package com.qr.order;
 
 import com.alibaba.fastjson.JSON;
-import com.qr.core.CmdBoot;
 import com.qr.core.CmdOutOrder;
 import socket.core.ClientSocketMessageSend;
+import socket.core.ServerSocketInMessageQueue;
 import socket.file.FileOutListener;
 import socket.file.messagebuild.IoFilePackageBuilder;
 import socket.file.model.morefile.IoDirectoryModelPackage;
 import socket.file.model.simglefile.WantFile;
-import com.qr.log.IntelligentLogger;
 
 import java.io.File;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
  * 2018/2/7
  */
-public enum FileOutOrderImpl implements CmdOutOrder, IntelligentLogger {
+public enum FileOutOrderImpl implements CmdOutOrder {
     /**
      * 全局唯一实例
      */
     INSTANCE;
-
+    static BiFunction<Supplier<String>, Runnable, Integer> whileInt;
+    static Function<Throwable, String> deepMessage;
     private static final String EXIT = "exit";
     public static final String ALL_FILE = "A";
     public static final String WANT_FILE = "W";
-    public File downLoadPath = new File("E:\\XqlDownload");
+    public File downLoadPath = new File("D:\\XqlDownload");
     String farHost;
     int farPort;
     private ClientSocketMessageSend send = new ClientSocketMessageSend();
@@ -37,13 +39,22 @@ public enum FileOutOrderImpl implements CmdOutOrder, IntelligentLogger {
     }
 
     @Override
-    public void install(Function<String, String> getString) throws Throwable {
-        farPort = CmdBoot.getInt(getString, "请确认对方端口");
-        farHost = getString.apply("请确认对方ip").trim();
-        if (EXIT.equals(farHost.trim())) {
-            throw new Throwable("终止操作");
+    public void install(Supplier<String> getLine) throws Throwable {
+        farPort = whileInt.apply(getLine, () -> print("error", () -> "请确认对方端口"));
+        print("error", () -> "请确认对方ip");
+        farHost = getLine.get().trim();
+        ServerSocketInMessageQueue fileServer;
+        while (true) {
+            try {
+                int inPort = whileInt.apply(getLine, () -> print("error", () -> "请输入文件服务监听端口"));
+                fileServer = ServerSocketInMessageQueue.getServer(inPort);
+                print("error", () -> "启动文件服务器");
+                break;
+            } catch (Throwable throwable) {
+                print("error", () -> deepMessage.apply(throwable));
+            }
         }
-        FileOutListener.init();
+        FileOutListener.init(fileServer);
         send.start();
     }
 

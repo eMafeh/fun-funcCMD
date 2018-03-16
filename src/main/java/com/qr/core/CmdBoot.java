@@ -5,7 +5,6 @@ import com.qr.function.ProxyFunction;
 import util.AllThreadUtil;
 import util.FindClassUtils;
 
-import javax.xml.bind.DatatypeConverter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -37,28 +35,30 @@ public class CmdBoot {
     static {
         //加载系统类
         final Class<?>[] systemClasses = FindClassUtils.SINGLETON.getSystemClasses();
-        //系统类函数采集
-        FunctionWorkshop.addFunction(systemClasses);
-
         //加载用户类
         final Set<Class<?>> classes = FindClassUtils.SINGLETON.getClasses();
+
+        final long begin = System.currentTimeMillis();
+        System.out.println("\ntry find functions in all classes");
+        //系统类函数采集
+        FunctionWorkshop.addFunction(systemClasses);
         //用户类函数采集
         FunctionWorkshop.addFunction(classes.toArray(new Class[classes.size()]));
+        System.out.println("\nfunctions (type : " + FunctionWorkshop.getFUNCTIONS().size() + " ,count : " + FunctionWorkshop.getCount() + ") found success in " + (System.currentTimeMillis() - begin) + " ms");
 
-
-        System.out.println("\ntry insert functions to system class");
+        System.out.println("\ntry insert functions to user class");
         insertFunction(CmdBoot.class);
         //避免自身重复注入
         classes.remove(CmdBoot.class);
         classes.forEach(CmdBoot::insertFunction);
         System.out.println("inserted function over");
-        System.out.println("\nfind system orders");
+        System.out.println("\nfind orders");
         //加载指令
         classes.stream().filter(CmdOutOrder.class::isAssignableFrom).forEach(a -> {
             @SuppressWarnings({"unchecked"}) final Class<? extends CmdOutOrder> outOrder = (Class<? extends CmdOutOrder>) a;
             addOutOrder(outOrder);
         });
-        System.out.println("loaded system orders over");
+        System.out.println("loaded orders over");
 
 
     }
@@ -76,7 +76,7 @@ public class CmdBoot {
                 for (Method method : functionMap.keySet()) {
                     if (method.getName().equals(field.getName())) {
                         if (count != 0) {
-                            System.out.println(addSpacingToLength.apply("", 121) + mark);
+                            System.out.println(addSpacingToLength.apply("", 120) + mark);
                         }
                         mark = method;
                         count++;
@@ -89,7 +89,7 @@ public class CmdBoot {
                     field.setAccessible(true);
                     final ProxyFunction proxyFunction = functionMap.get(mark);
                     field.set(null, proxyFunction);
-                    System.out.println(addSpacingToLength.apply(field.toString(), 120) + " get " + count + " good function and choose " + proxyFunction);
+                    System.out.println(addSpacingToLength.apply(field.toString(), 120) + "get " + count + " good function and choose " + proxyFunction);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -179,7 +179,7 @@ public class CmdBoot {
                     System.out.println("-" + cmdOutOrder.getNameSpace() + " is not install");
                 }
             } catch (Exception e) {
-                System.out.println(getMessage(e));
+                System.out.println(deepMessage(e));
             } catch (Throwable throwable) {
                 System.out.println(throwable.getMessage());
                 try {
@@ -211,9 +211,9 @@ public class CmdBoot {
         System.exit(0);
     }
 
-    private static String getMessage(Throwable e) {
+    static String deepMessage(Throwable e) {
         if (e.getCause() != null) {
-            return getMessage(e.getCause());
+            return deepMessage(e.getCause());
         }
         return e.getMessage();
     }
@@ -222,10 +222,11 @@ public class CmdBoot {
     /**
      * TODO basic cmd input or output operate>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
      */
-    public static int getInt(Function<String, String> getString, String title) throws Throwable {
+    static int whileInt(Supplier<String> getLine, Runnable title) throws Throwable {
         while (true) {
             try {
-                String line = getString.apply(title);
+                title.run();
+                String line = getLine.get();
                 if ("exit".equals(line.trim())) {
                     throw new Throwable("终止操作");
                 }
@@ -236,8 +237,7 @@ public class CmdBoot {
         }
     }
 
-    public static String getString(String title) {
-        System.out.println(title);
+    static String orderLine() {
         return SC.nextLine();
     }
 

@@ -2,7 +2,7 @@ package com.qr.core;
 
 import com.qr.log.IntelligentLogger;
 
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * 2017/9/12  10:24
@@ -16,7 +16,7 @@ public interface CmdOutOrder extends IntelligentLogger {
 
     boolean isStart();
 
-    void install(Function<String, String> getLine) throws Throwable;
+    void install(Supplier<String> getLine) throws Throwable;
 
     void shutDown();
 

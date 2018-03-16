@@ -1,6 +1,5 @@
 package socket.file;
 
-import com.qr.core.CmdBoot;
 import com.qr.order.FileOutOrderImpl;
 import socket.core.ServerSocketInMessageQueue;
 import socket.file.model.morefile.IoDirectoryModelPackage;
@@ -27,22 +26,9 @@ public class FileOutListener {
         return listenPort;
     }
 
-    private static ServerSocketInMessageQueue getFileServer() {
-        ServerSocketInMessageQueue fileServer;
-        while (true) {
-            try {
-                int inPort = CmdBoot.getInt(CmdBoot::getString, "请输入文件服务监听端口");
-                fileServer = ServerSocketInMessageQueue.getServer(inPort);
-                System.out.println("启动文件服务器");
-                return fileServer;
-            } catch (Throwable throwable) {
-                System.out.println(throwable.getMessage());
-            }
-        }
-    }
-
-    public static void init() {
-        server = getFileServer();
+    public static void init(ServerSocketInMessageQueue server) {
+        assert server != null;
+        FileOutListener.server=server;
 
         //先完成文件监听
         FileOutListener.listenPort = server.getPort();

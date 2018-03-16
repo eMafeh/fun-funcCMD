@@ -79,7 +79,8 @@ public enum FindClassUtils {
      * 从包package中获取所有的Class
      */
     public Set<Class<?>> getClasses() {
-
+        final long begin = System.currentTimeMillis();
+        System.out.println("try find all user class");
         // 第一个class类的集合
         Set<Class<?>> classes = new ConcurrentSkipListSet<>(Comparator.comparing(Class::getName));
         // 定义一个枚举的集合 并进行循环来处理这个目录下的things
@@ -88,13 +89,14 @@ public enum FindClassUtils {
         final URL resource = Thread.currentThread().getContextClassLoader().getResource("");
         try {
             assert resource != null;
+            System.out.println("is dev classes");
             path = new File(resource.getPath()).getCanonicalPath();
         } catch (NullPointerException | IOException e) {
             System.out.println("not dev , try project");
             path = new File("").getAbsolutePath();
         }
         fileClassLoad(new File(path), path.length(), classes);
-
+        System.out.println("user class success found in " + (begin - System.currentTimeMillis() + " ms"));
         return classes;
     }
 

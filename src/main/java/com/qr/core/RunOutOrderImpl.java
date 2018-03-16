@@ -1,6 +1,7 @@
 package com.qr.core;
 
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
@@ -12,6 +13,7 @@ public enum RunOutOrderImpl implements SystemCmdOutOrder {
      */
     INSTANCE;
     static BiFunction<String, Integer, String> nextWord;
+    static Supplier<String> orderLine;
 
     @Override
     public String getNameSpace() {
@@ -24,7 +26,7 @@ public enum RunOutOrderImpl implements SystemCmdOutOrder {
         CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(target);
         if (cmdOutOrder != null) {
             try {
-                cmdOutOrder.install(CmdBoot::getString);
+                cmdOutOrder.install(orderLine);
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }

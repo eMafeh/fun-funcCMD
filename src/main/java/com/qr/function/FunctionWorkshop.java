@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.*;
 
 /**
@@ -24,6 +25,11 @@ public class FunctionWorkshop {
      */
     private static final Map<Type, Map<Method, ProxyFunction>> FUNCTIONS = new ConcurrentHashMap<>();
 
+    public static long getCount() {
+        return count.get();
+    }
+
+    private static AtomicLong count = new AtomicLong();
     private static final Set<Class<?>> USE_CLASS_MARK = new ConcurrentSkipListSet<>(Comparator.comparing(Class::toString));
     private static final String MAIN_NAME = "main";
 
@@ -36,10 +42,10 @@ public class FunctionWorkshop {
         if (!Modifier.isStatic(method.getModifiers())) {
             return;
         }
-        //私有方法就不搞了,私有的功能可能不完备
-        if (Modifier.isPrivate(method.getModifiers())) {
-            return;
-        }
+//        //私有方法就不搞了,私有的功能可能不完备
+//        if (Modifier.isPrivate(method.getModifiers())) {
+//            return;
+//        }
         method.setAccessible(true);
         final Type[] types = method.getGenericParameterTypes();
         final Type returnType = method.getGenericReturnType();
@@ -103,6 +109,7 @@ public class FunctionWorkshop {
     }
 
     private static void cacheFunction(Type type, Method method, ProxyFunction proxyFunction) {
+        count.incrementAndGet();
         final Map<Method, ProxyFunction> functionMap = FUNCTIONS.computeIfAbsent(type, a -> new ConcurrentHashMap<>(1));
         functionMap.put(method, proxyFunction);
     }

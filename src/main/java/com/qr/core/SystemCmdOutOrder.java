@@ -1,6 +1,6 @@
 package com.qr.core;
 
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
@@ -9,7 +9,7 @@ import java.util.function.Function;
 public interface SystemCmdOutOrder extends CmdOutOrder {
 
     @Override
-    default void install(Function<String, String> getLine) throws Throwable {
+    default void install(Supplier<String> getLine) throws Throwable {
     }
 
     @Override

@@ -1,33 +1,33 @@
 package com.qr.order;
 
 import com.alibaba.fastjson.JSON;
-import com.qr.core.CmdBoot;
 import com.qr.core.CmdOutOrder;
 import socket.core.ClientSocketMessageSend;
 import socket.core.ServerSocketInMessageQueue;
 import socket.xqy.XqytpMessage;
 import util.AllThreadUtil;
-import com.qr.log.IntelligentLogger;
 import util.LocalIp;
 
-import java.util.function.Function;
-
-import static socket.config.CharsetConfig.EXIT;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
  * 2018/2/7
  */
-public enum XqyOutOrderImpl implements CmdOutOrder, IntelligentLogger {
+public enum XqyOutOrderImpl implements CmdOutOrder {
     /**
      * 全局唯一实例
      */
     INSTANCE;
+    static BiFunction<Supplier<String>, Runnable, Integer> whileInt;
+
     private AllThreadUtil.Key key;
     private String host;
     private int farPort;
     private ServerSocketInMessageQueue server;
     private ClientSocketMessageSend send = new ClientSocketMessageSend();
+
 
     @Override
     public String getNameSpace() {
@@ -35,16 +35,14 @@ public enum XqyOutOrderImpl implements CmdOutOrder, IntelligentLogger {
     }
 
     @Override
-    public void install(Function<String, String> getString) throws Throwable {
+    public void install(Supplier<String> getLine) throws Throwable {
         print(() -> "欢迎使用小蚯蚓聊天工具");
-        INSTANCE.host = getString.apply("请确认对方ip").trim();
-        if (EXIT.equals(INSTANCE.host.trim())) {
-            throw new Throwable("终止操作");
-        }
-        INSTANCE.farPort = CmdBoot.getInt(getString, "请确认对方端口");
+        print("error", () -> "请确认对方ip");
+        INSTANCE.host = getLine.get().trim();
+        INSTANCE.farPort = whileInt.apply(getLine, () -> print("error", () -> "请确认对方端口"));
         while (true) {
             try {
-                INSTANCE.server = ServerSocketInMessageQueue.getServer(CmdBoot.getInt(getString, "请确认小蚯蚓信息接收端口"));
+                INSTANCE.server = ServerSocketInMessageQueue.getServer(whileInt.apply(getLine, () -> print("error", () -> "请确认小蚯蚓信息接收端口")));
                 break;
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
@@ -81,7 +79,7 @@ public enum XqyOutOrderImpl implements CmdOutOrder, IntelligentLogger {
         String message = server.nextMessage();
         if (message != null) {
             XqytpMessage xqytpMessage = JSON.parseObject(message, XqytpMessage.class);
-            CmdBoot.cmdPrintln(xqytpMessage);
+            print(xqytpMessage::toString);
             return false;
         }
         return true;

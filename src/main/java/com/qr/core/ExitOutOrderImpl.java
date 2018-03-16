@@ -1,6 +1,7 @@
 package com.qr.core;
 
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
@@ -11,6 +12,8 @@ public enum ExitOutOrderImpl implements SystemCmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
+    static Supplier<String> orderLine;
+
     private static BiFunction<String, Integer, String> nextWord;
     private static final String TITLE = "yes/no";
     private static final String YES = "yes";
@@ -41,7 +44,8 @@ public enum ExitOutOrderImpl implements SystemCmdOutOrder {
 
     @Override
     public void shutDown() {
-        if (YES.equals(CmdBoot.getString(TITLE))) {
+        print("error", () -> TITLE);
+        if (YES.equals(orderLine.get().trim())) {
             throw EXIT_EXCEPTION;
         } else {
             print(() -> "system exit is cancel");

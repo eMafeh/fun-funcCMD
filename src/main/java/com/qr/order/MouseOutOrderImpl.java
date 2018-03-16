@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author QianRui
@@ -74,8 +75,8 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
     }
 
     @Override
-    public void install(Function<String, String> getLine) throws Throwable {
-        print(() -> TITLE + "功能" + "\n" + "开启\n");
+    public void install(Supplier<String> getLine) throws Throwable {
+        print("error",() -> TITLE + "功能" + "\n" + "开启\n");
         install();
     }
 
