@@ -1,5 +1,6 @@
 package com.qr.log;
 
+import javax.annotation.Resource;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -13,6 +14,7 @@ import static com.qr.log.IntelligentLogger.LogFunction.*;
  * 2018/2/7
  */
 public interface IntelligentLogger {
+    @Resource
     class LogFunction {
         static Function<Class<?>, Consumer<Supplier<String>>> logFactory;
         static Function<Class<?>, Boolean> enoughLevel;

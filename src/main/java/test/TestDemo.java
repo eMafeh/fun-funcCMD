@@ -3,6 +3,7 @@ package test;
 import develop.show.ShowObject;
 import util.LocalIp;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -13,6 +14,7 @@ import java.net.Socket;
  * 2018/2/5
  */
 public class TestDemo {
+    @Resource
     public static void main(String[] args) {
         init();
         try (final Socket socket = new Socket(LocalIp.getIP(), 4044)) {

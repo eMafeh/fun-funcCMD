@@ -1,14 +1,12 @@
 package com.qr.core;
 
 import com.qr.function.FunctionWorkshop;
-import com.qr.function.ProxyFunction;
+import com.qr.injection.FieldInjection;
 import util.AllThreadUtil;
 import util.FindClassUtils;
 
-import java.lang.reflect.Field;
+import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -25,7 +23,9 @@ public class CmdBoot {
     /**
      * 需要第一个注入，避免空指针
      */
+    @Resource
     private static BiFunction<String, Integer, String> addSpacingToLength;
+    @Resource
     private static BiFunction<String, Integer, String[]> maxSplitWords;
     private static final Scanner SC = new Scanner(System.in);
     final static Map<String, CmdOutOrder> NAMESPACE = new HashMap<>();
@@ -47,11 +47,9 @@ public class CmdBoot {
         System.out.println("\nfunctions (type : " + FunctionWorkshop.getFUNCTIONS().size() + " ,count : " + FunctionWorkshop.getCount() + ") found success in " + (System.currentTimeMillis() - begin) + " ms");
 
         System.out.println("\ntry insert functions to user class");
-        insertFunction(CmdBoot.class);
-        //避免自身重复注入
-        classes.remove(CmdBoot.class);
-        classes.forEach(CmdBoot::insertFunction);
+        classes.forEach(FieldInjection::insertField);
         System.out.println("inserted function over");
+
         System.out.println("\nfind orders");
         //加载指令
         classes.stream().filter(CmdOutOrder.class::isAssignableFrom).forEach(a -> {
@@ -63,39 +61,6 @@ public class CmdBoot {
 
     }
 
-    private static void insertFunction(Class<?> aClass) {
-        final Field[] fields = aClass.getDeclaredFields();
-        for (Field field : fields) {
-            if (!Modifier.isStatic(field.getModifiers()) || Modifier.isFinal(field.getModifiers())) {
-                continue;
-            }
-            final Map<Method, ProxyFunction> functionMap = FunctionWorkshop.getFUNCTIONS().get(field.getGenericType());
-            if (functionMap != null) {
-                Method mark = null;
-                int count = 0;
-                for (Method method : functionMap.keySet()) {
-                    if (method.getName().equals(field.getName())) {
-                        if (count != 0) {
-                            System.out.println(addSpacingToLength.apply("", 120) + mark);
-                        }
-                        mark = method;
-                        count++;
-                    }
-                }
-                if (mark == null) {
-                    mark = (Method) functionMap.keySet().toArray()[0];
-                }
-                try {
-                    field.setAccessible(true);
-                    final ProxyFunction proxyFunction = functionMap.get(mark);
-                    field.set(null, proxyFunction);
-                    System.out.println(addSpacingToLength.apply(field.toString(), 120) + "get " + count + " good function and choose " + proxyFunction);
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
 
     static void addOutOrder(Class<? extends CmdOutOrder> outOrder) {
         try {

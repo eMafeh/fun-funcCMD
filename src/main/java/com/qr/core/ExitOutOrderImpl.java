@@ -1,5 +1,6 @@
 package com.qr.core;
 
+import javax.annotation.Resource;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -12,9 +13,10 @@ public enum ExitOutOrderImpl implements SystemCmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
-    static Supplier<String> orderLine;
-
-    private static BiFunction<String, Integer, String> nextWord;
+    @Resource
+    private Supplier<String> orderLine;
+    @Resource
+    private BiFunction<String, Integer, String> nextWord;
     private static final String TITLE = "yes/no";
     private static final String YES = "yes";
     static final RuntimeException EXIT_EXCEPTION = new RuntimeException("system exiting");
@@ -36,6 +38,9 @@ public enum ExitOutOrderImpl implements SystemCmdOutOrder {
             return true;
         }
         if (cmdOutOrder != null) {
+            if (!cmdOutOrder.isStart()) {
+                throw new RuntimeException(cmdOutOrder.getNameSpace() + " is not start");
+            }
             cmdOutOrder.shutDown();
             return true;
         }

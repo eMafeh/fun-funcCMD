@@ -6,9 +6,7 @@ import socket.script.RobotMouse;
 import util.AllThreadUtil;
 import util.StringValueUtil;
 
-import java.lang.reflect.Type;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Resource;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -21,20 +19,12 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
-    static BiFunction<String, Integer, String[]> maxSplitWords;
-    static Function<String, Boolean> caseTrueFalse;
-    static Function<String, Integer> parseInt;
-
-    public static void main(String[] args) throws NoSuchFieldException {
-        Map<Type, Integer> functionMap = new ConcurrentHashMap<>();
-        final Type caseTrueFalse = INSTANCE.getClass().getDeclaredField("caseTrueFalse").getGenericType();
-        functionMap.put(caseTrueFalse, 1);
-
-        final Type test = INSTANCE.getClass().getDeclaredField("test").getGenericType();
-        functionMap.put(test, 1);
-        System.out.println(caseTrueFalse.equals(test));
-        System.out.println(functionMap);
-    }
+    @Resource
+    private BiFunction<String, Integer, String[]> maxSplitWords;
+    @Resource
+    private Function<String, Boolean> caseTrueFalse;
+    @Resource
+    private Function<String, Integer> parseInt;
 
     @Override
     public String getDescription() {
@@ -76,7 +66,7 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
 
     @Override
     public void install(Supplier<String> getLine) throws Throwable {
-        print("error",() -> TITLE + "功能" + "\n" + "开启\n");
+        print("error", () -> TITLE + "功能" + "\n" + "开启\n");
         install();
     }
 

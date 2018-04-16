@@ -9,6 +9,7 @@ import socket.file.messagebuild.IoFilePackageBuilder;
 import socket.file.model.morefile.IoDirectoryModelPackage;
 import socket.file.model.simglefile.WantFile;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -23,8 +24,10 @@ public enum FileOutOrderImpl implements CmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
-    static BiFunction<Supplier<String>, Runnable, Integer> whileInt;
-    static Function<Throwable, String> deepMessage;
+    @Resource
+    private BiFunction<Supplier<String>, Runnable, Integer> whileInt;
+    @Resource
+    private Function<Throwable, String> deepMessage;
     private static final String EXIT = "exit";
     public static final String ALL_FILE = "A";
     public static final String WANT_FILE = "W";

@@ -2,6 +2,7 @@ package com.qr.core;
 
 import util.StringValueUtil;
 
+import javax.annotation.Resource;
 import java.util.function.BiFunction;
 
 /**
@@ -13,7 +14,8 @@ public enum HelpOutOrderImpl implements SystemCmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
-    static BiFunction<String, Integer, String> nextWord;
+    @Resource
+    private BiFunction<String, Integer, String> nextWord;
 
     @Override
     public String getNameSpace() {

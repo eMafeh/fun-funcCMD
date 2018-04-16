@@ -8,6 +8,7 @@ import socket.xqy.XqytpMessage;
 import util.AllThreadUtil;
 import util.LocalIp;
 
+import javax.annotation.Resource;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
@@ -20,7 +21,8 @@ public enum XqyOutOrderImpl implements CmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
-    static BiFunction<Supplier<String>, Runnable, Integer> whileInt;
+    @Resource
+    private BiFunction<Supplier<String>, Runnable, Integer> whileInt;
 
     private AllThreadUtil.Key key;
     private String host;

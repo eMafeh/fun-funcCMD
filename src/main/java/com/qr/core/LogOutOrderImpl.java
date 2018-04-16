@@ -1,7 +1,6 @@
 package com.qr.core;
 
-import util.StringSplitUtil;
-
+import javax.annotation.Resource;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -15,9 +14,12 @@ public enum LogOutOrderImpl implements SystemCmdOutOrder {
      * 全局唯一实例
      */
     INSTANCE;
-    private static Consumer<String> setRootLevel;
-    private static Supplier<String> getRootLevel;
-    private static BiFunction<String, Integer, String[]> maxSplitWords;
+    @Resource
+    private Consumer<String> setRootLevel;
+    @Resource
+    private Supplier<String> getRootLevel;
+    @Resource
+    private BiFunction<String, Integer, String[]> maxSplitWords;
 
     @Override
     public String getNameSpace() {

@@ -7,6 +7,7 @@ import socket.file.model.simglefile.WantFile;
 import util.AllThreadUtil;
 import util.BeanToMap;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.net.Socket;
 import java.util.function.BiFunction;
@@ -17,6 +18,7 @@ import java.util.function.BiFunction;
  * @author qianrui
  */
 public class FileOutListener {
+    @Resource
     private static BiFunction<String, Integer, String[]> split;
     private static ServerSocketInMessageQueue server;
     private static int listenPort;
