@@ -9,7 +9,7 @@ import java.util.function.BiFunction;
  * @author kelaite
  * 2018/2/25
  */
-public enum HelpOutOrderImpl implements SystemCmdOutOrder {
+public enum HelpOutCommandImpl implements SystemCmdOutCommand {
     /**
      * 全局唯一实例
      */
@@ -28,15 +28,15 @@ public enum HelpOutOrderImpl implements SystemCmdOutOrder {
     }
 
     @Override
-    public boolean useOrder(String order) throws Throwable {
+    public boolean useCommand(String order) throws Throwable {
         if (order == null || "".equals(order)) {
             print(CmdBoot::getDescription);
             return true;
         }
         String target = nextWord.apply(order, -1);
-        CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(target);
-        if (cmdOutOrder != null) {
-            print(cmdOutOrder::getDescription);
+        CmdOutCommand cmdOutCommand = CmdBoot.NAMESPACE.get(target);
+        if (cmdOutCommand != null) {
+            print(cmdOutCommand::getDescription);
             return true;
         }
         return false;

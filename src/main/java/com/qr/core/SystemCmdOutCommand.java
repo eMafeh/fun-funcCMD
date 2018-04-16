@@ -6,7 +6,7 @@ import java.util.function.Supplier;
  * @author kelaite
  * 2018/2/7
  */
-public interface SystemCmdOutOrder extends CmdOutOrder {
+public interface SystemCmdOutCommand extends CmdOutCommand {
 
     @Override
     default void install(Supplier<String> getLine) throws Throwable {

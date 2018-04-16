@@ -1,7 +1,7 @@
 package com.qr.order;
 
 import com.alibaba.fastjson.JSON;
-import com.qr.core.CmdOutOrder;
+import com.qr.core.CmdOutCommand;
 import socket.core.ClientSocketMessageSend;
 import socket.core.ServerSocketInMessageQueue;
 import socket.xqy.XqytpMessage;
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * @author kelaite
  * 2018/2/7
  */
-public enum XqyOutOrderImpl implements CmdOutOrder {
+public enum XqyOutCommandImpl implements CmdOutCommand {
     /**
      * 全局唯一实例
      */
@@ -57,7 +57,7 @@ public enum XqyOutOrderImpl implements CmdOutOrder {
     }
 
     @Override
-    public boolean useOrder(String order) throws Throwable {
+    public boolean useCommand(String order) throws Throwable {
         sendMessage(order);
         return true;
     }

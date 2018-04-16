@@ -5,11 +5,17 @@ import util.Phoenix;
 import javax.annotation.Resource;
 import java.util.function.Function;
 
-public enum  RestartOrderImpl implements SystemCmdOutOrder {
-    /**
-     * 全局唯一实例
-     */
-    INSTANCE;
+public class RestartCommandImpl implements SystemCmdOutCommand {
+
+    private static RestartCommandImpl restartCommand = new RestartCommandImpl();
+
+    private RestartCommandImpl() {
+    }
+
+    public static RestartCommandImpl getRestartCommand() {
+        return restartCommand;
+    }
+
     @Resource
     private Function<String, Boolean> caseTrueFalse;
 
@@ -19,7 +25,7 @@ public enum  RestartOrderImpl implements SystemCmdOutOrder {
     }
 
     @Override
-    public boolean useOrder(String order) throws Throwable {
+    public boolean useCommand(String order) throws Throwable {
         Boolean restart = caseTrueFalse.apply(order);
         if (restart) {
             System.err.println("system will restart in new windows!!!");

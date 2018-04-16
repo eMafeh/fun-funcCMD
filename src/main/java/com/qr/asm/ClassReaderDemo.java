@@ -7,7 +7,7 @@ import java.io.InputStream;
 public class ClassReaderDemo {
     public static void main(String[] args) throws IOException {
         Runnable a = System.out::println;
-        FileInputStream inputStream = new FileInputStream("D:\\XqlDownload\\test\\target\\classes\\com\\qr\\order\\FileOutOrderImpl.class");
+        FileInputStream inputStream = new FileInputStream("D:\\XqlDownload\\test\\target\\classes\\com\\qr\\order\\FileOutCommandImpl.class");
         byte[] a1 = a(inputStream);
         System.out.println(a1.length);
         ClassReader(a1, 0, a1.length);

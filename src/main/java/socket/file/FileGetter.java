@@ -1,6 +1,6 @@
 package socket.file;
 
-import com.qr.order.FileOutOrderImpl;
+import com.qr.order.FileOutCommandImpl;
 import socket.file.model.simglefile.FileList;
 import socket.file.model.simglefile.NewFile;
 import socket.file.model.simglefile.WantFile;
@@ -46,7 +46,7 @@ public class FileGetter {
     private static void wantFile(NewFile newFile, String localIp, int getPort, String sourceIp, String sourcePath, int noticePort) throws IOException {
         String realPath = PathBuilder.addFileName(sourcePath, newFile.getRemoteName());
         System.out.println("请求文件资源 : " + sourceIp + "://" + realPath);
-        FileOutOrderImpl.INSTANCE.wantFile(wantFile(newFile, localIp, getPort, realPath), sourceIp, noticePort);
+        FileOutCommandImpl.INSTANCE.wantFile(wantFile(newFile, localIp, getPort, realPath), sourceIp, noticePort);
     }
 
     private static WantFile wantFile(NewFile newFile, String localIp, int getPort, String realPath) throws UnsupportedEncodingException {

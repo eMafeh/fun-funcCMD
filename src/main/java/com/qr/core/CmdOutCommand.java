@@ -9,10 +9,10 @@ import java.util.function.Supplier;
  *
  * @author qianrui
  */
-public interface CmdOutOrder extends IntelligentLogger {
+public interface CmdOutCommand extends IntelligentLogger {
     String getNameSpace();
 
-    boolean useOrder(String order) throws Throwable;
+    boolean useCommand(String order) throws Throwable;
 
     boolean isStart();
 

@@ -1,7 +1,6 @@
 package com.qr.order;
 
-import com.qr.annotation.Orders;
-import com.qr.core.CmdOutOrder;
+import com.qr.core.CmdOutCommand;
 import socket.script.RobotMouse;
 import util.AllThreadUtil;
 import util.StringValueUtil;
@@ -14,7 +13,7 @@ import java.util.function.Supplier;
 /**
  * @author QianRui
  */
-public enum MouseOutOrderImpl implements CmdOutOrder {
+public enum MouseOutCommandImpl implements CmdOutCommand {
     /**
      * 全局唯一实例
      */
@@ -86,7 +85,7 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
     }
 
     @Override
-    public boolean useOrder(String order) throws Throwable {
+    public boolean useCommand(String order) throws Throwable {
         String[] strings = maxSplitWords.apply(order, 3);
         return userOrder(strings[0], strings[1]);
     }
@@ -110,7 +109,6 @@ public enum MouseOutOrderImpl implements CmdOutOrder {
         }
     }
 
-    @Orders
     private void setMove(String value) {
         instance.move = caseTrueFalse.apply(value);
     }

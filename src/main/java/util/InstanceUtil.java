@@ -22,12 +22,14 @@ public class InstanceUtil {
         return new Enum[0];
     }
 
-    public static Object getSingLetonInstance(Class<?> aclass) {
+    public static <T> T getSingLetonInstance(Class<?> aclass) {
         final Method[] methods = aclass.getMethods();
         for (Method method : methods) {
             if (Modifier.isStatic(method.getModifiers()) && method.getReturnType() == aclass && method.getParameterCount() == 0) {
                 try {
-                    return method.invoke(null);
+                    @SuppressWarnings("unchecked")
+                    T t = (T) method.invoke(null);
+                    return t;
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     e.printStackTrace();
                 }

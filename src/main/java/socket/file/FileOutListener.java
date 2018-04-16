@@ -1,6 +1,6 @@
 package socket.file;
 
-import com.qr.order.FileOutOrderImpl;
+import com.qr.order.FileOutCommandImpl;
 import socket.core.ServerSocketInMessageQueue;
 import socket.file.model.morefile.IoDirectoryModelPackage;
 import socket.file.model.simglefile.WantFile;
@@ -40,13 +40,13 @@ public class FileOutListener {
                 return true;
             }
             String[] split = FileOutListener.split.apply(json, 1);
-            if (split[0].equals(FileOutOrderImpl.ALL_FILE)) {
+            if (split[0].equals(FileOutCommandImpl.ALL_FILE)) {
                 IoDirectoryModelPackage filePackage = BeanToMap.getBean(split[1], IoDirectoryModelPackage.class);
                 if (filePackage != null) {
-                    FileInListener.listenForFile(filePackage, FileOutOrderImpl.INSTANCE.downLoadPath);
+                    FileInListener.listenForFile(filePackage, FileOutCommandImpl.INSTANCE.downLoadPath);
                     return false;
                 }
-            } else if (split[0].equals(FileOutOrderImpl.WANT_FILE)) {
+            } else if (split[0].equals(FileOutCommandImpl.WANT_FILE)) {
                 WantFile file = BeanToMap.getBean(split[1], WantFile.class);
                 if (file != null) {
                     giveFile(file);

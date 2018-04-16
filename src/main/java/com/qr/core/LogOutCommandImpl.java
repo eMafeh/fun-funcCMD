@@ -9,7 +9,7 @@ import java.util.function.Supplier;
  * @author kelaite
  * 2018/2/7
  */
-public enum LogOutOrderImpl implements SystemCmdOutOrder {
+public enum LogOutCommandImpl implements SystemCmdOutCommand {
     /**
      * 全局唯一实例
      */
@@ -27,7 +27,7 @@ public enum LogOutOrderImpl implements SystemCmdOutOrder {
     }
 
     @Override
-    public boolean useOrder(String order) throws Throwable {
+    public boolean useCommand(String order) throws Throwable {
         String[] strings = maxSplitWords.apply(order, 3);
         final String order1 = strings[0];
         final String order2 = strings[1];
@@ -35,8 +35,8 @@ public enum LogOutOrderImpl implements SystemCmdOutOrder {
             print(() -> "root log level is " + getRootLevel.get());
             return true;
         }
-        CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(order1);
-        if (cmdOutOrder == null) {
+        CmdOutCommand cmdOutCommand = CmdBoot.NAMESPACE.get(order1);
+        if (cmdOutCommand == null) {
             if (order2 == null) {
                 setRootLevel.accept(order1);
                 print(() -> "root log level change to " + getRootLevel.get());
@@ -45,13 +45,13 @@ public enum LogOutOrderImpl implements SystemCmdOutOrder {
             return false;
         }
         if (order2 == null) {
-            print(() -> cmdOutOrder.getNameSpace() + " : log level is " + cmdOutOrder.getLogLevel());
+            print(() -> cmdOutCommand.getNameSpace() + " : log level is " + cmdOutCommand.getLogLevel());
             setRootLevel.accept(order1);
             print(() -> "root log level change to " + getRootLevel.get());
             return true;
         }
-        cmdOutOrder.setLogLevel(order2);
-        print(() -> cmdOutOrder.getNameSpace() + " : log level change to " + cmdOutOrder.getLogLevel());
+        cmdOutCommand.setLogLevel(order2);
+        print(() -> cmdOutCommand.getNameSpace() + " : log level change to " + cmdOutCommand.getLogLevel());
         return true;
     }
 

@@ -8,7 +8,7 @@ import java.util.function.Supplier;
  * @author kelaite
  * 2018/2/7
  */
-public enum ExitOutOrderImpl implements SystemCmdOutOrder {
+public enum ExitOutCommandImpl implements SystemCmdOutCommand {
     /**
      * 全局唯一实例
      */
@@ -27,21 +27,21 @@ public enum ExitOutOrderImpl implements SystemCmdOutOrder {
     }
 
     @Override
-    public boolean useOrder(String order) throws Throwable {
+    public boolean useCommand(String order) throws Throwable {
         if ("".equals(order)) {
             throw new Throwable("system try exit");
         }
         String target = nextWord.apply(order, -1);
-        CmdOutOrder cmdOutOrder = CmdBoot.NAMESPACE.get(target);
-        if (cmdOutOrder == INSTANCE) {
-            SystemCmdOutOrder.super.shutDown();
+        CmdOutCommand cmdOutCommand = CmdBoot.NAMESPACE.get(target);
+        if (cmdOutCommand == INSTANCE) {
+            SystemCmdOutCommand.super.shutDown();
             return true;
         }
-        if (cmdOutOrder != null) {
-            if (!cmdOutOrder.isStart()) {
-                throw new RuntimeException(cmdOutOrder.getNameSpace() + " is not start");
+        if (cmdOutCommand != null) {
+            if (!cmdOutCommand.isStart()) {
+                throw new RuntimeException(cmdOutCommand.getNameSpace() + " is not start");
             }
-            cmdOutOrder.shutDown();
+            cmdOutCommand.shutDown();
             return true;
         }
         return false;

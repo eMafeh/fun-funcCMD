@@ -1,7 +1,7 @@
 package com.qr.order;
 
 import com.alibaba.fastjson.JSON;
-import com.qr.core.CmdOutOrder;
+import com.qr.core.CmdOutCommand;
 import socket.core.ClientSocketMessageSend;
 import socket.core.ServerSocketInMessageQueue;
 import socket.file.FileOutListener;
@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  * @author kelaite
  * 2018/2/7
  */
-public enum FileOutOrderImpl implements CmdOutOrder {
+public enum FileOutCommandImpl implements CmdOutCommand {
     /**
      * 全局唯一实例
      */
@@ -62,7 +62,7 @@ public enum FileOutOrderImpl implements CmdOutOrder {
     }
 
     @Override
-    public boolean useOrder(String order) throws Throwable {
+    public boolean useCommand(String order) throws Throwable {
         IoDirectoryModelPackage fileModel = IoFilePackageBuilder.getFileModel(order);
         if (fileModel != null) {
             send.addMessage(ALL_FILE + JSON.toJSONString(fileModel), farHost, farPort);

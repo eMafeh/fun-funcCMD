@@ -4,9 +4,9 @@ import com.qr.function.FunctionWorkshop;
 import com.qr.injection.FieldInjection;
 import util.AllThreadUtil;
 import util.FindClassUtils;
+import util.InstanceUtil;
 
 import javax.annotation.Resource;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -28,7 +28,7 @@ public class CmdBoot {
     @Resource
     private static BiFunction<String, Integer, String[]> maxSplitWords;
     private static final Scanner SC = new Scanner(System.in);
-    final static Map<String, CmdOutOrder> NAMESPACE = new HashMap<>();
+    final static Map<String, CmdOutCommand> NAMESPACE = new HashMap<>();
     private static final long START_TIME = System.currentTimeMillis();
 
 
@@ -50,46 +50,42 @@ public class CmdBoot {
         classes.forEach(FieldInjection::insertField);
         System.out.println("inserted function over");
 
-        System.out.println("\nfind orders");
+        System.out.println("\nfind commands");
         //加载指令
-        classes.stream().filter(CmdOutOrder.class::isAssignableFrom).forEach(a -> {
-            @SuppressWarnings({"unchecked"}) final Class<? extends CmdOutOrder> outOrder = (Class<? extends CmdOutOrder>) a;
+        classes.stream().filter(CmdOutCommand.class::isAssignableFrom).forEach(a -> {
+            @SuppressWarnings({"unchecked"}) final Class<? extends CmdOutCommand> outOrder = (Class<? extends CmdOutCommand>) a;
             addOutOrder(outOrder);
         });
-        System.out.println("loaded orders over");
+        System.out.println("loaded commands over");
 
 
     }
 
 
-    static void addOutOrder(Class<? extends CmdOutOrder> outOrder) {
-        try {
-            if (outOrder.isInterface() || outOrder.isAnonymousClass() || outOrder.isLocalClass() || outOrder.isMemberClass()) {
-                return;
-            }
-            CmdOutOrder cmdOutOrder;
-            if (outOrder.isEnum()) {
-                final CmdOutOrder[] invoke = (CmdOutOrder[]) outOrder.getMethod("values").invoke(null);
-                if (invoke.length != 1) {
-                    throw new RuntimeException(outOrder + " enumType must have only one instance");
-                }
-                cmdOutOrder = invoke[0];
-            } else {
-                cmdOutOrder = outOrder.newInstance();
-            }
-            addOutOrder(cmdOutOrder);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException(e);
+    static void addOutOrder(Class<? extends CmdOutCommand> outOrder) {
+        if (outOrder.isInterface() || outOrder.isAnonymousClass() || outOrder.isLocalClass() || outOrder.isMemberClass()) {
+            return;
         }
+        CmdOutCommand cmdOutCommand;
+        if (outOrder.isEnum()) {
+            final CmdOutCommand[] invoke = (CmdOutCommand[]) InstanceUtil.getEnumInstance(outOrder);
+            if (invoke.length != 1) {
+                throw new RuntimeException(outOrder + " enumType must have only one instance");
+            }
+            cmdOutCommand = invoke[0];
+        } else {
+            cmdOutCommand = InstanceUtil.getSingLetonInstance(outOrder);
+        }
+        addOutOrder(cmdOutCommand);
     }
 
-    static void addOutOrder(CmdOutOrder outOrder) {
+    static void addOutOrder(CmdOutCommand outOrder) {
         final String nameSpace = outOrder.getNameSpace();
-        final CmdOutOrder cmdOutOrder = NAMESPACE.get(nameSpace);
-        if (cmdOutOrder != null) {
-            throw new RuntimeException(cmdOutOrder.getClass() + " | " + outOrder.getClass() + " have same namespace : " + nameSpace);
+        final CmdOutCommand cmdOutCommand = NAMESPACE.get(nameSpace);
+        if (cmdOutCommand != null) {
+            throw new RuntimeException(cmdOutCommand.getClass() + " | " + outOrder.getClass() + " have same namespace : " + nameSpace);
         }
-        if (outOrder instanceof SystemCmdOutOrder) {
+        if (outOrder instanceof SystemCmdOutCommand) {
             outOrder.setLogLevel("ERROR");
         }
         System.out.println(addSpacingToLength.apply(nameSpace, 20) + "load success");
@@ -98,7 +94,7 @@ public class CmdBoot {
 
     static String getDescription() {
         StringBuilder result = new StringBuilder("QianRui Cmd\nis a test fun work and it support some order\n");
-        result.append("\ninput '").append(HelpOutOrderImpl.INSTANCE.getNameSpace()).append(" [order]'\nto show how to use this order\n");
+        result.append("\ninput '").append(HelpOutCommandImpl.INSTANCE.getNameSpace()).append(" [order]'\nto show how to use this order\n");
         result.append("\nnow have order list is : \n");
         NAMESPACE.forEach((a, b) -> result.append(addSpacingToLength.apply(a, 20)).append("by(").append(b.getClass()).append(")\n"));
         result.append("\nif you have some awesome ideas or codes or you just want to join this work\n");
@@ -114,43 +110,50 @@ public class CmdBoot {
 //        Arrays.stream(packages).filter(a -> !a.getName().startsWith("java") && !a.getName().startsWith("sun")).forEach(System.out::println);
         System.out.println("\nStarted Success In " + (System.currentTimeMillis() - START_TIME) + "ms");
         System.out.println("\n欢迎使用集成工具cmd");
+//        try {
+//            Thread.sleep(3000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        Phoenix.robotRun();
+//        System.exit(0);
         String line;
-        String[] orders;
-        CmdOutOrder cmdOutOrder;
+        String[] commands;
+        CmdOutCommand cmdOutCommand;
         while (true) {
 //            System.out.print("[cmd@root]$ ");
             line = SC.nextLine();
-            orders = maxSplitWords.apply(line, 2);
-            if (orders[0] == null) {
+            commands = maxSplitWords.apply(line, 2);
+            if (commands[0] == null) {
                 continue;
             }
 
-            cmdOutOrder = NAMESPACE.get(orders[0]);
-            if (cmdOutOrder == null) {
-                System.out.println("-bash: warn: command not found : " + orders[0]);
+            cmdOutCommand = NAMESPACE.get(commands[0]);
+            if (cmdOutCommand == null) {
+                System.out.println("-bash: warn: command not found : " + commands[0]);
                 continue;
             }
-            orders[1] = orders[1] == null ? "" : orders[1];
+            commands[1] = commands[1] == null ? "" : commands[1];
 
             try {
-                boolean isStart = cmdOutOrder.isStart();
+                boolean isStart = cmdOutCommand.isStart();
                 if (isStart) {
-                    boolean success = cmdOutOrder.useOrder(orders[1]);
+                    boolean success = cmdOutCommand.useCommand(commands[1]);
                     if (!success) {
-                        System.out.println("-" + cmdOutOrder.getNameSpace() + ": warn: command not found : " + orders[1]);
+                        System.out.println("-" + cmdOutCommand.getNameSpace() + ": warn: command not found : " + commands[1]);
                     }
 
                 } else {
-                    System.out.println("-" + cmdOutOrder.getNameSpace() + " is not install");
+                    System.out.println("-" + cmdOutCommand.getNameSpace() + " is not install");
                 }
             } catch (Exception e) {
                 System.out.println(deepMessage(e));
             } catch (Throwable throwable) {
                 System.out.println(throwable.getMessage());
                 try {
-                    cmdOutOrder.shutDown();
+                    cmdOutCommand.shutDown();
                 } catch (Throwable exit) {
-                    if (exit.equals(ExitOutOrderImpl.EXIT_EXCEPTION)) {
+                    if (exit.equals(ExitOutCommandImpl.EXIT_EXCEPTION)) {
                         System.out.println(exit.getMessage());
                         break;
                     } else {
@@ -160,7 +163,7 @@ public class CmdBoot {
             }
         }
         NAMESPACE.forEach((a, b) -> {
-            if (b != null && !(b instanceof SystemCmdOutOrder)) {
+            if (b != null && !(b instanceof SystemCmdOutCommand)) {
                 try {
                     b.shutDown();
                 } catch (Throwable exit) {
