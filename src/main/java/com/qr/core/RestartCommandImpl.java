@@ -1,9 +1,6 @@
 package com.qr.core;
 
-import util.Phoenix;
-
-import javax.annotation.Resource;
-import java.util.function.Function;
+import com.qr.phoenix.Phoenix;
 
 public class RestartCommandImpl implements SystemCmdOutCommand {
 
@@ -16,8 +13,6 @@ public class RestartCommandImpl implements SystemCmdOutCommand {
         return restartCommand;
     }
 
-    @Resource
-    private Function<String, Boolean> caseTrueFalse;
 
     @Override
     public String getNameSpace() {
@@ -25,11 +20,16 @@ public class RestartCommandImpl implements SystemCmdOutCommand {
     }
 
     @Override
-    public boolean useCommand(String order) throws Throwable {
-        Boolean restart = caseTrueFalse.apply(order);
+    public boolean useCommand(String order) {
+        System.err.println("close this and open a new windows to restart?");
+        Boolean restart = caseTrueFalse.get(0).apply(orderLine.get(0).get());
         if (restart) {
-            System.err.println("system will restart in new windows!!!");
-            Phoenix.robotRun();
+            System.err.println("system will restart in new windows!!! do not touch keyboard any more!!!");
+            try {
+                Phoenix.robotRun(order, orderLine.get(0));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             System.exit(0);
         }
         return restart;

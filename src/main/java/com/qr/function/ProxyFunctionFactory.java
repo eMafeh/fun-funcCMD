@@ -1,7 +1,7 @@
 package com.qr.function;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -10,10 +10,10 @@ import java.util.Map;
  */
 public class ProxyFunctionFactory {
 
-    public static ProxyFunction getProxyFunction(Field field, String wantName) {
+    public static ProxyFunction getProxyFunction(Type type, String wantName) {
         final Map<Method, ProxyFunction> functionMap;
-        if ((functionMap = FunctionWorkshop.getFUNCTIONS().get(field.getGenericType())) == null) {
-            throw new RuntimeException("no type of this field : " + field.toString());
+        if ((functionMap = FunctionWorkshop.getFUNCTIONS().get(type)) == null) {
+            return null;
         }
         for (Method method : functionMap.keySet()) {
             if (method.getName().equals(wantName)) {

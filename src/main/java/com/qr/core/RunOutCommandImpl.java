@@ -1,9 +1,5 @@
 package com.qr.core;
 
-import javax.annotation.Resource;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
-
 /**
  * @author kelaite
  * 2018/2/7
@@ -13,10 +9,7 @@ public enum RunOutCommandImpl implements SystemCmdOutCommand {
      * 全局唯一实例
      */
     INSTANCE;
-    @Resource
-    private BiFunction<String, Integer, String> nextWord;
-    @Resource
-    private Supplier<String> orderLine;
+
 
     @Override
     public String getNameSpace() {
@@ -24,15 +17,15 @@ public enum RunOutCommandImpl implements SystemCmdOutCommand {
     }
 
     @Override
-    public boolean useCommand(String order) throws Throwable {
-        String target = nextWord.apply(order, -1);
-        CmdOutCommand cmdOutCommand = CmdBoot.NAMESPACE.get(target);
+    public boolean useCommand(String order) {
+        String target = nextWord.get(0).apply(order, -1);
+        CmdOutCommand cmdOutCommand = NAMESPACE.get(target);
         if (cmdOutCommand != null) {
             if (cmdOutCommand.isStart()) {
                 throw new RuntimeException(cmdOutCommand.getNameSpace() + " is started");
             }
             try {
-                cmdOutCommand.install(orderLine);
+                cmdOutCommand.install(orderLine.get(0));
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }

@@ -1,8 +1,9 @@
 package socket.script;
 
+import javax.annotation.Resource;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -37,59 +38,14 @@ public enum RobotMouse {
     /**
      * 机器人
      */
-    private Robot robot;
+    @Resource
+    private Supplier<Robot> robot;
 
-    {
-        try {
-            robot = new Robot();
-        } catch (AWTException e) {
-            throw new RuntimeException();
-        }
-    }
 
-    /**
-     * center of the windows
-     */
-    private final Point CENTER_POINT;
     /**
      * last point position
      */
-    private Point lastPoint;
-
-    /**
-     * 鼠标可以点击的范围
-     */
-    private final int X_MIN;
-    private final int Y_MIN;
-    private final int X_MAX;
-    private final int Y_MAX;
-
-    {
-        //获取当前鼠标
-        lastPoint = MouseInfo.getPointerInfo().
-
-                getLocation();
-
-        //获取鼠标最大位移
-        robot.mouseMove(Integer.MAX_VALUE, Integer.MAX_VALUE);
-        Point location = MouseInfo.getPointerInfo().getLocation();
-
-        //初始点为屏幕中心
-        CENTER_POINT = new
-
-                Point(location.x / 2, location.y / 2);
-
-        //鼠标移回原位
-        robot.mouseMove(lastPoint.x, lastPoint.y);
-
-        //鼠标可以点击的范围
-        X_MIN = CENTER_POINT.x - 200;
-        Y_MIN = CENTER_POINT.y - 200;
-        X_MAX = CENTER_POINT.x + 100;
-        Y_MAX = CENTER_POINT.y + 100;
-    }
-
-    private static final Random RANDOM = new Random();
+    private Point lastPoint = MouseInfo.getPointerInfo().getLocation();
 
     /**
      * 每次变动量范围
@@ -106,9 +62,9 @@ public enum RobotMouse {
         Point location = MouseInfo.getPointerInfo().getLocation();
         if (move) {
             Point target = clickPoint();
-            robot.mouseMove(target.x, target.y);
+            robot.get().mouseMove(target.x, target.y);
             doSome.run();
-            robot.mouseMove(location.x, location.y);
+            robot.get().mouseMove(location.x, location.y);
         } else {
             doSome.run();
         }
@@ -137,7 +93,7 @@ public enum RobotMouse {
      */
     private int computerX() {
         int tx;
-        return (tx = lastPoint.x + randomxy()) < X_MAX && tx > X_MIN ? tx : CENTER_POINT.x;
+        return (tx = lastPoint.x + randomxy()) < Windows.X_MAX && tx > Windows.X_MIN ? tx : Windows.CENTER_POINT.x;
     }
 
     /**
@@ -146,7 +102,7 @@ public enum RobotMouse {
      */
     private int computerY() {
         int ty;
-        return (ty = lastPoint.y + randomxy()) < Y_MAX && ty > Y_MIN ? ty : CENTER_POINT.y;
+        return (ty = lastPoint.y + randomxy()) < Windows.Y_MAX && ty > Windows.Y_MIN ? ty : Windows.CENTER_POINT.y;
     }
 
     /**
@@ -154,8 +110,8 @@ public enum RobotMouse {
      */
     private void robotClick() {
         if (click) {
-            robot.mousePress(InputEvent.BUTTON1_MASK);
-            robot.mouseRelease(InputEvent.BUTTON1_MASK);
+            robot.get().mousePress(InputEvent.BUTTON1_MASK);
+            robot.get().mouseRelease(InputEvent.BUTTON1_MASK);
         }
         log.accept(() -> click ? "click" : "noClick");
     }
@@ -164,12 +120,45 @@ public enum RobotMouse {
      * 根据设定的偏移范围，获取随机偏移的量
      */
     private int randomxy() {
-        return RANDOM.nextInt(RM) - RM / 2;
+        return ThreadLocalRandom.current().nextInt(RM) - RM / 2;
     }
 
     public void showMouse() {
         Point location = MouseInfo.getPointerInfo().getLocation();
-        log.accept(() -> "(" + location.x + "," + location.y + ")" + robot.getPixelColor(location.x, location.y).toString());
+        log.accept(() -> "(" + location.x + "," + location.y + ")" + robot.get().getPixelColor(location.x, location.y).toString());
     }
 
+
+    private static class Windows {
+        /**
+         * center of the windows
+         */
+        private static final Point CENTER_POINT;
+        /**
+         * 鼠标可以点击的范围
+         */
+        private static final int X_MIN;
+        private static final int Y_MIN;
+        private static final int X_MAX;
+        private static final int Y_MAX;
+
+        static {
+            //获取鼠标最大位移
+            INSTANCE.robot.get().mouseMove(Integer.MAX_VALUE, Integer.MAX_VALUE);
+            Point location = MouseInfo.getPointerInfo().getLocation();
+
+            //初始点为屏幕中心
+            CENTER_POINT = new Point(location.x / 2, location.y / 2);
+
+            //鼠标移回原位
+            INSTANCE.robot.get().mouseMove(INSTANCE.lastPoint.x, INSTANCE.lastPoint.y);
+
+            //鼠标可以点击的范围
+            X_MIN = CENTER_POINT.x - 200;
+            Y_MIN = CENTER_POINT.y - 200;
+            X_MAX = CENTER_POINT.x + 100;
+            Y_MAX = CENTER_POINT.y + 100;
+        }
+
+    }
 }

@@ -3,10 +3,8 @@ package com.qr.order;
 import com.qr.core.CmdOutCommand;
 import socket.script.RobotMouse;
 import util.AllThreadUtil;
-import util.StringValueUtil;
 
 import javax.annotation.Resource;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -19,10 +17,6 @@ public enum MouseOutCommandImpl implements CmdOutCommand {
      */
     INSTANCE;
     @Resource
-    private BiFunction<String, Integer, String[]> maxSplitWords;
-    @Resource
-    private Function<String, Boolean> caseTrueFalse;
-    @Resource
     private Function<String, Integer> parseInt;
 
     @Override
@@ -34,10 +28,10 @@ public enum MouseOutCommandImpl implements CmdOutCommand {
         builder.append("mouse can move and click\n");
         builder.append("use this trick to make windows never lock.\n");
         builder.append("and mouse can get pointer color.\n\n");
-        builder.append(StringValueUtil.addSpacingToLength("'" + getNameSpace() + " move  true/false'", 40)).append("when time up,mouse move to the windows centre and back,or never move\n");
-        builder.append(StringValueUtil.addSpacingToLength("'" + getNameSpace() + " click true/false'", 40)).append("when time up,mouse click left key once ,or not click\n");
-        builder.append(StringValueUtil.addSpacingToLength("'" + getNameSpace() + " time  [integer number]'", 40)).append("set time loops length\n");
-        builder.append(StringValueUtil.addSpacingToLength("'" + getNameSpace() + " detail'", 40)).append("show mouse point color\n");
+        builder.append(addSpacingToLength.get(0).apply("'" + getNameSpace() + " move  true/false'", 40)).append("when time up,mouse move to the windows centre and back,or never move\n");
+        builder.append(addSpacingToLength.get(0).apply("'" + getNameSpace() + " click true/false'", 40)).append("when time up,mouse click left key once ,or not click\n");
+        builder.append(addSpacingToLength.get(0).apply("'" + getNameSpace() + " time  [integer number]'", 40)).append("set time loops length\n");
+        builder.append(addSpacingToLength.get(0).apply("'" + getNameSpace() + " detail'", 40)).append("show mouse point color\n");
         return builder.toString();
     }
 
@@ -86,7 +80,7 @@ public enum MouseOutCommandImpl implements CmdOutCommand {
 
     @Override
     public boolean useCommand(String order) throws Throwable {
-        String[] strings = maxSplitWords.apply(order, 3);
+        String[] strings = maxSplitWords.get(0).apply(order, 3);
         return userOrder(strings[0], strings[1]);
     }
 
@@ -110,11 +104,11 @@ public enum MouseOutCommandImpl implements CmdOutCommand {
     }
 
     private void setMove(String value) {
-        instance.move = caseTrueFalse.apply(value);
+        instance.move = caseTrueFalse.get(0).apply(value);
     }
 
     private void setClick(String value) {
-        instance.click = caseTrueFalse.apply(value);
+        instance.click = caseTrueFalse.get(0).apply(value);
     }
 
     private void setTime(String value) {

@@ -12,7 +12,6 @@ import socket.file.model.simglefile.WantFile;
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -26,9 +25,6 @@ public enum FileOutCommandImpl implements CmdOutCommand {
     INSTANCE;
     @Resource
     private BiFunction<Supplier<String>, Runnable, Integer> whileInt;
-    @Resource
-    private Function<Throwable, String> deepMessage;
-    private static final String EXIT = "exit";
     public static final String ALL_FILE = "A";
     public static final String WANT_FILE = "W";
     public File downLoadPath = new File("D:\\XqlDownload");
@@ -54,7 +50,7 @@ public enum FileOutCommandImpl implements CmdOutCommand {
                 print("error", () -> "启动文件服务器");
                 break;
             } catch (Throwable throwable) {
-                print("error", () -> deepMessage.apply(throwable));
+                print("error", () -> deepMessage.get(0).apply(throwable));
             }
         }
         FileOutListener.init(fileServer);

@@ -37,4 +37,15 @@ public class InstanceUtil {
         }
         return null;
     }
+
+    public static Object[] getInstance(Class<?> aclass) {
+        if (aclass.isEnum()) {
+            return getEnumInstance(aclass);
+        }
+        final Object instance = getSingLetonInstance(aclass);
+        if (instance == null) {
+            return new Object[0];
+        }
+        return new Object[]{instance};
+    }
 }

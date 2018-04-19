@@ -1,6 +1,7 @@
 package util;
 
 import javax.annotation.Resource;
+import java.util.function.Supplier;
 
 /**
  * @author kelaite
@@ -38,12 +39,20 @@ public class StringValueUtil {
         if (s == null) {
             s = "";
         }
+        s = s.trim().toUpperCase();
         switch (s) {
-            case "true":
             case "TRUE":
+            case "YES":
+            case "1":
+            case "ok":
+            case "好":
                 return true;
-            case "false":
             case "FALSE":
+            case "NO":
+            case "0":
+            case "cancel":
+            case "算了":
+            case "取消":
                 return false;
             default:
                 throw new RuntimeException("try understand this value is a boolean but fail : " + s);
@@ -53,4 +62,20 @@ public class StringValueUtil {
     public static int caseInteger(String s) {
         return Integer.parseInt(s);
     }
+
+    static int whileInt(Supplier<String> getLine, Runnable title) throws Throwable {
+        while (true) {
+            try {
+                title.run();
+                String line = getLine.get();
+                if ("exit".equals(line.trim())) {
+                    throw new Throwable("终止操作");
+                }
+                return Integer.parseInt(line);
+            } catch (Exception e) {
+                //
+            }
+        }
+    }
+
 }
