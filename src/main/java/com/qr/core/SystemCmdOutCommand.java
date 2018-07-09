@@ -21,7 +21,7 @@ public interface SystemCmdOutCommand extends CmdOutCommand {
     }
 
     @Override
-    default boolean useCommand(String order) {
+    default boolean useCommand(String order) throws Throwable {
         return true;
     }
 

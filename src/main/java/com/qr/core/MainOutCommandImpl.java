@@ -1,8 +1,8 @@
 package com.qr.core;
 
+import cn.qr.instance.InstanceUtil;
 import util.AllThreadUtil;
-import util.FindClassUtils;
-import util.InstanceUtil;
+import cn.qr.cryptozoic.clazz.FindClassUtils;
 
 import java.util.function.Supplier;
 
@@ -25,6 +25,7 @@ public enum MainOutCommandImpl implements SystemCmdOutCommand {
 
     @Override
     public void install(Supplier<String> getLine) {
+        cmdPrintln("\nfind commands");
         //加载指令
         FindClassUtils.SINGLETON.getClasses().stream().filter(CmdOutCommand.class::isAssignableFrom).forEach(a -> {
             @SuppressWarnings({"unchecked"}) final Class<? extends CmdOutCommand> outOrder = (Class<? extends CmdOutCommand>) a;
@@ -67,33 +68,27 @@ public enum MainOutCommandImpl implements SystemCmdOutCommand {
     }
 
     @Override
-    public boolean useCommand(String line) {
+    public boolean useCommand(String line) throws Throwable {
         //            System.out.print("[cmd@root]$ ");
         String[] commands = maxSplitWords.get(0).apply(line, 2);
         if (commands[0] == null) {
             return true;
         }
-
         CmdOutCommand cmdOutCommand = NAMESPACE.get(commands[0]);
-        if (cmdOutCommand == null || cmdOutCommand == INSTANCE) {
+        if (cmdOutCommand == null) {
+            cmdPrintln("- command not found : " + commands[0]);
             return true;
         }
-
         commands[1] = commands[1] == null ? "" : commands[1];
-
-        try {
-            boolean isStart = cmdOutCommand.isStart();
-            if (isStart) {
-                boolean success = cmdOutCommand.useCommand(commands[1]);
-                if (!success) {
-                    cmdPrintln("-" + cmdOutCommand.getNameSpace() + ": warn: command not found : " + commands[1]);
-                }
-
-            } else {
-                cmdPrintln("-" + cmdOutCommand.getNameSpace() + " is not install");
+        boolean isStart = cmdOutCommand.isStart();
+        if (isStart) {
+            boolean success = cmdOutCommand.useCommand(commands[1]);
+            if (!success) {
+                cmdPrintln("-" + cmdOutCommand.getNameSpace() + ": warn: command not found : " + commands[1]);
             }
-        } catch (Throwable e) {
-            cmdPrintln(deepMessage.get(0).apply(e));
+
+        } else {
+            cmdPrintln("-" + cmdOutCommand.getNameSpace() + " is not install");
         }
         return true;
     }

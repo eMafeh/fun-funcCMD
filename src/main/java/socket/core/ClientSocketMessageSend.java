@@ -29,10 +29,12 @@ public class ClientSocketMessageSend {
         if (!SendMessage.MESSAGES.isEmpty()) {
             SendMessage send = SendMessage.MESSAGES.get(0);
             while (key.isRun()) {
-                try (Socket socket = new Socket(send.host, send.port); OutputStream outputStream = socket.getOutputStream()) {
-                    outputStream.write(send.message.getBytes(CharsetConfig.UTF8));
-                    SendMessage.MESSAGES.remove(0);
-                    break;
+                try (Socket socket = new Socket(send.host, send.port)) {
+                    try (OutputStream outputStream = socket.getOutputStream()) {
+                        outputStream.write(send.message.getBytes(CharsetConfig.UTF8));
+                        SendMessage.MESSAGES.remove(0);
+                        break;
+                    }
                 } catch (IOException e) {
                     Thread.sleep(100);
                 }

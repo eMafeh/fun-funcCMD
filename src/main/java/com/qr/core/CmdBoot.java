@@ -1,8 +1,9 @@
 package com.qr.core;
 
-import com.qr.function.FunctionWorkshop;
-import com.qr.injection.FieldInjection;
-import util.FindClassUtils;
+import cn.qr.cryptozoic.clazz.FindClassUtils;
+import cn.qr.cryptozoic.function.FunctionWorkshop;
+import cn.qr.cryptozoic.injection.FieldInjection;
+import util.ExceptionUtil;
 
 import java.util.Scanner;
 import java.util.Set;
@@ -16,28 +17,30 @@ import java.util.function.Supplier;
 public class CmdBoot {
     private static final Scanner SC = new Scanner(System.in);
 
-    private static final long START_TIME = System.currentTimeMillis();
-
+    private static final long START_TIME;
 
     static {
+        START_TIME = System.currentTimeMillis();
         //加载系统类
         final Class<?>[] systemClasses = FindClassUtils.SINGLETON.getSystemClasses();
         //加载用户类
         final Set<Class<?>> classes = FindClassUtils.SINGLETON.getClasses();
-
-        final long begin = System.currentTimeMillis();
-        cmdPrintln("\ntry find functions in all classes");
-        //系统类函数采集
-        FunctionWorkshop.addFunction(systemClasses);
-        //用户类函数采集
-        FunctionWorkshop.addFunction(classes.toArray(new Class[classes.size()]));
-        cmdPrintln("\nfunctions (type : " + FunctionWorkshop.getFUNCTIONS().size() + " ,count : " + FunctionWorkshop.getCount() + ") found success in " + (System.currentTimeMillis() - begin) + " ms");
-
-        cmdPrintln("\ntry insert functions to user class");
-        classes.forEach(FieldInjection::insertField);
-        cmdPrintln("inserted function over");
-        cmdPrintln("\nfind commands");
-        cmdPrintln("\nStarted Success In " + (System.currentTimeMillis() - START_TIME) + "ms");
+        {
+            final long begin = System.currentTimeMillis();
+            cmdPrintln("\ntry find functions in all classes");
+            //系统类函数采集
+            FunctionWorkshop.addFunction(systemClasses);
+            //用户类函数采集
+            FunctionWorkshop.addFunction(classes.toArray(new Class[classes.size()]));
+            cmdPrintln("\nfunctions (type : " + FunctionWorkshop.getFUNCTIONS().size() + " ,count : " + FunctionWorkshop.getCount() + ") found success in " + (System.currentTimeMillis() - begin) + " ms");
+        }
+        {
+            final long begin = System.currentTimeMillis();
+            cmdPrintln("\ntry insert functions to user class");
+            classes.forEach(FieldInjection::insertField);
+            cmdPrintln("inserted function success in " + (System.currentTimeMillis() - begin) + " ms");
+            cmdPrintln("\nStarted Success In " + (System.currentTimeMillis() - START_TIME) + "ms");
+        }
     }
 
 
@@ -54,14 +57,20 @@ public class CmdBoot {
 //        }
 //        Phoenix.robotRun();
 //        System.exit(0);
-        SystemCmdOutCommand main = MainOutCommandImpl.INSTANCE;
+        MainOutCommandImpl main = MainOutCommandImpl.INSTANCE;
         main.install(CmdBoot::orderLine);
-        main.useCommand("run mouse");
-        main.useCommand("mouse move true");
-        main.useCommand("log mouse debug");
-        boolean goOn;
-        do goOn = main.useCommand(SC.nextLine());
-        while (goOn);
+        try {
+            main.useCommand("run mouse");
+            main.useCommand("mouse move true");
+            main.useCommand("log mouse debug");
+        } catch (Throwable e) {
+            cmdPrintln(ExceptionUtil.deepMessage(e));
+        }
+        while (true) try {
+            main.useCommand(SC.nextLine());
+        } catch (Throwable e) {
+            cmdPrintln(ExceptionUtil.deepMessage(e));
+        }
     }
 
 

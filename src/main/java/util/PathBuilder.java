@@ -9,6 +9,7 @@ public class PathBuilder {
     private static final int LESS = 2;
     private static final char[] C = {'/', '\\'};
 
+
     /**
      * get a file Parent path.if it do not have Parent,return "";
      */
@@ -32,6 +33,28 @@ public class PathBuilder {
 
         //if do not have \ or /,that mean it do not have fromPath
         return "";
+    }
+
+    /**
+     *
+     */
+    public static String[] getTargetPath(String path, String end) {
+        if (path == null || end == null) return new String[0];
+        File file = new File(path);
+        if (path.endsWith(end)) {
+            if (!file.exists()) {
+                return new String[0];
+            }
+            return new String[]{path};
+        }
+        String[] list = file.list((a, b) -> b.endsWith(end));
+        if (list == null) {
+            return new String[0];
+        }
+        for (int i = 0; i < list.length; i++) {
+            list[i] = addFileName(path, list[i]);
+        }
+        return list;
     }
 
     /**
