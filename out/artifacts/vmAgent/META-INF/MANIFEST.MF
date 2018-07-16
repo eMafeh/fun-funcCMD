@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Agent-Class: test.AgentMain
+Class-Path: libs/com.sun.tools.attach-1.8.0_jdk8u172-b11.jar
+Main-Class: test.VMtest
+
