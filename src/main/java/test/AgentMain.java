@@ -16,8 +16,6 @@ public class AgentMain {
             throws ClassNotFoundException, UnmodifiableClassException,
             InterruptedException {
         AgentMain.inst = inst;
-        long objectSize = inst.getObjectSize(new int[1000]);
-        System.out.println(objectSize);
         System.out.println("Agent Main Done");
     }
     public static long sizeOf(Object o) {
@@ -43,11 +41,6 @@ public class AgentMain {
     }
     //判定哪些是需要跳过的
     private static boolean skipObject(Object obj, Map<Object, Object> visited) {
-        if (obj instanceof String) {
-            if (obj == ((String) obj).intern()) {
-                return true;
-            }
-        }
         return (obj == null) || visited.containsKey(obj);
     }
     private static long internalSizeOf(Object obj, Stack<Object> stack, Map<Object, Object> visited) {

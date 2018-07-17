@@ -85,6 +85,7 @@ public enum MouseOutCommandImpl implements CmdOutCommand {
     }
 
     private boolean userOrder(String first, String value) {
+        if (first == null) return false;
         switch (first) {
             case "move":
                 setMove(value);
