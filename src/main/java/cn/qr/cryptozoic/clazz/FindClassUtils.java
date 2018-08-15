@@ -81,6 +81,10 @@ public enum FindClassUtils {
             System.out.println("not exists : " + scannerFile);
             return;
         }
+        if (scannerFile.getName().equalsIgnoreCase("test")) {
+            System.out.println("skip test : " + scannerFile);
+            return;
+        }
         // 如果是目录 则继续扫描
         if (scannerFile.isDirectory()) {
             File[] files = scannerFile.listFiles();
@@ -115,7 +119,7 @@ public enum FindClassUtils {
             // 获取jar里的一个实体 可以是目录 和一些jar包里的其他文件 如META-INF等文件
             JarEntry entry = entries.nextElement();
             String name = entry.getName();
-            if (name.endsWith(CLASS_KIND)) {
+            if (!name.contains("test") && name.endsWith(CLASS_KIND)) {
                 fileClassLoad(name.substring(0, name.length() - CLASS_KIND_LENGTH).replaceAll("[\\\\/]", "."), classes);
             }
         }

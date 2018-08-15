@@ -131,7 +131,7 @@ public enum ResourceDB implements CmdOutCommand {
         int l = maxURL();
         String mac = getOrInput(key, () -> print(() -> "请输入描述")).toUpperCase();
         tree.forEach((a, b) -> {
-            if (b.toUpperCase().contains(mac)) {
+            if (a.toUpperCase().contains(mac) || b.toUpperCase().contains(mac)) {
                 print(() -> StringValueUtil.addSpacingToLength(a, l) + b);
             }
         });

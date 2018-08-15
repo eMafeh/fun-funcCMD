@@ -30,8 +30,8 @@ public class AgentMain {
      * 递归计算当前对象占用空间总大小，包括当前类和超类的实例字段大小以及实例字段引用对象大小
      */
     public static long fullSizeOf(Object obj) {//深入检索对象，并计算大小
-        Map<Object, Object> visited = new IdentityHashMap<Object, Object>();
-        Stack<Object> stack = new Stack<Object>();
+        Map<Object, Object> visited = new IdentityHashMap<>();
+        Stack<Object> stack = new Stack<>();
         long result = internalSizeOf(obj, stack, visited);
         while (!stack.isEmpty()) {//通过栈进行遍历
             result += internalSizeOf(stack.pop(), stack, visited);
