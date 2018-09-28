@@ -81,7 +81,7 @@ public class Cell {
         if (!right) return 0;
 
         int change = 0;
-        System.out.println(this + "setValue: " + value.value());
+        System.out.println(this + "setValue: " + value);
         change += removePosb(inRow, value, changeList, "row(" + (row + 1) + ")");
         change += removePosb(inColumn, value, changeList, "column(" + (column + 1) + ")");
         change += removePosb(inBox, value, changeList, "boxNo(" + (boxNo + 1) + ")");
@@ -102,7 +102,7 @@ public class Cell {
         if (!cell.right) {
             for (Cell except : excepts) if (except == cell) return false;
             if (cell.posb.remove(value)) {
-                System.out.println(title + cell + "removePosb: " + value.value());
+                System.out.println(title + cell + "removePosb: " + value);
                 return true;
             }
         }
@@ -147,7 +147,7 @@ public class Cell {
 
     public static void viewShow() {
         for (int i = 0; i < d * d * d * d; i++) {
-            System.out.print(MAP.get(i).value.value());
+            System.out.print(MAP.get(i).value);
             if (i % d == d - 1) {
                 System.out.print(" ");
             }
@@ -163,7 +163,7 @@ public class Cell {
                 System.out.println("第 " + (i / (d * d) + 1) + "行");
             }
             Cell cell = MAP.get(i);
-            System.out.println(cell.value + (cell.right ? "" : "____" + cell.posb));
+            System.out.println(cell.value + (cell.right ? "" : "" + cell.posb));
         }
     }
 
