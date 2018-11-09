@@ -1,6 +1,5 @@
 package com.qr.solo;
 
-import com.qr.solo.infer.*;
 import com.qr.solo.model.Cell;
 
 /**
@@ -11,8 +10,8 @@ public class SoloBoot {
     public static void main(String[] args) {
         Cell.init(SoloConst.target);
         Cell.detailShow();
-
-        CellStrategy.doInfer();
+        System.out.println("init "+System.currentTimeMillis());
+//        CellStrategy.doInfer();
 
         Exhaustion.compute(0, SoloConst.d);
 

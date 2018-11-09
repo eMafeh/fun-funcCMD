@@ -167,6 +167,15 @@ public class Cell {
         }
     }
 
+    public static String lineShow() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < d * d * d * d; i++) {
+            Cell cell = MAP.get(i);
+            stringBuilder.append(cell.value);
+        }
+        return stringBuilder.toString();
+    }
+
     @Override
     public String toString() {
         return "cell(" + (boxNo + 1) + "." + (index + 1) + ")";
