@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>元胞自动机</title>
+    <style>
+        .title {
+            height: 40px;
+            width: 100%;
+            background: lightskyblue;
+
+            font-size: xx-large;;
+        }
+
+        input {
+            width: 50px;
+        }
+
+        table {
+            border: 1px solid #5F6F7E;
+            border-collapse: collapse;
+        }
+
+        table td {
+            margin: 0;
+            padding: 0;
+            border: 1px solid #E2E2E2;
+            height: 10px;
+            width: 10px;
+        }
+
+        .tempDiv {
+            border: 3px dashed black;
+            background: rgba(0, 0, 0, 0);
+            position: absolute;
+            width: 0;
+            height: 0;
+            filter: alpha(opacity:10);
+            opacity: 0.1;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="title">元胞测试机</div>
+<button onclick="lifeLoop(true)">下一个世代</button>
+<button id="changeAuto"></button>
+<button id="clearAll">清空</button>
+<label for="loopTime">运行周期(ms):</label><input id="loopTime"/>
+<span>运行数:</span><span id="allCount"></span>
+<table id="table"></table>
+</body>
+<script>
+    let div = document.createElement("div");
+    div.className = "tempDiv";
+    document.body.appendChild(div);
+    window.onload = function () {
+        document.onmousedown = function (e) {
+            const posx = e.clientX;
+            const posy = e.clientY;
+            div.style.left = e.clientX + "px";
+            div.style.top = e.clientY + "px";
+            div.style.width = 0 + "px";
+            div.style.height = 0 + "px";
+            div.style.display = 'block';
+            console.log("down");
+            document.onmousemove = function (ev) {
+                div.style.left = Math.min(ev.clientX, posx) + "px";
+                div.style.top = Math.min(ev.clientY, posy) + "px";
+                div.style.width = Math.abs(posx - ev.clientX) + "px";
+                div.style.height = Math.abs(posy - ev.clientY) + "px";
+                console.log("move");
+                document.onmouseup = function () {
+                    div.style.display = 'none';
+                    document.onmouseup = document.onmousemove = null;
+                    console.log("up");
+                }
+            }
+        }
+    }
+</script>
+<script>
+    let worldX = 100;
+    let worldY = 100;
+    const lifeCell = {};
+    //缓存 tds 可以大幅提高获取元素的性能
+    let tdElements = [];
+
+    let auto = true;
+    const changeAutoElement = document.getElementById("changeAuto");
+    {
+        changeAutoElement.onclick = () => changeAutoElement.innerHTML = (auto = !auto) ? "停止运行" : "自动运行";
+        changeAutoElement.click();
+    }
+
+    let timeout = 500;
+    const loopTimeElement = document.getElementById("loopTime");
+    {
+        loopTimeElement.onchange = () => {
+            let value = loopTimeElement.value;
+            if (Number.isInteger(value) && value > 0)
+                loopTimeElement.value = timeout;
+            else timeout = value;
+        };
+        loopTimeElement.value = timeout;
+    }
+    let allCount = 0;
+    const allCountElement = document.getElementById("allCount");
+
+    document.getElementById("clearAll").onclick = () => {
+        if (auto) changeAutoElement.click();
+        lifeCellForEach(removeLife);
+        allCount = 0;
+        allCountElement.innerHTML = allCount;
+    };
+
+    const isLife = (xKey, yKey) => lifeCell[xKey] && lifeCell[xKey][yKey] === true;
+
+    const liveLife = (xKey, yKey) => {
+        let cellX = lifeCell[xKey];
+        if (!cellX) cellX = lifeCell[xKey] = {};
+        cellX[yKey] = true;
+        tdElements[xKey][yKey].style.backgroundColor = 'black';
+    };
+    const removeLife = (xKey, yKey) => {
+        lifeCell[xKey][yKey] = undefined;
+        tdElements[xKey][yKey].style.backgroundColor = null;
+    };
+
+    const changeLife = (xKey, yKey) => {
+        if (isLife(xKey, yKey))
+            removeLife(xKey, yKey);
+        else
+            liveLife(xKey, yKey);
+    };
+
+    const lifeCellForEach = forEach => {
+        let rowX;
+        for (const xKey in lifeCell)
+            if (lifeCell.hasOwnProperty(xKey) && (rowX = lifeCell[xKey]))
+                for (const yKey in rowX)
+                    if (rowX.hasOwnProperty(yKey) && rowX[yKey] === true)
+                        forEach(xKey, yKey);
+    };
+    const lifeLoop = handle => {
+        if (!auto && !handle) return;
+
+        allCount++;
+        const countCell = {};
+        //计数方法
+        const count = (xKey, yKey) => {
+            const rowX = countCell[xKey];
+            if (rowX) {
+                const num = rowX[yKey];
+                rowX[yKey] = num ? num + 1 : 1;
+            } else {
+                const newY = {};
+                newY[yKey] = 1;
+                countCell[xKey] = newY;
+            }
+        };
+
+        //标记下一轮有值的元胞数
+        lifeCellForEach((xKey, yKey) => {
+            const xNum = xKey / 1;
+            const yNum = yKey / 1;
+            //获取相邻8点xy下标
+            const leftKey = (xNum > 1 ? xNum - 1 : worldX) + "";
+            const rightKey = (xNum < worldX ? xNum + 1 : 1) + "";
+            const topKey = (yNum > 1 ? yNum - 1 : worldY) + "";
+            const bottomKey = (yNum < worldY ? yNum + 1 : 1) + "";
+            //上面三个
+            count(leftKey, topKey);
+            count(xKey, topKey);
+            count(rightKey, topKey);
+            //左右两个
+            count(leftKey, yKey);
+            count(rightKey, yKey);
+            //下面三个
+            count(leftKey, bottomKey);
+            count(xKey, bottomKey);
+            count(rightKey, bottomKey);
+        });
+
+        //新的活胞
+        for (let x = 1; x <= worldX; x++) {
+            const xKey = x + "";
+            const rowX = countCell[xKey];
+            if (!rowX) continue;
+            for (let y = 1; y <= worldY; y++) {
+                const yKey = y + "";
+                autoChange(rowX[yKey], xKey, yKey);
+            }
+        }
+        allCountElement.innerHTML = allCount;
+    };
+
+    const autoChange = (num, xKey, yKey) => {
+        if (isLife(xKey, yKey)) {
+            if (num !== 2 && num !== 3)
+                removeLife(xKey, yKey);
+        } else if (num === 3)
+            liveLife(xKey, yKey);
+    };
+
+    //初始化元胞图
+    const tableInit = () => {
+        let tableHtml = "";
+        for (let iy = 1; iy <= worldY; iy++) {
+            let tds = "";
+            for (let ix = 1; ix <= worldX; ix++) tds += `<td id="c_${ix}_${iy}" onclick="changeLife('${ix}','${iy}')"></td>`;
+            tableHtml += `<tr>${tds}</tr>`;
+        }
+        //更新
+        document.getElementById("table").innerHTML = tableHtml;
+        //记录所有的元胞格子 td = tdElements[x][y]
+        for (let x = 1; x <= worldX; x++) {
+            let cellX = tdElements[x] = [];
+            for (let y = 1; y <= worldY; y++) {
+                cellX[y] = document.getElementById(`c_${x}_${y}`);
+                if (isLife(x, y))
+                    liveLife(x, y);
+            }
+        }
+    };
+    tableInit();
+
+    const whileLifeLoop = () => {
+        lifeLoop();
+        setTimeout(whileLifeLoop, timeout);
+    };
+    whileLifeLoop();
+
+</script>
+</html>

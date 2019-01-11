@@ -16,21 +16,20 @@ import java.awt.*;
  * @author shenchao 散点图
  */
 public class ScatterPlotChart {
+    static DefaultXYDataset xydataset = new DefaultXYDataset();
 
-    public static void showChart(double[][] datas) {
-
-        DefaultXYDataset xydataset = new DefaultXYDataset();
-
-        xydataset.addSeries("100000", datas);
-
+    static {
         JFreeChart chart = ChartFactory.createScatterPlot("showCount", "number", "counts", xydataset, PlotOrientation.VERTICAL, true, false, false);
         ChartFrame frame = new ChartFrame("prime", chart, true);
         chart.setBackgroundPaint(Color.white);
         chart.setBorderPaint(Color.GREEN);
         chart.setBorderStroke(new BasicStroke(1.5f));
-        XYPlot xyplot = (XYPlot) chart.getPlot();
+        XYPlot xyplot = chart.getXYPlot();
+        xyplot.getRenderer().setSeriesPaint(0, Color.RED);
+        xyplot.getRenderer().setSeriesPaint(1, Color.BLUE);
+        xyplot.getRenderer().setSeriesPaint(2, Color.yellow);
 
-        xyplot.setBackgroundPaint(new Color(255, 253, 246));
+        xyplot.setBackgroundPaint(Color.black);//new Color(255, 253, 246)
         ValueAxis vaaxis = xyplot.getDomainAxis();
         vaaxis.setAxisLineStroke(new BasicStroke(1.5f));
 
@@ -38,15 +37,15 @@ public class ScatterPlotChart {
         va.setAxisLineStroke(new BasicStroke(1.5f));
 
         va.setAxisLineStroke(new BasicStroke(1.5f)); // 坐标轴粗细
-        va.setAxisLinePaint(new Color(215, 215, 215)); // 坐标轴颜色  
-        xyplot.setOutlineStroke(new BasicStroke(1.5f)); // 边框粗细  
-        va.setLabelPaint(new Color(10, 10, 10)); // 坐标轴标题颜色  
-        va.setTickLabelPaint(new Color(102, 102, 102)); // 坐标轴标尺值颜色  
+        va.setAxisLinePaint(new Color(215, 215, 215)); // 坐标轴颜色
+        xyplot.setOutlineStroke(new BasicStroke(1.5f)); // 边框粗细
+        va.setLabelPaint(new Color(10, 10, 10)); // 坐标轴标题颜色
+        va.setTickLabelPaint(new Color(102, 102, 102)); // 坐标轴标尺值颜色
         ValueAxis axis = xyplot.getRangeAxis();
         axis.setAxisLineStroke(new BasicStroke(1.5f));
         XYLineAndShapeRenderer xylineandshaperenderer = (XYLineAndShapeRenderer) xyplot
                 .getRenderer();
-        xylineandshaperenderer.setSeriesOutlinePaint(0, Color.WHITE);
+        xylineandshaperenderer.setSeriesOutlinePaint(2, Color.white);
         xylineandshaperenderer.setUseOutlinePaint(true);
         NumberAxis numberaxis = (NumberAxis) xyplot.getDomainAxis();
         numberaxis.setAutoRangeIncludesZero(false);
@@ -56,6 +55,14 @@ public class ScatterPlotChart {
 
         frame.pack();
         frame.setVisible(true);
+    }
+
+    static int num;
+
+    public static void showChart(double[][]... datas) {
+        for (int i = 0; i < datas.length; i++) {
+            xydataset.addSeries(num++, datas[i]);
+        }
     }
 
 }
