@@ -15,7 +15,9 @@ public class TestNumber {
 
     public static void main(String[] args) throws InterruptedException {
         int[] file = getFile("D:/1000万.txt");
-        file = Arrays.stream(file).limit(1000000).toArray();
+        file = Arrays.stream(file)
+                .limit(1000000)
+                .toArray();
         double[][] doubles = toFileChart(file);
         System.out.println("ok");
         Thread.sleep(3000L);
@@ -65,7 +67,9 @@ public class TestNumber {
         try (FileInputStream inputStream = new FileInputStream(file)) {
             byte[] bytes = new byte[1024 * 1024 * 100];
             int read = inputStream.read(bytes);
-            return Arrays.stream(new String(bytes, 0, read).split("\r\n")).mapToInt(Integer::parseInt).toArray();
+            return Arrays.stream(new String(bytes, 0, read).split("\r\n"))
+                    .mapToInt(Integer::parseInt)
+                    .toArray();
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -74,24 +78,13 @@ public class TestNumber {
 
     private static int[] getComputer() {
         int MAX = 10000000;
-        boolean[] is = new boolean[MAX + 1];
-        for (int i = 2; i <= MAX; i++)
-            if (is[i] = is(i, is))
-                System.out.print(i + " ");
-
         int[] counts = new int[MAX + 5];
 
         for (int i = 1; i <= MAX; i++)
-            if (is[i])
+            if (PrimeNumber.is(i))
                 for (int j = 1; j <= i; j++)
-                    if (is[j] && i + j < counts.length)
+                    if (PrimeNumber.is(j) && i + j < counts.length)
                         counts[i + j]++;
         return counts;
-    }
-
-    private static boolean is(int i, boolean[] is) {
-        for (int j = 2; j * j <= i; j++)
-            if (is[j] && i % j == 0) return false;
-        return true;
     }
 }

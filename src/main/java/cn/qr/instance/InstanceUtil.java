@@ -3,6 +3,7 @@ package cn.qr.instance;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 
 public class InstanceUtil {
     private static final String VALUES = "values";
@@ -49,5 +50,16 @@ public class InstanceUtil {
             return new Object[0];
         }
         return new Object[]{instance};
+    }
+
+    public static void main(String[] args) {
+        ArrayList<Object> objects = new ArrayList<>();
+        objects.add("1");
+        objects.add("1");
+        objects.add("1");
+        objects.add("2");
+        objects.add("3");
+        long count = objects.stream().filter(a -> a.equals("1")).count();
+        System.out.println(count);
     }
 }
