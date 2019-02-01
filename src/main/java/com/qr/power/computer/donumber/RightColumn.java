@@ -1,4 +1,4 @@
-package com.qr.power;
+package com.qr.power.computer.donumber;
 
 import java.math.BigInteger;
 

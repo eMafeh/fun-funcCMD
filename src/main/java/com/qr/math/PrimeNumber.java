@@ -1,24 +1,49 @@
 package com.qr.math;
 
+import util.StringBuilderUtil;
+import util.StringBuilderUtil.Splitter;
+
 import java.math.BigInteger;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static java.math.BigInteger.ONE;
+import static java.math.BigInteger.ZERO;
 
 public class PrimeNumber {
-    private static final int MAX = 1_000_000;//is a PrimeNumber
+    private static final int MAX = 1_000_000;
     private static final boolean[] is = new boolean[MAX + 1];
-    private static final BigInteger TWO = BigInteger.valueOf(2);
+    private static final List<BigInteger> PRIME_NUMBER;
 
     static {
         is[2] = true;
         for (int i = 3; i <= MAX; i += 2)
             is[i] = is0(i);
+        PRIME_NUMBER = IntStream.range(2, MAX)
+                .filter(PrimeNumber::is)
+                .mapToObj(BigInteger::valueOf)
+                .collect(Collectors.toList());
     }
 
     public static boolean is(int i) {
         return is[i];
     }
 
+    public static BigInteger divideGcd(BigInteger[] integers, BigInteger first) {
+        BigInteger gcd = first = first == null ? ZERO : first;
+        for (BigInteger integer : integers) {
+            gcd = gcd.gcd(integer);
+            if (gcd.equals(ONE)) return first;
+        }
+        for (int i = 0; i < integers.length; i++) {
+            integers[i] = integers[i].divide(gcd);
+        }
+        return first.divide(gcd);
+    }
+
     public static StringBuilder toPrimeString(StringBuilder sb, BigInteger integer) {
-        int n = integer.compareTo(BigInteger.ZERO);
+        int n = integer.compareTo(ZERO);
         if (n == 0) {
             return sb.append("0");
         }
@@ -26,36 +51,17 @@ public class PrimeNumber {
             sb.append("-");
             integer = integer.abs();
         }
-        boolean begin = true;
-        while (true) {
-            BigInteger[] bigIntegers = integer.divideAndRemainder(TWO);
-            if (bigIntegers[1].equals(BigInteger.ZERO)) {
-                if (!begin) sb.append("*");
-                else begin = false;
-                sb.append("2");
-                integer = bigIntegers[0];
-            } else {
-                break;
+        Splitter<Character> splitter = StringBuilderUtil.getSplitter(sb, '*');
+        for (BigInteger prime : PRIME_NUMBER) {
+            if (integer.compareTo(prime.pow(2)) < 0) break;
+            for (BigInteger[] dna = integer.divideAndRemainder(prime); dna[1].equals(ZERO); ) {
+                splitter.split()
+                        .append(prime);
+                integer = dna[0];
+                dna = integer.divideAndRemainder(prime);
             }
         }
-        for (int i = 3; i <= MAX && is[i]; i += 2) {
-            BigInteger prime = BigInteger.valueOf(i);
-//            if (integer.compareTo(prime.multiply(prime)) > 0) {
-//                break;
-//            }
-            while (true) {
-                BigInteger[] bigIntegers = integer.divideAndRemainder(prime);
-                if (bigIntegers[1].equals(BigInteger.ZERO)) {
-                    if (!begin) sb.append("*");
-                    else begin = false;
-                    sb.append(i);
-                    integer = bigIntegers[0];
-                } else {
-                    break;
-                }
-            }
-        }
-        return begin ? sb.append(integer) : integer.equals(BigInteger.ONE) ? sb : sb.append("*")
+        return splitter.isBegin() ? sb.append(integer) : integer.equals(ONE) ? sb : sb.append("*")
                 .append(integer);
     }
 
@@ -66,6 +72,10 @@ public class PrimeNumber {
     }
 
     public static void main(String[] args) {
-        System.out.println(toPrimeString(new StringBuilder(), BigInteger.valueOf(11108669)));
+        BigInteger bigInteger = new BigInteger("949045796112665161423672793818972499901710941672270796004952960104250683860843").nextProbablePrime();
+        System.out.println(bigInteger);
+//        949045796112665161423672793818972499901710941672270796004952960104250683860843
+//        888349899411924520646963716970410934405926688658379816136849989
+
     }
 }
