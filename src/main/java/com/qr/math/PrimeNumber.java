@@ -4,6 +4,7 @@ import util.StringBuilderUtil;
 import util.StringBuilderUtil.Splitter;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -51,18 +52,16 @@ public class PrimeNumber {
             sb.append("-");
             integer = integer.abs();
         }
-        Splitter<Character> splitter = StringBuilderUtil.getSplitter(sb, '*');
-        for (BigInteger prime : PRIME_NUMBER) {
-            if (integer.compareTo(prime.pow(2)) < 0) break;
-            for (BigInteger[] dna = integer.divideAndRemainder(prime); dna[1].equals(ZERO); ) {
-                splitter.split()
-                        .append(prime);
-                integer = dna[0];
-                dna = integer.divideAndRemainder(prime);
-            }
+        List<BigInteger> primeList = toPrimeList(integer);
+        if (primeList.size() == 1) {
+            return sb.append(integer);
         }
-        return splitter.isBegin() ? sb.append(integer) : integer.equals(ONE) ? sb : sb.append("*")
-                .append(integer);
+        Splitter<Character> splitter = StringBuilderUtil.getSplitter(sb, '*');
+        for (BigInteger prime : primeList) {
+            splitter.split()
+                    .append(prime);
+        }
+        return sb;
     }
 
     private static boolean is0(int i) {
@@ -71,11 +70,25 @@ public class PrimeNumber {
         return true;
     }
 
-    public static void main(String[] args) {
-        BigInteger bigInteger = new BigInteger("949045796112665161423672793818972499901710941672270796004952960104250683860843").nextProbablePrime();
-        System.out.println(bigInteger);
-//        949045796112665161423672793818972499901710941672270796004952960104250683860843
-//        888349899411924520646963716970410934405926688658379816136849989
-
+    public static List<BigInteger> toPrimeList(BigInteger integer) {
+        boolean negative = false;
+        if (integer.signum() < 0) {
+            integer = integer.abs();
+            negative = true;
+        }
+        List<BigInteger> result = new ArrayList<>();
+        for (BigInteger prime : PRIME_NUMBER) {
+            if (integer.compareTo(prime.pow(2)) < 0) break;
+            for (BigInteger[] dna = integer.divideAndRemainder(prime); dna[1].equals(ZERO); ) {
+                result.add(prime);
+                integer = dna[0];
+                dna = integer.divideAndRemainder(prime);
+            }
+        }
+        if (!negative) {
+            if (!integer.equals(ONE))
+                result.add(integer);
+        } else result.add(integer.negate());
+        return result;
     }
 }

@@ -3,7 +3,7 @@ package com.qr.power.function;
 import java.util.Objects;
 
 public interface Algebra extends Comparable<Algebra> {
-    int power = 1000;
+    int power = 100;
 
     int id();
 

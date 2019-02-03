@@ -23,8 +23,8 @@ public class PascalTriangle {
             PascalTriangle previous = triangles.get(power - 1);
             IntStream.rangeClosed(0, previous.coefficients.length)
                     .parallel()
-                    .forEach(i -> coefficients[i] = previous.getValue(i - 1)
-                            .add(previous.getValue(i)));
+                    .forEach(i -> coefficients[i] = previous.v(i - 1)
+                            .add(previous.v(i)));
         } else {
             coefficients[0] = BigInteger.ONE;
         }
@@ -38,7 +38,7 @@ public class PascalTriangle {
         return ArraysUtil.copy(coefficients);
     }
 
-    BigInteger getValue(int i) {
+    BigInteger v(int i) {
         return i >= 0 && i < coefficients.length ? coefficients[i] : BigInteger.ZERO;
     }
 

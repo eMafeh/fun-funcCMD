@@ -18,7 +18,7 @@ public class RationalNumber {
         if (number == null) {
             return new RationalNumber(BigInteger.ZERO, BigInteger.ONE);
         }
-        BigInteger gcd = divide.signum() < 0 ? number.gcd(divide) : number.gcd(divide)
+        BigInteger gcd = divide.signum() > 0 ? number.gcd(divide) : number.gcd(divide)
                 .negate();
         return new RationalNumber(number.divide(gcd), divide.divide(gcd));
     }

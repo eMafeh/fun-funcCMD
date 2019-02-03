@@ -42,28 +42,41 @@ public class PowerSum {
         long l = System.currentTimeMillis();
         FormulaModel instance = FormulaModel.getInstance(power);
         System.out.println("prepare " + power + " in (" + (System.currentTimeMillis() - l) + "ms)");
+
         l = System.currentTimeMillis();
         BigInteger computer = instance.computer(power);
         System.out.println("computer x=" + power + " (" + (System.currentTimeMillis() - l) + "ms)=> " + computer);
-        l = System.currentTimeMillis();
+
+        right();
+
+        while (true) {
+            String s = sc.nextLine();
+            String[] s1 = StringSplitUtil.maxSplitWords(s, 2);
+            if (s1[0] == null) continue;
+            FormulaModel formulaModel = FormulaModel.getInstance(Integer.parseInt(s1[0]));
+            formulaModel.analyze();
+            String order = s1[1] == null ? "" : s1[1];
+            switch (order) {
+                case "1":
+                    System.out.println(formulaModel.toPrimeString());
+                    break;
+                case "2":
+                    System.out.println(formulaModel.toGcdString());
+                    break;
+                default:
+                    System.out.println(formulaModel);
+            }
+        }
+    }
+
+    private static void right() {
+        long l = System.currentTimeMillis();
         BigInteger result = BigInteger.ZERO;
         for (int i = 1; i <= power; i++) {
             result = result.add(BigInteger.valueOf(i)
                     .pow(power));
         }
         System.out.println((System.currentTimeMillis() - l) + "ms " + result);
-        while (true) {
-            String s = sc.nextLine();
-            String[] s1 = StringSplitUtil.maxSplitWords(s, 2);
-            FormulaModel formulaModel = FormulaModel.getInstance(Integer.parseInt(s1[0]));
-            if ("1".equals(s1[1]))
-                System.out.println(formulaModel.toPrimeString());
-            else if ("2".equals(s1[1])) {
-                System.out.println(formulaModel.toGcdString());
-            } else {
-                System.out.println(formulaModel);
-            }
-        }
     }
 
 }
