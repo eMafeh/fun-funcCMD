@@ -4,52 +4,135 @@
     <meta charset="UTF-8">
     <title>Tetris</title>
     <style>
-        .title {
-            height: 40px;
-            width: 100%;
-            background: lightskyblue;
+        html {
+            --maxHeight: 1743px;
+            --maxWidth: 980px;
+            --titleHeight: 50px;
+            --cellSize: 70px;
+        }
 
-            font-size: xx-large;
+        html, body {
+            margin: 0;
+            width: var(--maxWidth);
+            height: var(--maxHeight);
+            font-size: 45px;
+        }
+
+        body {
+            display: -webkit-flex;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .flex {
+            display: -webkit-flex;
+            display: flex;
+            justify-content: center;
+        }
+
+        .title {
+            width: var(--maxWidth);
+            height: var(--titleHeight);
+            font-size: 25px;
+            background: lightskyblue;
         }
 
         input {
-            width: 50px;
+            width: 250px;
+            height: 80px;
+            border-radius: 5px;
+            font-size: 45px;
+        }
+
+        .fa {
+            float: right;
+        }
+
+        .fa-cog:hover + #config, #config:hover {
+            display: block;
+        }
+
+        #config {
+            display: none;
+            background-color: white;
+            border: 1px solid black;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
         }
 
         #table {
-            position: absolute;
-            left: 100px;
-            top: 100px;
+            border-bottom: 10px solid #E2E2E2;
+            border-top: 10px solid #E2E2E2;
         }
 
         .cell {
             float: left;
             margin: 0;
-
             padding: 0;
-            border: 1px solid #E2E2E2;
-            height: 10px;
-            width: 10px;
+            height: var(--cellSize);
+            width: var(--cellSize);
+        }
+
+        .noTouch {
+            pointer-events: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #stopMarker {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            font-size: 150px;
+            top: calc(0.5 * var(--maxHeight) - 150px);
+            left: calc(0.5 * var(--maxWidth) - 150px);
+            opacity: 0.2;
+        }
+
+        #min-table {
+            position: fixed;
+            top: var(--titleHeight);
+            left: 0;
+            opacity: 0.5;
+        }
+
+        #allCount {
+            position: fixed;
+            top: var(--titleHeight);
+            right: 0;
         }
     </style>
 </head>
 <body>
-<div class="title">俄罗斯方块</div>
-<button id="changeAuto"></button>
-<button id="clearAll">清空</button>
-<label for="loopTime">运行周期(ms):</label><input id="loopTime"/>
-<span>运行数:</span><span id="allCount"></span>
+<div id="console"></div>
+<div class="title">
+    俄罗斯方块0.0.1
+    <div class="fa fa-cog">
+        设置
+    </div>
+    <div id="config">
+        <label for="loopTime">运行周期(ms):</label><input id="loopTime"/>
+    </div>
+</div>
+
 <div id="table"></div>
+<div class="noTouch" id="min-table"></div>
+<div class="noTouch" id="allCount">0</div>
+<div class="noTouch" id="stopMarker">暂停</div>
+
 </body>
 <script>
-    let auto = true;
-    const changeAutoElement = document.getElementById("changeAuto");
-    {
-        changeAutoElement.onclick = () => changeAutoElement.innerHTML = (auto = !auto) ? "暂停" : "开始";
-        changeAutoElement.click();
-    }
+    const con = document.getElementById("console");
+    const worldX = 14;
+    const worldY = 21;
+    const cellSize = 70;
 
-    let timeout = 200;
+    let timeout = 1000;
     const loopTimeElement = document.getElementById("loopTime");
     {
         loopTimeElement.onchange = () => {
@@ -57,57 +140,99 @@
             if (Number.isInteger(value) && value > 0)
                 loopTimeElement.value = timeout;
             else timeout = value;
+            console.log(timeout);
         };
         loopTimeElement.value = timeout;
     }
-    let allCount = 0;
-    const allCountElement = document.getElementById("allCount");
 
-    document.getElementById("clearAll").onclick = () => {
-        if (auto) changeAutoElement.click();
-        lifeCellForEach(removeLife);
-        allCount = 0;
-        allCountElement.innerHTML = allCount;
-    };
-    let worldX = 30;
-    let worldY = 50;
-    let cellSize = 12;
+    class Counter {
+        constructor(divId) {
+            this.element = document.getElementById(divId);
+            this.count = 0;
+        }
+
+        add(num) {
+            if (this.element)
+                this.element.innerHTML = (this.count += num) + "";
+        }
+
+        clear() {
+            if (this.element)
+                this.element.innerHTML = (this.count = 0) + "";
+        }
+    }
 
 
     class TetrisView {
 
-        constructor(tableId, xSize, ySize) {
+        constructor(tableId, countId, xSize, ySize) {
             this.tableId = tableId;
-            this.table = document.getElementById(tableId);
+            this.table = document.getElementById(this.tableId);
+            this.counter = new Counter(countId);
             this.xSize = xSize;
             this.ySize = ySize;
             this.cells = [];
-            this.origin = [this.xSize / 2, 1];
             this.shapeMap = {};
             let cells = "";
-            for (let iy = 1; iy <= ySize; iy++)
-                for (let ix = 1; ix <= xSize; ix++)
-                    cells += `<div class="cell" id="${tableId}_${ix}_${iy}"></div>`;
-            this.table.style.width = xSize * cellSize + "px";
-            this.table.style.height = ySize * cellSize + "px";
+            for (let iy = 1; iy <= this.ySize; iy++)
+                for (let ix = 1; ix <= this.xSize; ix++)
+                    cells += `<div class="cell" id="${this.tableId}_${ix}_${iy}"></div>`;
+            this.table.style.width = this.xSize * cellSize + "px";
+            this.table.style.height = this.ySize * cellSize + "px";
 
             this.table.innerHTML = cells;
             //记录所有的元胞格子 td = tdElements[x][y]
-            for (let x = 1; x <= xSize; x++) {
-                let cellX = this.cells[x] = [];
-                for (let y = 1; y <= ySize; y++)
+            for (let x = 1; x <= this.xSize; x++) {
+                const cellX = this.cells[x] = [];
+                for (let y = 1; y <= this.ySize; y++)
                     cellX[y] = {
-                        ele: document.getElementById(`${tableId}_${x}_${y}`),
+                        ele: document.getElementById(`${this.tableId}_${x}_${y}`),
                         belong: null
                     }
             }
         }
 
-        tryMoveCells(shapeId, shape, origin) {
+        clear() {
+            this.shapeMap = {};
+            this.counter.clear();
+            for (let x = 1; x <= this.xSize; x++)
+                for (let y = 1; y <= this.ySize; y++)
+                    this.cellCss(x, y, null, null);
+        }
+
+        toRotation(status) {
+            status.index++;
+            if (this.tryMoveCells(status) !== true) status.index--;
+        }
+
+        toLeft(status) {
+            status.origin[0]--;
+            if (this.tryMoveCells(status) !== true) status.origin[0]++;
+        }
+
+        toRight(status) {
+            status.origin[0]++;
+            if (this.tryMoveCells(status) !== true) status.origin[0]--;
+        }
+
+        toNext(status) {
+            status.origin[1]++;
+            if (this.tryMoveCells(status) !== true) {
+                status.origin[1]--;
+                this.shapeMap[status.shapeId] = null;
+                this.tryRemoveLine(status.origin[1]);
+                return false;
+            }
+        }
+
+        tryMoveCells(status) {
+            const shapeId = status.shapeId;
+            const shape = status.shapeGroup.getShape(status.index);
+            const origin = status.origin;
             let xIndex = origin[0];
             let yIndex = origin[1];
             // 检查下部
-            if (yIndex - 1 > this.ySize) {
+            if (yIndex > this.ySize) {
                 // 该形状一定超过了最下面,nothing to do
                 return;
             }
@@ -148,45 +273,81 @@
 
             //实际移动 cell 记录移动情况
             const oldCells = this.shapeMap[shapeId];
-            if (oldCells) {
-                for (const cell of oldCells) {
-                    const cellElement = this.cells[cell[0]][cell[1]];
-                    cellElement.belong = null;
-                    cellElement.ele.style.backgroundColor = null;
-                }
-            }
-            for (const cell of cells) {
-                const cellElement = this.cells[cell[0]][cell[1]];
-                cellElement.belong = shapeId;
-                cellElement.ele.style.backgroundColor = 'black';
-            }
+            if (oldCells)
+                for (const cell of oldCells)
+                    this.cellCss(cell[0], cell[1], null, null);
+            const color = status.shapeGroup.color ? status.shapeGroup.color : 'black';
+            for (const cell of cells)
+                this.cellCss(cell[0], cell[1], shapeId, color);
             this.shapeMap[shapeId] = cells;
             //成功操作
             return true;
+        }
+
+        tryRemoveLine(yIndex) {
+            let count = 0;
+            let yKey = Math.min(yIndex, this.ySize);
+            for (; yKey > 0 && yKey > yIndex - 4; yKey--) {
+                if (this.removeLine(yKey) === true)
+                    count++;
+                else if (count !== 0)
+                    this.downLine(yKey, count);
+            }
+            if (count !== 0) {
+                this.counter.add(count);
+                for (; yKey > 0; yKey--)
+                    this.downLine(yKey, count);
+            }
+        }
+
+
+        removeLine(yKey) {
+            for (let xKey = 1; xKey <= this.xSize; xKey++)
+                if (!this.cells[xKey][yKey].belong) return false;
+            for (let xKey = 1; xKey <= this.xSize; xKey++)
+                this.cellCss(xKey, yKey, null, null);
+            return true;
+        }
+
+        downLine(yKey, count) {
+            for (let xKey = 1; xKey <= this.xSize; xKey++) {
+                const cell = this.cells[xKey][yKey];
+                const downCell = this.cells[xKey][yKey + count];
+                downCell.belong = cell.belong;
+                downCell.ele.style.backgroundColor = cell.ele.style.backgroundColor;
+                cell.belong = null;
+                cell.ele.style.backgroundColor = null;
+            }
+        }
+
+        cellCss(xKey, yKey, belong, backgroundColor) {
+            const cellElement = this.cells[xKey][yKey];
+            cellElement.belong = belong;
+            cellElement.ele.style.backgroundColor = backgroundColor;
         }
     }
 
     /**
      * 一个固定的形状,由一系列 cell 构成,
      * 记录最左坐标,最右坐标,
-     * 并调整最下坐标为-1,保证最低处一行为-1
+     * 并调整最下坐标为 0,保证最低处一行为 0
      */
     class Shape {
         constructor(...cells) {
             this.cells = cells;
             let left = 0;
             let right = 0;
-            let down = -1;
+            let down = Number.MIN_SAFE_INTEGER;
             for (const cell of cells) {
                 const xKey = cell[0];
                 left = Math.min(xKey, left);
                 right = Math.max(xKey, right);
                 down = Math.max(cell[1], down);
             }
-            if (down !== -1) {
-                console.log("fix down index to -1", cells);
+            if (down !== 0) {
+                console.log("fix down index to 0", cells);
                 for (const cell of cells)
-                    cell[1] -= down + 1;
+                    cell[1] -= down;
             }
             this.getLeft = () => left;
             this.getRight = () => right;
@@ -194,7 +355,8 @@
     }
 
     class ShapeGroup {
-        constructor(...shapeList) {
+        constructor(color, ...shapeList) {
+            this.color = color;
             this.shapeList = shapeList;
             if (!ShapeGroup.groups) ShapeGroup.groups = [];
             ShapeGroup.groups.push(this);
@@ -217,96 +379,183 @@
     {
         //四方
         new ShapeGroup(
-            new Shape([0, -1], [0, -2], [1, -1], [1, -2])
+            "red",
+            new Shape([0, 0], [0, -1], [1, 0], [1, -1])
         );
         //直线
         new ShapeGroup(
-            new Shape([0, -1], [0, -2], [0, -3], [0, -4]),
-            new Shape([-1, -1], [0, -1], [1, -1], [2, -1])
+            "orangered",
+            new Shape([0, 0], [0, -1], [0, -2], [0, -3]),
+            new Shape([-1, 0], [0, 0], [1, 0], [2, 0])
         );
         //L直角
         new ShapeGroup(
-            new Shape([0, -1], [1, -1], [0, -2], [0, -3]),
-            new Shape([0, -1], [1, -1], [2, -1], [2, -2]),
-            new Shape([0, -3], [1, -3], [1, -2], [1, -1]),
-            new Shape([0, -1], [0, -2], [1, -2], [2, -2])
+            "yellow",
+            new Shape([0, 0], [1, 0], [0, -1], [0, -2]),
+            new Shape([0, 0], [1, 0], [2, 0], [2, -1]),
+            new Shape([0, -2], [1, -2], [1, -1], [1, 0]),
+            new Shape([0, 0], [0, -1], [1, -1], [2, -1])
         );
         //J直角
         new ShapeGroup(
-            new Shape([0, -1], [1, -1], [1, -2], [1, -3]),
-            new Shape([2, -1], [0, -2], [1, -2], [2, -2]),
-            new Shape([0, -1], [0, -2], [0, -3], [1, -3]),
-            new Shape([0, -1], [0, -2], [1, -1], [2, -1])
+            "green",
+            new Shape([0, 0], [1, 0], [1, -1], [1, -2]),
+            new Shape([2, 0], [0, -1], [1, -1], [2, -1]),
+            new Shape([0, 0], [0, -1], [0, -2], [1, -2]),
+            new Shape([0, 0], [0, -1], [1, 0], [2, 0])
         );
         //左勾 Z
         new ShapeGroup(
-            new Shape([0, -2], [1, -2], [1, -1], [2, -1]),
-            new Shape([0, -1], [0, -2], [1, -2], [1, -3])
+            "blue",
+            new Shape([0, -1], [1, -1], [1, 0], [2, 0]),
+            new Shape([0, 0], [0, -1], [1, -1], [1, -2])
         );
         //右勾
         new ShapeGroup(
-            new Shape([0, -1], [1, -1], [1, -2], [2, -2]),
-            new Shape([0, -3], [0, -2], [1, -2], [1, -1])
+            "lightskyblue",
+            new Shape([0, 0], [1, 0], [1, -1], [2, -1]),
+            new Shape([0, -2], [0, -1], [1, -1], [1, 0])
         );
         //山
         new ShapeGroup(
-            new Shape([0, -1], [1, -1], [-1, -1], [0, -2]),//上
-            new Shape([0, -1], [0, -2], [0, -3], [-1, -2]),//左
-            new Shape([0, -1], [1, -2], [-1, -2], [0, -2]),//下
-            new Shape([0, -1], [0, -2], [0, -3], [1, -2])//右
+            "purple",
+            new Shape([0, 0], [1, 0], [-1, 0], [0, -1]),//上
+            new Shape([0, 0], [0, -1], [0, -2], [-1, -1]),//左
+            new Shape([0, 0], [1, -1], [-1, -1], [0, -1]),//下
+            new Shape([0, 0], [0, -1], [0, -2], [1, -1])//右
         );
     }
 
     let shapeId = 0;
 
     class Status {
-        constructor(view) {
-            this.view = view;
+        constructor() {
             this.shapeId = ++shapeId;
             this.shapeGroup = ShapeGroup.random();
             this.index = this.shapeGroup.randomIndex();
-            this.origin = [view.origin[0], view.origin[1]];
         }
 
-        toRotation() {
-            const result = this.view.tryMoveCells(this.shapeId, this.shapeGroup.getShape(this.index + 1), this.origin);
-            return this.handleResult(result, () => this.index++);
-        }
-
-        toNext() {
-            const result = this.view.tryMoveCells(this.shapeId, this.shapeGroup.getShape(this.index), [this.origin[0], this.origin[1] + 1]);
-            return this.handleResult(result, () => this.origin[1]++);
-        }
-
-        toLeft() {
-            const result = this.view.tryMoveCells(this.shapeId, this.shapeGroup.getShape(this.index), [this.origin[0] - 1, this.origin[1]]);
-            return this.handleResult(result, () => this.origin[0]--);
-        }
-
-        toRight() {
-            const result = this.view.tryMoveCells(this.shapeId, this.shapeGroup.getShape(this.index), [this.origin[0] + 1, this.origin[1]]);
-            return this.handleResult(result, () => this.origin[0]++);
-        }
-
-        handleResult(result, callBackSuccess) {
-            if (result === true) {
-                callBackSuccess();
-                return this;
-            }
-            return new Status(this.view);
+        setOrigin(origin) {
+            this.origin = [origin[0], origin[1]];
+            return this;
         }
     }
 
-    const view = new TetrisView("table", worldX, worldY);
+    const listenerTouch = function (target) {
+        let xLast;
+        let yLast;
+        let first = null;
+        let lastTime = 0;
+        target.ontouchstart = a => {
+            a.preventDefault();
+            //同时存在两个手指
+            if (first !== null) {
+                const time = a.timeStamp - lastTime;
+                if (time < 20) {
+                    doKey('e');
+                } else
+                    doKey('w');
+                lastTime = 0;
+                return;
+            }
 
-    let status = new Status(view);
+            const touch = a.changedTouches[0];
+            first = touch.identifier;
+            lastTime = a.timeStamp;
+            xLast = touch.clientX;
+            yLast = touch.clientY;
+        };
+        target.ontouchmove = a => {
+            a.preventDefault();
+            const touch = a.changedTouches[0];
+            if (touch.identifier !== first) return;
+
+            const d_x = touch.clientX - xLast;
+            const d_y = touch.clientY - yLast;
+            const m_x = Math.abs(d_x);
+            if (m_x >= cellSize) {
+                const times = Math.floor(m_x / cellSize);
+                let keyName;
+                if (d_x > 0) {
+                    xLast += times * cellSize;
+                    keyName = 'd';
+                } else {
+                    xLast -= times * cellSize;
+                    keyName = 'a';
+                }
+                for (let i = 0; i < times; i++) doKey(keyName);
+            } else if (d_y >= cellSize) {
+                const times = Math.floor(d_y / cellSize);
+                yLast += times * cellSize;
+                for (let i = 0; i < times; i++) doKey('s');
+            }
+        };
+        target.ontouchend = a => {
+            const touch = a.changedTouches[0];
+            if (touch.identifier === first) first = null;
+        };
+    };
+
+
+    const view = new TetrisView("table", "allCount", worldX, worldY);
+    const minView = new TetrisView("min-table", null, 4, 4);
+
+    const viewOrigin = [worldX / 2, 0];
+    const minViewOrigin = [4, 2];
+
+    let status = new Status().setOrigin(viewOrigin);
+    let nextStatus = new Status().setOrigin(minViewOrigin);
+
+    let auto = false;
+    const startEnd = () => document.getElementById("stopMarker").style.display = (auto = !auto) ? "none" : "block";
+
+    //设定主要功能
+    function doKey(name) {
+        switch (name) {
+            case "w":
+                if (!auto) return;
+                view.toRotation(status);
+                return;
+            case "a":
+                if (!auto) return;
+                view.toLeft(status);
+                return;
+            case "d":
+                if (!auto) return;
+                view.toRight(status);
+                return;
+            case "s":
+                if (!auto) return;
+                if (view.toNext(status) !== false) return;
+                status = nextStatus.setOrigin(viewOrigin);
+                nextStatus = new Status().setOrigin(minViewOrigin);
+                minView.clear();
+                minView.tryMoveCells(nextStatus);
+                return;
+            case "e":
+                startEnd();
+                return;
+            case "c":
+                if (auto) startEnd();
+                view.clear();
+                minView.clear();
+                status = new Status().setOrigin(viewOrigin);
+                nextStatus = new Status().setOrigin(minViewOrigin);
+                return;
+        }
+    }
+
+    //触屏绑定功能
+    listenerTouch(view.table);
+
+    //按键绑定功能
+    document.onkeydown = ev => doKey(ev.key);
+
+    //定时触发下降
     const whileLifeLoop = () => {
-        if (auto) status = status.toNext().toRotation();
+        if (auto) doKey('s');
         setTimeout(whileLifeLoop, timeout);
     };
     whileLifeLoop();
-
-
-
 </script>
 </html>
