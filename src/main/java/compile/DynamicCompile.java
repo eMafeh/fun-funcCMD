@@ -87,8 +87,8 @@ public enum DynamicCompile implements IntelligentLogger {
         print(() -> TITLE + "filePath : " + name);
         File file = new File(name);
         //调用fileUtils来输出文件
-        FileUtils.writeByteArrayToFile(file, bytes);
-        print(() -> TITLE + "writeByteArrayToFile : success");
+        FileUtils.toFile(file, bytes);
+        print(() -> TITLE + "toFile : success");
         files.add(file);
     }
 
