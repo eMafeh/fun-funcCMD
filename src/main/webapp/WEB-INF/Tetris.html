@@ -9,8 +9,6 @@
     <link href="css/tetris.css" rel="stylesheet">
 </head>
 <body>
-<div id="console"></div>
-
 <div class="view" id="home_page">
     <div class="flex">
         <div id="title">
@@ -21,19 +19,25 @@
         <div class="button">冒险</div>
         <div class="button">成就</div>
         <div class="button" onclick="DoCss.configShow();">设置</div>
-        <div class="button">登录</div>
+        <div class="button" onclick="DoCss.loginShow();">登录</div>
         <div class="fa fa-cog"></div>
     </div>
 </div>
 
 <div class="view" id="home_config">
     <div class="flex" onclick="if(arguments[0].target!==this)return;DoCss.configHide();">
-        <div id="config">
+        <div class="layout">
             <label for="loopTime">运行周期(ms):</label><input id="loopTime"/>
         </div>
     </div>
 </div>
-
+<div class="view" id="home_login">
+    <div class="flex" onclick="if(arguments[0].target!==this)return;DoCss.loginHide();">
+        <div class="layout">
+            <label for="username">用户名:</label><input id="username"/>
+        </div>
+    </div>
+</div>
 <div class="view" id="game_page">
     <div class="flex">
         <div id="table"></div>

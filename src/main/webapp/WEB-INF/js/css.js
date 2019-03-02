@@ -8,8 +8,6 @@ const tableBorderWidth = maxHeight / 200;
 const xNum = 14;
 const cellLength = maxWidth / xNum;
 const yNum = Math.floor((maxHeight - tableBorderWidth - buttonHeight) / cellLength);
-
-
 const $$views = document.getElementsByClassName("view");
 for (const view of $$views) view.classList.add("animate", "bounceIn");
 const $$button = document.getElementsByClassName("button");
@@ -20,12 +18,11 @@ for (const button of $$button) {
     button.innerHTML = `<span>${strings.join("</span><span>")}</span>`;
 }
 
-const $console = document.getElementById("console");
 const $html = document.getElementsByTagName("html")[0];
 const $homePage = document.getElementById("home_page");
 const $gamePage = document.getElementById("game_page");
 const $homeConfig = document.getElementById("home_config");
-
+const $homeLogin = document.getElementById("home_login");
 
 const $table = document.getElementById("table");
 const $stopMarker = document.getElementById("stopMarker");
@@ -61,7 +58,13 @@ const DoCss = {
     },
     configShow: () => {
         $homeConfig.style.display = "block";
-    }
+    },
+    loginHide: () => {
+        $homeLogin.style.display = "none";
+    },
+    loginShow: () => {
+        $homeLogin.style.display = "block";
+    },
 };
 let auto = false;
 const startGame = start => {

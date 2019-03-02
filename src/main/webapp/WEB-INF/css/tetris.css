@@ -33,7 +33,7 @@ body {
 }
 
 .button {
-    border: solid #C9C9C9;
+    /*border: solid #C9C9C9;*/
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -41,7 +41,7 @@ body {
     background: rgba(255, 251, 240, 0.3);
 }
 
-#config {
+.layout{
     height: 70%;
     width: 80%;
     background: rgba(255, 251, 240, 0.8);
@@ -50,10 +50,11 @@ body {
 #table {
     border-color: #555555;
     border-style: solid;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .cell {
-    float: left;
     margin: 0;
     padding: 0;
     background-repeat: no-repeat;
@@ -71,6 +72,8 @@ body {
 }
 
 #min-table {
+    display: flex;
+    flex-wrap: wrap;
     top: 0;
     left: 0;
     opacity: 0.5;

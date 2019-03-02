@@ -40,6 +40,26 @@ class Star {
         }
         this.draw();
     }
+
+    static auto() {
+
+    }
+
+    static work() {
+        context.clearRect(0, 0, cw, ch);
+        for (const i of stars) {
+            i.move();
+            for (let j = 0; j < stars.length / 2; j++) {
+                const line = new Line();
+                line.initStarLine();
+                line.drawLine(i.w, i.h, stars[j].w, stars[j].h);
+            }
+        }
+    }
+
+    static stop() {
+
+    }
 }
 
 class Line {
@@ -84,25 +104,21 @@ function create(num) {
     for (let i = 0; i < num; i++) {
         const star = new Star();
         star.init();
-        star.draw();
         stars.push(star);
     }
 }
 
+let work = false;
+
+Star.auto = work ? Star.work : Star.stop;
 create(starSize);
-setTimeout(function () {
-    context.clearRect(0, 0, cw, ch);
-    for (const i of stars) {
-        i.move();
-        for (let j = 0; j < stars.length / 2; j++) {
-            const line = new Line();
-            line.initStarLine();
-            line.drawLine(i.w, i.h, stars[j].w, stars[j].h);
-        }
-    }
+~function () {
+    Star.auto();
     setTimeout(arguments.callee, 1000 / 24);
-}, 1000 / 24);
+}();
+
 const newLine = function (e) {
+    if (!work) return;
     e = e || window.event;
     const mw = e.clientX;
     const mh = e.clientY;

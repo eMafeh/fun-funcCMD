@@ -1,4 +1,5 @@
-<?php /** @noinspection SqlDialectInspection */
+<?php
+/** @noinspection SqlDialectInspection */
 /**
  * Created by IntelliJ IDEA.
  * User: QianRui
@@ -6,52 +7,81 @@
  * Time: 14:30
  */
 
-function getCon()
-{
-    if (!$GLOBALS['con']) {
-        $servername = "hdm128467490.my3w.com";
-        $username = "hdm128467490";
-        $password = "r5z3mxl10240M1";
-        $dbname = "hdm128467490_db";
-        $GLOBALS['con'] = mysqli_connect($servername, $username, $password, $dbname);
-    }
-    return $GLOBALS['con'];
-}
 
-function lastTime($tableName)
+/**
+ * @param string $url
+ * @return int
+ */
+function insertGif($url)
 {
-    $query = 'SELECT MAX(`modified`) AS `modified` FROM `' . $tableName . '`';
-    $result = mysqli_query(getCon(), $query);
-    $row = mysqli_fetch_array($result, MYSQL_ASSOC);
-    return $row['modified'];
-}
-
-function queryListNotValid($tableName)
-{
-    $query = 'SELECT * FROM `' . $tableName . '` WHERE `valid`=1';
-    $result = mysqli_query(getCon(), $query);
-    $array = array();
-    while ($rows = mysqli_fetch_array($result, MYSQL_ASSOC)) {
-        array_push($array, $rows);
-    }
-    return $array;
-}
-
-function deleteGif($url)
-{
-    $query = 'update `gif` set `valid`=0,`modified`=now() where `url` = ? and `valid`=1';
-    $stmt = getCon()->prepare($query);
-    $stmt->bind_param('s', $url);
+    $query = 'insert into `gif`(url)values(?)';
+    $PDO = getCon();
+    $stmt = $PDO->prepare($query);
+    $stmt->bindParam(1, $url);
     $stmt->execute();
-    return $stmt->affected_rows;
+    return $PDO->lastInsertId();
 }
 
-function login($ip)
+function markSmall($url)
 {
-    $query = 'insert into  `op_log` (`ip`,`type`)values (?,?)';
-    $stmt = getCon()->prepare($query);
-    $type = 'login';
-    $stmt->bind_param('ss', $ip, $type);
+    $sql = 'UPDATE gif set type=? where url=? and type!=?;';
+    $stmt = getCon()->prepare($sql);
+    $type = 'small';
+    $stmt->bindParam(1, $type);
+    $stmt->bindParam(2, $url);
+    $stmt->bindParam(3, $type);
     $stmt->execute();
-    return $stmt->affected_rows;
+    return $stmt->rowCount();
+}
+
+/**
+ * @param string $ip
+ * @param $firstId
+ */
+function addOrUpdateVisit($ip, $firstId)
+{
+    $sql = 'insert into ipVisit (id,firstId) values (?,?) ON DUPLICATE KEY UPDATE times=times + 1, modified=now();';
+    $stmt = getCon()->prepare($sql);
+    $stmt->bindParam(1, $ip);
+    $stmt->bindParam(2, $firstId);
+    $stmt->execute();
+}
+
+function updateVisit($ip, $userId)
+{
+    $sql = 'UPDATE ipVisit set userId=? where id=?;';
+    $stmt = getCon()->prepare($sql);
+    $stmt->bindParam(1, $userId);
+    $stmt->bindParam(2, $ip);
+    $stmt->execute();
+}
+
+/**
+ * @param UserType $user
+ */
+function insertUser($user)
+{
+    $stmt = getCon()->prepare('insert into user(id, homeImgId, gameImgId) values (?,?,?)');
+    $stmt->bindParam(1, $user->id);
+    $stmt->bindParam(2, $user->homeImgId);
+    $stmt->bindParam(3, $user->gameImgId);
+    $stmt->execute();
+}
+
+function insertOp($userId, $ip, $type)
+{
+    $stmt = getCon()->prepare('insert into op_log(userId,ip, type) values (?,?,?)');
+    $stmt->bindParam(1, $userId);
+    $stmt->bindParam(2, $ip);
+    $stmt->bindParam(3, $type);
+    $stmt->execute();
+}
+
+function addGrade($userId, $num)
+{
+    $stmt = getCon()->prepare('UPDATE user set grade=grade+? where id=?');
+    $num = intval($num);
+    $stmt->bindParam(1, $num, PDO::PARAM_INT);
+    $stmt->bindParam(2, $userId);
+    $stmt->execute();
 }

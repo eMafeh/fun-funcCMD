@@ -24,3 +24,10 @@ function getIp()
     }
     return $ip;
 }
+
+function javaJson($target)
+{
+    $json = json_encode($target, JSON_UNESCAPED_UNICODE);
+    javaAssert(JSON_ERROR_NONE === json_last_error(), json_last_error_msg());
+    return $json;
+}

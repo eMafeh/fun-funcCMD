@@ -39,7 +39,8 @@ public class StringValueUtil {
         if (s == null) {
             s = "";
         }
-        String s1 = s.trim().toUpperCase();
+        String s1 = s.trim()
+                .toUpperCase();
         switch (s1) {
             case "TRUE":
             case "YES":
@@ -77,5 +78,4 @@ public class StringValueUtil {
             }
         }
     }
-
 }

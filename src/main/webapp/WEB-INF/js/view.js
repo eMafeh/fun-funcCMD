@@ -6,6 +6,15 @@ class Counter {
 
     add(num) {
         this.count += num;
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "http://hyu6174190001.my3w.com/php/control.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 304)) {
+                console.log(xhr.responseText);
+            }
+        };
+        xhr.send("method=addGrade&num=" + num);
         this.tryShow();
     }
 
@@ -15,7 +24,7 @@ class Counter {
     }
 
     tryShow() {
-        if (this.element) this.element.innerHTML = this.count;
+        if (this.element) this.element.innerHTML = this.count + '/' + User.grade;
     }
 }
 
@@ -36,7 +45,6 @@ class TetrisView {
                 cells += `<div class="cell" style="height:${tableCellSize}px; width:${tableCellSize}px;" id="${this.tableId}_${ix}_${iy}"></div>`;
         this.table.style.width = this.xSize * tableCellSize + "px";
         this.table.style.height = this.ySize * tableCellSize + "px";
-
         this.table.innerHTML = cells;
         //记录所有的元胞格子 td = tdElements[x][y]
         for (let x = 1; x <= this.xSize; x++) {
