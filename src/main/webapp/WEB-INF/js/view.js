@@ -1,50 +1,22 @@
-class Counter {
-    constructor(divId) {
-        this.count = 0;
-        this.element = document.getElementById(divId);
-    }
-
-    add(num) {
-        this.count += num;
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://hyu6174190001.my3w.com/php/control.php", true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 304)) {
-                console.log(xhr.responseText);
-            }
-        };
-        xhr.send("method=addGrade&num=" + num);
-        this.tryShow();
-    }
-
-    clear() {
-        this.count = 0;
-        this.tryShow();
-    }
-
-    tryShow() {
-        if (this.element) this.element.innerHTML = this.count + '/' + User.grade;
-    }
-}
-
 class TetrisView {
-    constructor(tableId, counter, xSize, ySize, tableCellSize) {
+    constructor(tableId, xSize, ySize, cellSize, removeLineFn, endFn) {
         console.assert(Number.isInteger(xSize));
         console.assert(Number.isInteger(ySize));
         this.tableId = tableId;
-        this.table = document.getElementById(this.tableId);
-        this.counter = counter;
         this.xSize = xSize;
         this.ySize = ySize;
+        this.removeLineFn = typeof removeLineFn === 'function' ? removeLineFn : EMPTY_FUNCTION;
+        this.endFn = typeof endFn === 'function' ? endFn : EMPTY_FUNCTION;
+
+        this.table = document.getElementById(this.tableId);
         this.cells = [];
         this.shapeMap = {};
         let cells = "";
         for (let iy = 1; iy <= this.ySize; iy++)
             for (let ix = 1; ix <= this.xSize; ix++)
-                cells += `<div class="cell" style="height:${tableCellSize}px; width:${tableCellSize}px;" id="${this.tableId}_${ix}_${iy}"></div>`;
-        this.table.style.width = this.xSize * tableCellSize + "px";
-        this.table.style.height = this.ySize * tableCellSize + "px";
+                cells += `<div class="cell" style="height:${cellSize}px; width:${cellSize}px;" id="${this.tableId}_${ix}_${iy}"></div>`;
+        this.table.style.width = this.xSize * cellSize + "px";
+        this.table.style.height = this.ySize * cellSize + "px";
         this.table.innerHTML = cells;
         //记录所有的元胞格子 td = tdElements[x][y]
         for (let x = 1; x <= this.xSize; x++) {
@@ -61,7 +33,6 @@ class TetrisView {
 
     clear() {
         this.shapeMap = {};
-        this.counter.clear();
         for (let yKey = 1; yKey <= this.ySize; yKey++) this.lineForEach(yKey, TetrisView.removeCell);
     }
 
@@ -84,9 +55,12 @@ class TetrisView {
         status.origin[1]++;
         if (this.tryMoveCells(status) !== true) {
             status.origin[1]--;
-            this.shapeMap[status.shapeId] = null;
-            this.tryRemoveLine(status.origin[1]);
-            return false;
+            if (status.origin[1] === 0) this.endFn();
+            else {
+                this.shapeMap[status.shapeId] = null;
+                this.tryRemoveLine(status.origin[1]);
+                return false;
+            }
         }
     }
 
@@ -158,19 +132,19 @@ class TetrisView {
     }
 
     tryRemoveLine(yIndex) {
-        let count = 0;
+        let num = 0;
         let yKey = Math.min(yIndex, this.ySize);
         for (; yKey > 0 && yKey > yIndex - 4; yKey--) {
             if (this.isFullLine(yKey)) {
                 this.lineForEach(yKey, TetrisView.removeCell);
-                count++;
-            } else if (count !== 0)
-                this.lineForEach(yKey, TetrisView.downCell(count));
+                num++;
+            } else if (num !== 0)
+                this.lineForEach(yKey, TetrisView.downCell(num));
         }
-        if (count === 0) return;
-        this.counter.add(count);
+        if (num === 0) return;
+        this.removeLineFn(num);
         for (; yKey > 0; yKey--)
-            this.lineForEach(yKey, TetrisView.downCell(count));
+            this.lineForEach(yKey, TetrisView.downCell(num));
 
     }
 

@@ -24,26 +24,21 @@ function getCon()
     return $GLOBALS['con'];
 }
 
-/**
- * @param string $tableName
- * @param string $class
- * @return array
- */
-function queryList($tableName, $class)
+function imageList($userId)
 {
-    $query = 'SELECT * FROM `' . $tableName . '` where `type`!=\'small\' LIMIT ?,?';
-    $stmt = getCon()->prepare($query);
     $offset = intval($_REQUEST['offset']);
     $offset = $offset < 0 ? 0 : $offset;
     $limit = intval($_REQUEST['limit']);
     $limit = $limit <= 0 ? PHP_INT_MAX : $limit;
-    $stmt->bindParam(1, $offset, PDO::PARAM_INT);
-    $stmt->bindParam(2, $limit, PDO::PARAM_INT);
-    $stmt->execute();
+
+    $query = 'SELECT * FROM image WHERE userId IN (:userId,:sys) LIMIT ' . $offset . ',' . $limit;
+    $stmt = getCon()->prepare($query);
+    $param = array('userId' => $userId, 'sys' => 'sys');
+    $stmt->execute($param);
     $result = array();
     $num = $stmt->rowCount();
     for ($i = 0; $i < $num; $i++) {
-        $object = $stmt->fetchObject($class);
+        $object = $stmt->fetchObject(ImageType::class);
         array_push($result, $object);
     }
     return $result;
@@ -64,18 +59,18 @@ function getById($tableName, $class, $id)
 }
 
 /**
- * @param string $tableName
+ * @param string $userId
  * @return mixed
  */
-function lastTime($tableName)
+function imageLastTime($userId)
 {
-    $query = 'SELECT MAX(`modified`) AS `modified` FROM `' . $tableName . '`';
+    $query = 'SELECT MAX(modified) AS modified FROM image WHERE userId IN (:userId,:sys) AND gro!=:gro';
     $stmt = getCon()->prepare($query);
-    $stmt->execute();
+    $param = array('userId' => $userId, 'sys' => 'sys', 'gro' => 'del');
+    $stmt->execute($param);
     $var = $stmt->fetch();
     return $var[0];
 }
-
 
 /**
  * @return string
@@ -87,4 +82,16 @@ function uuid()
     $stmt->execute();
     $row = $stmt->fetch();
     return $row['id'];
+}
+
+function updateUtil($tableName, $id, $fieldName, $value)
+{
+    $sql = 'UPDATE `' . $tableName . '` set `'
+        . $fieldName . '`=:' . $fieldName
+        . ',`modified`=default where `id`=:id';
+    $param = array($fieldName => $value, 'id' => $id);
+
+    $stmt = getCon()->prepare($sql);
+    $stmt->execute($param);
+    return $stmt->rowCount();
 }

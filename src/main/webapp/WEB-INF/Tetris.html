@@ -4,56 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Tetris</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="css/tetris.css" rel="stylesheet">
+    <link href="tetris.css" rel="stylesheet">
 </head>
 <body>
-<div class="view" id="home_page">
+<div class="fa fa-angle-double-down" id="bars_open"></div>
+<div id="bars">
+    <div id="nav">
+        <div class="fa fa-home" onclick="DoCss.showView($viewHome);"></div>
+        <div class="fa fa-gamepad" onclick="Game.showGame();"></div>
+        <div class="fa fa-book"></div>
+        <div class="fa fa-cog" onclick="DoCss.showView($viewConfig);"></div>
+        <div class="fa fa-user" onclick="DoCss.showView($viewLogin);"></div>
+    </div>
+    <div class="fa fa-angle-double-up" id="bars_close"></div>
+</div>
+
+<div class="view" id="view_home">
     <div class="flex">
+        <div class="backGround" id="user_info"></div>
         <div id="title">
             俄罗斯方块
         </div>
-        <div class="button" onclick="DoCss.gameView();">标准</div>
+        <div class="button" onclick="Game.showGame();">标准</div>
         <div class="button">闯关</div>
         <div class="button">冒险</div>
         <div class="button">成就</div>
-        <div class="button" onclick="DoCss.configShow();">设置</div>
-        <div class="button" onclick="DoCss.loginShow();">登录</div>
-        <div class="fa fa-cog"></div>
+        <div class="button" onclick="DoCss.showView($viewLogin);">登录</div>
+        <a href="http://www.miitbeian.gov.cn/" style="color: antiquewhite;font-size: small;">皖ICP备19003156号</a>
     </div>
 </div>
-
-<div class="view" id="home_config">
-    <div class="flex" onclick="if(arguments[0].target!==this)return;DoCss.configHide();">
-        <div class="layout">
-            <label for="loopTime">运行周期(ms):</label><input id="loopTime"/>
-        </div>
-    </div>
-</div>
-<div class="view" id="home_login">
-    <div class="flex" onclick="if(arguments[0].target!==this)return;DoCss.loginHide();">
-        <div class="layout">
-            <label for="username">用户名:</label><input id="username"/>
-        </div>
-    </div>
-</div>
-<div class="view" id="game_page">
+<div class="view" id="view_game">
     <div class="flex">
-        <div id="table"></div>
-        <div class="button" onclick="startGame(false);DoCss.homeView();">返回</div>
+        <div class="pool" id="table"></div>
     </div>
-    <div class="backGround" id="min-table"></div>
-    <div class="backGround" id="allCount">0</div>
+    <div class="backGround pool" id="min-table"></div>
+    <div class="backGround" id="allCount"></div>
     <div class="backGround fa fa-play" id="stopMarker"></div>
     <canvas class="backGround" id="canvas"></canvas>
+    <div class="flex" id="console"></div>
+</div>
+<div class="view layout" id="view_config">
+    <div><label for="loopTime">下落速度</label><input id="loopTime"/></div>
+    <div><label for="starLine">星空特效</label>
+        <input type="button" id="starLine" value="开启"/>
+    </div>
+
+    <div>
+        <label>主页背景</label>
+        <img id="show_home_img" alt="homeImg" src="" onclick="ImageHandler.showImage(User.home_change);">
+    </div>
+    <div>
+        <label>游戏背景</label>
+        <img id="show_game_img" alt="gameImg" src="" onclick="ImageHandler.showImage(User.game_change);">
+    </div>
+</div>
+<div class="view layout" id="view_login">
+    <div><label for="username">用户名:</label><input id="username"/></div>
+</div>
+<div class="view layout" id="view_image">
 </div>
 </body>
+
+<script src="http://qianrui.fun/php/control.php?method=visit"></script>
+<script src="http://qianrui.fun/php/control.php?method=imageList"></script>
+<script src="js/util.js"></script>
+<script src="js/console.js"></script>
 <script src="js/css.js"></script>
+<script src="js/user.js"></script>
 <script src="js/starLine.js"></script>
-<script src="js/touch.js"></script>
 <script src="js/shape.js"></script>
 <script src="js/view.js"></script>
 <script src="js/main.js"></script>
-<script src="http://hyu6174190001.my3w.com/php/control.php?method=login"></script>
 </html>

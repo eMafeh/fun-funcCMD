@@ -13,11 +13,12 @@ class AbstractType
     public $modified;
 }
 
-class GifType extends AbstractType
+class ImageType extends AbstractType
 {
     public $name;
     public $url;
-    public $type;
+    public $userId;
+    public $gro;
 }
 
 class IpVisitType extends AbstractType
@@ -35,4 +36,5 @@ class UserType
     public $gameImgId = 2;
     public $starLine = true;
     public $grade = 0;
+    public $autoTime = 1000;
 }

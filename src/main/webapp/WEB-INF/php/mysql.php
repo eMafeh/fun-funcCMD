@@ -5,33 +5,19 @@
  * User: QianRui
  * Date: 2019/2/25
  * Time: 14:30
+ * @param $url
+ * @param $userId
+ * @return mixed
  */
-
-
-/**
- * @param string $url
- * @return int
- */
-function insertGif($url)
+function insertBackImg($url, $userId)
 {
-    $query = 'insert into `gif`(url)values(?)';
+    $query = 'insert into image(url,userId,gro)values(:url,:userId,:gro)';
     $PDO = getCon();
     $stmt = $PDO->prepare($query);
-    $stmt->bindParam(1, $url);
-    $stmt->execute();
-    return $PDO->lastInsertId();
-}
-
-function markSmall($url)
-{
-    $sql = 'UPDATE gif set type=? where url=? and type!=?;';
-    $stmt = getCon()->prepare($sql);
-    $type = 'small';
-    $stmt->bindParam(1, $type);
-    $stmt->bindParam(2, $url);
-    $stmt->bindParam(3, $type);
-    $stmt->execute();
-    return $stmt->rowCount();
+    $param = array('userId' => $userId, 'url' => $url, 'gro' => 'back');
+    $stmt->execute($param);
+    $id = $PDO->lastInsertId();
+    return getById('image', ImageType::class, $id);
 }
 
 /**
@@ -47,15 +33,6 @@ function addOrUpdateVisit($ip, $firstId)
     $stmt->execute();
 }
 
-function updateVisit($ip, $userId)
-{
-    $sql = 'UPDATE ipVisit set userId=? where id=?;';
-    $stmt = getCon()->prepare($sql);
-    $stmt->bindParam(1, $userId);
-    $stmt->bindParam(2, $ip);
-    $stmt->execute();
-}
-
 /**
  * @param UserType $user
  */
@@ -68,12 +45,13 @@ function insertUser($user)
     $stmt->execute();
 }
 
-function insertOp($userId, $ip, $type)
+function insertOp($userId, $ip, $type, $value)
 {
-    $stmt = getCon()->prepare('insert into op_log(userId,ip, type) values (?,?,?)');
+    $stmt = getCon()->prepare('insert into op_log(userId,ip, type,value) values (?,?,?,?)');
     $stmt->bindParam(1, $userId);
     $stmt->bindParam(2, $ip);
     $stmt->bindParam(3, $type);
+    $stmt->bindParam(4, $value);
     $stmt->execute();
 }
 
@@ -84,4 +62,5 @@ function addGrade($userId, $num)
     $stmt->bindParam(1, $num, PDO::PARAM_INT);
     $stmt->bindParam(2, $userId);
     $stmt->execute();
+    return $stmt->rowCount();
 }

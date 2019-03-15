@@ -28,12 +28,12 @@ function getUser($userId, $ip)
             if ($uuid === $ipVisit->firstId) {
                 //本线程负责初始化用户信息至 user 表,ipVisit 表
                 insertUser($userType);
-                updateVisit($ip, $uuid);
+                updateUtil('ipVisit', $ip, 'userId', $uuid);
             }
         }
     } else {
         addOrUpdateVisit($ip, $userId);
-        updateVisit($ip, $userId);
+        updateUtil('ipVisit', $ip, 'userId', $userId);
         $userType = getById('user', UserType::class, $userId);
     }
     javaAssert(is_object($userType), "用户数据不存在");

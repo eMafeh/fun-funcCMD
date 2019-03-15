@@ -6,20 +6,21 @@ class ShapeCell {
 }
 
 class Shape {
-    constructor(...shapeCells) {
-        this.cssCells = shapeCells;
-        this.cellSize = shapeCells.length;
+    constructor(...points) {
+        this.cssCells = [];
+        for (const point of points) if (point) this.cssCells.push(new ShapeCell(point[0], point[1]));
+        this.cellSize = this.cssCells.length;
         let left = 0;
         let right = 0;
         let down = Number.MIN_SAFE_INTEGER;
-        for (const shapeCell of shapeCells) {
+        for (const shapeCell of  this.cssCells) {
             left = Math.min(shapeCell.xIndex, left);
             right = Math.max(shapeCell.xIndex, right);
             down = Math.max(shapeCell.yIndex, down);
         }
         if (down !== 0) {
-            console.log("fix down index to 0", shapeCells);
-            for (const cell of shapeCells)
+            console.log("fix down index to 0", this.cssCells);
+            for (const cell of  this.cssCells)
                 cell.yIndex -= down;
         }
         this.getLeft = () => left;
@@ -51,138 +52,43 @@ class ShapeGroup {
 
 //四方
 new ShapeGroup(
-    new Shape(
-        new ShapeCell(0, 0),
-        new ShapeCell(0, -1),
-        new ShapeCell(1, 0),
-        new ShapeCell(1, -1)
-    )
+    new Shape([0, 0], [0, -1], [1, -1], [1, 0])
 );
 //直线
 new ShapeGroup(
-    new Shape(
-        new ShapeCell(0, 0),
-        new ShapeCell(0, -1),
-        new ShapeCell(0, -2),
-        new ShapeCell(0, -3)
-    ),
-    new Shape(
-        new ShapeCell(-1, 0),
-        new ShapeCell(0, 0),
-        new ShapeCell(1, 0),
-        new ShapeCell(2, 0)
-    )
+    new Shape([0, 0], [0, -1], [0, -2], [0, -3]),
+    new Shape([-1, 0], [0, 0], [1, 0], [2, 0])
 );
 //L直角
 new ShapeGroup(
-    new Shape(
-        new ShapeCell(0, -2),
-        new ShapeCell(0, -1),
-        new ShapeCell(0, 0),
-        new ShapeCell(1, 0)
-    ),
-    new Shape(
-        new ShapeCell(0, 0),
-        new ShapeCell(1, 0),
-        new ShapeCell(2, 0),
-        new ShapeCell(2, -1)
-    ),
-    new Shape(
-        new ShapeCell(1, 0),
-        new ShapeCell(1, -1),
-        new ShapeCell(1, -2),
-        new ShapeCell(0, -2)
-    ),
-    new Shape(
-        new ShapeCell(2, -1),
-        new ShapeCell(1, -1),
-        new ShapeCell(0, -1),
-        new ShapeCell(0, 0)
-    )
+    new Shape([0, -2], [0, -1], [0, 0], [1, 0]),
+    new Shape([0, 0], [1, 0], [2, 0], [2, -1]),
+    new Shape([1, 0], [1, -1], [1, -2], [0, -2]),
+    new Shape([2, -1], [1, -1], [0, -1], [0, 0])
 );
 //J直角
 new ShapeGroup(
-    new Shape(
-        new ShapeCell(1, -2),
-        new ShapeCell(1, -1),
-        new ShapeCell(1, 0),
-        new ShapeCell(0, 0)
-    ),
-    new Shape(
-        new ShapeCell(0, -1),
-        new ShapeCell(1, -1),
-        new ShapeCell(2, -1),
-        new ShapeCell(2, 0)
-    ),
-    new Shape(
-        new ShapeCell(0, 0),
-        new ShapeCell(0, -1),
-        new ShapeCell(0, -2),
-        new ShapeCell(1, -2)
-    ),
-    new Shape(
-        new ShapeCell(2, 0),
-        new ShapeCell(1, 0),
-        new ShapeCell(0, 0),
-        new ShapeCell(0, -1)
-    )
+    new Shape([1, -2], [1, -1], [1, 0], [0, 0]),
+    new Shape([0, -1], [1, -1], [2, -1], [2, 0]),
+    new Shape([0, 0], [0, -1], [0, -2], [1, -2]),
+    new Shape([2, 0], [1, 0], [0, 0], [0, -1])
 );
 //左勾 Z
 new ShapeGroup(
-    new Shape(
-        new ShapeCell(0, -1),
-        new ShapeCell(1, -1),
-        new ShapeCell(1, 0),
-        new ShapeCell(2, 0)
-    ),
-    new Shape(
-        new ShapeCell(0, 0),
-        new ShapeCell(0, -1),
-        new ShapeCell(1, -1),
-        new ShapeCell(1, -2)
-    )
+    new Shape([0, -1], [1, -1], [1, 0], [2, 0]),
+    new Shape([0, 0], [0, -1], [1, -1], [1, -2])
 );
 //右勾
 new ShapeGroup(
-    new Shape(
-        new ShapeCell(0, 0),
-        new ShapeCell(1, 0),
-        new ShapeCell(1, -1),
-        new ShapeCell(2, -1)
-    ),
-    new Shape(
-        new ShapeCell(0, -2),
-        new ShapeCell(0, -1),
-        new ShapeCell(1, -1),
-        new ShapeCell(1, 0)
-    )
+    new Shape([0, 0], [1, 0], [1, -1], [2, -1]),
+    new Shape([0, -2], [0, -1], [1, -1], [1, 0])
 );
 //山
 new ShapeGroup(
-    new Shape(
-        new ShapeCell(-1, 0),
-        new ShapeCell(0, 0),
-        new ShapeCell(1, 0),
-        new ShapeCell(0, -1)
-    ),//上
-    new Shape(
-        new ShapeCell(0, 0),
-        new ShapeCell(0, -1),
-        new ShapeCell(0, -2),
-        new ShapeCell(-1, -1)
-    ),//左
-    new Shape(
-        new ShapeCell(1, -1),
-        new ShapeCell(0, -1),
-        new ShapeCell(-1, -1),
-        new ShapeCell(0, 0)
-    ),//下
-    new Shape(
-        new ShapeCell(0, -2),
-        new ShapeCell(0, -1),
-        new ShapeCell(0, 0),
-        new ShapeCell(1, -1)
-    )//右
+    new Shape([-1, 0], [0, 0], [1, 0], [0, -1]),//上
+    new Shape([0, 0], [0, -1], [0, -2], [-1, -1]),//左
+    new Shape([1, -1], [0, -1], [-1, -1], [0, 0]),//下
+    new Shape([0, -2], [0, -1], [0, 0], [1, -1])//右
 );
 
 

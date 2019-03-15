@@ -1,5 +1,57 @@
-class Touch {
-    static listener(
+const EMPTY_FUNCTION = () => {
+};
+
+class Assert {
+    static isTrue(b, msg) {
+        if (!b) throw new Error(msg);
+    }
+}
+
+class Collection {
+    static getTarget(list, key, value) {
+        for (const obj of list) if (obj[key] === value) return obj;
+        return null;
+    }
+}
+
+class Ajax {
+    static get(method, param, backFn) {
+        const xhr = new XMLHttpRequest();
+        let message = "";
+        if (typeof param === 'object')
+            for (const key in param) if (param.hasOwnProperty(key)) message += `&${encodeURIComponent(key)}=${encodeURIComponent(param[key])}`;
+        xhr.open("GET", `http://qianrui.fun/php/control.php?method=${method}${message}`, true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                //&& (xhr.status === 200 || xhr.status === 304)
+                if (typeof backFn === 'function') backFn(JSON.parse(xhr.responseText));
+            }
+        };
+        xhr.send();
+    }
+
+    static post(method, param, backFn) {
+        console.log(method, param, backFn);
+        const xhr = new XMLHttpRequest();
+        let message = "";
+        if (typeof param === 'object')
+            for (const key in param) if (param.hasOwnProperty(key)) message += `&${encodeURIComponent(key)}=${encodeURIComponent(param[key])}`;
+        xhr.open("POST", "http://qianrui.fun/php/control.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                //&& (xhr.status === 200 || xhr.status === 304)
+                console.log(xhr.responseText);
+                if (typeof backFn === 'function') backFn(JSON.parse(xhr.responseText));
+            }
+        };
+        xhr.send(`method=${method}${message}`);
+    }
+}
+
+class TouchUtil {
+    static listen(
         //目标element 累计像素
         target, unitLength,
         //左滑 左滑系数
