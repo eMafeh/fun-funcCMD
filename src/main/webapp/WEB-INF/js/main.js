@@ -1,13 +1,8 @@
 window.onload = function () {
     User.loadUser(RemoteUser);
-
 };
-const RemoteGifList = [];
-const RemoteBackImgList = [];
-for (const image of ImageList) {
-    if (image.gro === 'game') RemoteGifList.push(image);
-    if (image.gro === 'back') RemoteBackImgList.push(image);
-}
+const RemoteGifList = ImageList.filter(a => a.gro === 'game');
+const RemoteBackImgList = ImageList.filter(a => a.gro === 'back');
 
 class Game {
     static showGame() {
@@ -52,12 +47,12 @@ class Game {
         }
 
 
-        const view = new TetrisView("table", xNum, yNum, cellLength,
+        const view = new TetrisView($table, xNum, yNum, cellLength,
             User.grade_add, () => {
                 startGame(false);
                 Layout.alert(`<div>GAME</div><div>OVER</div>`, () => doKey('c'));
             });
-        const minView = new TetrisView("min-table", 4, 4, minCellLength);
+        const minView = new TetrisView($minTable, 4, 4, minCellLength);
 
         const viewOrigin = [Math.floor(view.xSize / 2), 0];
         const minViewOrigin = [2, 4];
@@ -113,7 +108,7 @@ class Game {
         }
 
 //触屏绑定功能
-        TouchUtil.listen(view.table, cellLength,
+        TouchUtil.listen($table, cellLength,
             () => doKey("a"), null,
             () => doKey("d"), null,
             () => doKey("w"), null,

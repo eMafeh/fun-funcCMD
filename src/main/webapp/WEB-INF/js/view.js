@@ -1,39 +1,36 @@
 class TetrisView {
-    constructor(tableId, xSize, ySize, cellSize, removeLineFn, endFn) {
+    constructor($table, xSize, ySize, cellSize, removeLineFn, endFn) {
         console.assert(Number.isInteger(xSize));
         console.assert(Number.isInteger(ySize));
-        this.tableId = tableId;
         this.xSize = xSize;
         this.ySize = ySize;
         this.removeLineFn = typeof removeLineFn === 'function' ? removeLineFn : EMPTY_FUNCTION;
         this.endFn = typeof endFn === 'function' ? endFn : EMPTY_FUNCTION;
 
-        this.table = document.getElementById(this.tableId);
-        this.cells = [];
         this.shapeMap = {};
-        let cells = "";
+        this.cells = [];
+        for (let x = 1; x <= this.xSize; x++) this.cells[x] = [];
         for (let iy = 1; iy <= this.ySize; iy++)
-            for (let ix = 1; ix <= this.xSize; ix++)
-                cells += `<div class="cell" style="height:${cellSize}px; width:${cellSize}px;" id="${this.tableId}_${ix}_${iy}"></div>`;
-        this.table.style.width = this.xSize * cellSize + "px";
-        this.table.style.height = this.ySize * cellSize + "px";
-        this.table.innerHTML = cells;
-        //记录所有的元胞格子 td = tdElements[x][y]
-        for (let x = 1; x <= this.xSize; x++) {
-            const cellX = this.cells[x] = [];
-            for (let y = 1; y <= this.ySize; y++)
-                cellX[y] = {
-                    ele: document.getElementById(`${this.tableId}_${x}_${y}`),
+            for (let ix = 1; ix <= this.xSize; ix++) {
+                const $cell = document.createElement('div');
+                $cell.style.width = $cell.style.height = cellSize + 'px';
+                $table.appendChild($cell);
+                //记录所有的元胞格子 td = tdElements[x][y]
+                this.cells[ix][iy] = {
+                    ele: $cell,
                     belong: null,
                     showFunc: null,
                     hiddenFunc: null
-                }
-        }
+                };
+            }
+        $table.style.width = this.xSize * cellSize + "px";
+        $table.style.height = this.ySize * cellSize + "px";
     }
 
     clear() {
         this.shapeMap = {};
-        for (let yKey = 1; yKey <= this.ySize; yKey++) this.lineForEach(yKey, TetrisView.removeCell);
+        for (let yKey = 1; yKey <= this.ySize; yKey++)
+            this.lineForEach(yKey, TetrisView.removeCell);
     }
 
     toRotation(status) {
